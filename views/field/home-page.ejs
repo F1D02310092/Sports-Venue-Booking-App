@@ -1,0 +1,18 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<div class="container">
+  <%  if(fields && fields.length >0){ %>
+  <%for(let f of fields){%>
+  <div class="card" style="width: 100%; margin: 12px 0;">
+    <div class="card-body">
+      <h5 class="card-title "><%= f.name %></h5>
+      <p class="my-2"><b>Open: <%=  minutesToHHMM(f.openTime) %> - Close: <%= minutesToHHMM(f.closeTime) %></b></p>
+      <p class="card-subtitle mb-2 text-body-secondary">Rp<%= f.price %></p>
+      <a href="/fields/<%= f.publicID %>" class="btn btn-info">See details</a>
+    </div>
+  </div>
+  <%}%>
+  <%} else {%>
+  <h2>Empty</h2>
+  <%}%>
+</div>

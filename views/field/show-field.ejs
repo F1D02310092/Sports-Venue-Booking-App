@@ -1,0 +1,9 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<div class="container">
+  <h1><%= field.name %></h1>
+  <h2>Rp<%=field.price %></h2>
+  <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
+
+  <a class="btn btn-secondary" href="/fields/<%= field.publicID %>/edit">Manage</a>
+</div>

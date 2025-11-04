@@ -1,0 +1,43 @@
+<% layout('layout/boilerplate.ejs') %>
+
+
+<div class="container card">
+  <h5 class="card-header">Edit <%= field.name %></h5>
+
+  <div class="card-body">
+    <!-- Form Edit -->
+    <form id="editForm" method="POST" action="/fields/<%= field.publicID %>?_method=PUT">
+      <div class="mb-3">
+        <label for="field_name" class="form-label">Field Name</label>
+        <input type="text" class="form-control" id="field_name" name="name" required value="<%= field.name %>">
+      </div>
+
+      <div class="mb-3">
+        <label for="field_price" class="form-label">Price</label>
+        <input type="number" class="form-control" id="field_price" name="price" min="0" required value="<%= field.price %>">
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="field-open" class="form-label fw-semibold">Opening Time</label>
+          <input type="text" id="field-open" name="openTime" class="form-control" required value="<%= field.openTime %>" />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="field-close" class="form-label fw-semibold">Closing Time</label>
+          <input type="text" id="field-close" name="closeTime" class="form-control" required value="<%= field.closeTime %>" />
+        </div>
+      </div>
+    </form>
+
+
+    <div class="d-flex gap-2 ">
+      <button type="submit" form="editForm" class="btn btn-primary">Edit</button>
+      <form action="/fields/<%= field.publicID %>?_method=DELETE" method="POST">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="/js/flatpickr.js"></script>
