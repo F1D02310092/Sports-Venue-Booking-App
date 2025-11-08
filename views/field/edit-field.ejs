@@ -6,7 +6,7 @@
 
   <div class="card-body">
     <!-- Form Edit -->
-    <form id="editForm" method="POST" action="/fields/<%= field.publicID %>?_method=PUT">
+    <form id="editForm" method="POST" action="/fields/<%= field.fieldID %>?_method=PUT">
       <div class="mb-3">
         <label for="field_name" class="form-label">Field Name</label>
         <input type="text" class="form-control" id="field_name" name="name" required value="<%= field.name %>">
@@ -20,11 +20,11 @@
       <div class="row">
         <div class="col-md-6 mb-3">
           <label for="field-open" class="form-label fw-semibold">Opening Time</label>
-          <input type="text" id="field-open" name="openTime" class="form-control" required value="<%= field.openTime %>" />
+          <input type="text" id="field-open" name="openTime" class="form-control" required value="<%= minutesToHHMM(field.openTime) %>" />
         </div>
         <div class="col-md-6 mb-3">
           <label for="field-close" class="form-label fw-semibold">Closing Time</label>
-          <input type="text" id="field-close" name="closeTime" class="form-control" required value="<%= field.closeTime %>" />
+          <input type="text" id="field-close" name="closeTime" class="form-control" required value="<%= minutesToHHMM(field.closeTime) %>" />
         </div>
       </div>
     </form>
@@ -32,7 +32,7 @@
 
     <div class="d-flex gap-2 ">
       <button type="submit" form="editForm" class="btn btn-primary">Edit</button>
-      <form action="/fields/<%= field.publicID %>?_method=DELETE" method="POST">
+      <form id="form-delete" action="/fields/<%= field.fieldID %>?_method=DELETE" method="POST">
         <button type="submit" class="btn btn-danger">Delete</button>
       </form>
     </div>
@@ -41,3 +41,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="/js/flatpickr.js"></script>
+
+
+<script>
+  document.querySelector('#form-delete').addEventListener('submit', (evt) => {
+    if (!confirm(`Are you sure want to delete?`)) {
+      evt.preventDefault();
+    }
+  })
+</script>

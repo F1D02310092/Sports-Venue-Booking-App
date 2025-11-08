@@ -1,0 +1,31 @@
+<div class="flash-container-body container mt-3">
+  <% if (successFlashMsg && successFlashMsg.length) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= successFlashMsg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  <% } %> <% if (errorFlashMsg && errorFlashMsg.length) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= errorFlashMsg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const alerts = document.querySelectorAll(".alert");
+
+    alerts.forEach((alert) => {
+      // Auto dismiss after 5s
+      setTimeout(() => {
+        alert.classList.add("hide");
+
+        // Hapus dari DOM setelah animasi selesai
+        alert.addEventListener("animationend", () => {
+          alert.remove();
+        });
+      }, 5000); // 5 detik
+    });
+  });
+</script>

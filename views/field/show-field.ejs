@@ -4,6 +4,37 @@
   <h1><%= field.name %></h1>
   <h2>Rp<%=field.price %></h2>
   <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
-
-  <a class="btn btn-secondary" href="/fields/<%= field.publicID %>/edit">Manage</a>
+  <a class="btn btn-secondary" href="/fields/<%= field.fieldID %>/edit">Manage</a>
 </div>
+
+<form action="#" class="container" id="form-booking">
+  <div class="my-2">
+    <%for(let slot of timeSlots){%>
+    <div class="btn-group my-1" role="group" aria-label="Basic checkbox toggle button group">
+      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" />
+      <label class="btn btn-outline-primary" for="slot-<%=slot%>">
+        <p><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
+      </label>
+    </div>
+    <%}%>
+   </div>
+   <button class="btn btn-success">Book</button>
+</form>
+
+<script>
+   document.querySelector("#form-booking").addEventListener("submit", (evt) => {
+      evt.preventDefault();
+      const checkedSlots = document.querySelectorAll('input[name="slots"]:checked'); // HTML Nodelist
+      console.log(checkedSlots)
+
+      const selectedTimes = Array.from(checkedSlots).map((el) => el.id.replace("slot-", "")); 
+      // karena format id slot: "slot-${waktu}", maka hapus "slot-", sehingga tersisa Number ${waktu} saja
+      console.log(selectedTimes)
+
+      const startTime = selectedTimes[0]; // start slot pertama
+      const endTime = Number(selectedTimes[selectedTimes.length - 1]) + 60; // handle booking banyak slot
+
+      console.log("Start:", startTime);
+      console.log("End:", endTime);
+   });
+</script>

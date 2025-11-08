@@ -7,12 +7,29 @@ const methodOverride = require("method-override");
 const mongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+
+const UserModel = require("./models/User.js");
 
 const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/futsal";
 const main = async function () {
    try {
       await mongoose.connect(DB_URL);
       console.log("Connected to MongoDB!");
+
+      const temp = await UserModel.findByEmail("superadmin@gmail.com");
+
+      if (!temp) {
+         const adminData = {
+            username: "superadmin",
+            email: "superadmin@gmail.com",
+            password: "indonesia123",
+            role: "admin",
+         };
+
+         await UserModel.create(adminData);
+      }
    } catch (err) {
       console.error("Connection error:", err);
    }
@@ -24,6 +41,82 @@ app.engine("ejs", engine);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// setting session & cookie
+const store = mongoStore.create({
+   mongoUrl: DB_URL,
+   touchAfter: 3600 * 24,
+   crypto: "thisisasecret",
+});
+
+const sessionObject = {
+   store,
+   name: "qzaps25",
+   secret: "thisisasecret",
+   resave: false,
+   saveUninitialized: true,
+   rolling: true,
+   cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+   },
+};
+
+app.use(session(sessionObject));
+app.set("trust proxy", 1);
+
+// setting passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+   new LocalStrategy({ usernameField: "email" }, async (email, password, done) => {
+      try {
+         const result = await UserModel.authenticate(email, password);
+
+         if (!result.success) {
+            return done(null, false, { message: result.message });
+         }
+
+         return done(null, result.user);
+      } catch (error) {
+         return done(error);
+      }
+   })
+);
+
+passport.serializeUser((user, done) => {
+   done(null, user._id);
+});
+
+passport.deserializeUser(async (id, done) => {
+   try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+         return done(new Error("Invalid user ID"), null);
+      }
+
+      const user = await UserModel.findById(id);
+      if (!user) {
+         return done(new Error("User not found"), null);
+      }
+
+      done(null, user);
+   } catch (err) {
+      done(err, null);
+   }
+});
+
+// setting flash
+app.use(flash());
+app.use((req, res, next) => {
+   res.locals.currUser = req.user;
+
+   res.locals.successFlashMsg = req.flash("success");
+   res.locals.errorFlashMsg = req.flash("error");
+
+   next();
+});
+
 // setting req.body parser for input form
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -31,6 +124,10 @@ app.use(methodOverride("_method"));
 
 // serving static files
 app.use(express.static(path.join(__dirname, "public")));
+
+// auth routes
+const authRoutes = require("./routes/authRoutes.js");
+app.use("/", authRoutes);
 
 // field routes
 const fieldRoutes = require("./routes/fieldRoutes.js");

@@ -1,0 +1,29 @@
+<% layout('layout/boilerplate.ejs') %>
+
+
+<div class="container" style="width: 450px;">
+  <form method="POST" action="/login">
+    <div class="card">
+      <h5 class="card-header">Login</h5>
+      <div class="card-body">
+
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" placeholder="email@example.com" name="email" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" required>
+        </div>
+
+        <button class="btn btn-primary mb-2">Login</button>
+
+        <a class="d-block" href="/register">Don't have an account?</a>
+
+      </div>
+
+    </div>
+  </form>
+</div>

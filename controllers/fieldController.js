@@ -24,11 +24,6 @@ const postFieldCreation = async (req, res) => {
       console.log(req.body);
       const { name, price, openTime, closeTime } = req.body;
 
-      console.log("a");
-      console.log(toMinutes(openTime));
-      console.log(toMinutes(closeTime));
-      console.log("b");
-
       const fieldData = {
          name,
          price,
@@ -36,33 +31,37 @@ const postFieldCreation = async (req, res) => {
          closeTime: toMinutes(closeTime),
       };
 
-      console.log(fieldData);
-
       const newField = new FieldModel(fieldData);
       await newField.save();
 
+      req.flash("success", "Successfully adding a new field");
       return res.redirect("/fields");
    } catch (error) {
-      return res.send(error);
+      return res.status(500).send(error);
    }
 };
 
 const getShowPage = async (req, res) => {
-   const field = await FieldModel.findOne({ publicID: req.params.publicID });
+   const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
 
    if (field) {
-      console.log(field);
-      return res.render("field/show-field.ejs", { field, minutesToHHMM });
+      // time session (slot waktu)
+      const timeSlots = [];
+      for (let i = field.openTime; i + 60 <= field.closeTime; i += 60) {
+         timeSlots.push(i);
+      }
+
+      return res.render("field/show-field.ejs", { field, minutesToHHMM, timeSlots });
    }
 
    return res.status(404).send("Page not found!");
 };
 
 const getEditPage = async (req, res) => {
-   const field = await FieldModel.findOne({ publicID: req.params.publicID });
+   const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
 
    if (field) {
-      return res.render("field/edit-field.ejs", { field });
+      return res.render("field/edit-field.ejs", { field, minutesToHHMM });
    }
 
    return res.status(404).send("Page not found!");
@@ -79,9 +78,10 @@ const putFieldEdit = async (req, res) => {
          closeTime: toMinutes(closeTime),
       };
 
-      await FieldModel.findOneAndUpdate({ publicID: req.params.publicID }, fieldData, { runValidators: true });
+      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, fieldData, { runValidators: true });
 
-      return res.redirect(`/fields/${req.params.publicID}`);
+      req.flash("success", `Successfully edit a field`);
+      return res.redirect(`/fields/${req.params.fieldID}`);
    } catch (error) {
       return res.status(500).send(error);
    }
@@ -89,8 +89,9 @@ const putFieldEdit = async (req, res) => {
 
 const deleteField = async (req, res) => {
    try {
-      console.log("aaaaaaaaaaa");
-      await FieldModel.findOneAndDelete({ publicID: req.params.publicID });
+      await FieldModel.findOneAndDelete({ fieldID: req.params.fieldID });
+
+      req.flash("success", `Successfully delete a field`);
       return res.redirect("/fields");
    } catch (error) {
       return res.status(500).send(error);

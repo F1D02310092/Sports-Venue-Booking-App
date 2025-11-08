@@ -4,9 +4,22 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
+        <% if (currUser && currUser.role === 'admin') { %>
         <a class="nav-link" href="/fields/add">Add Field</a>
+        <% } else if (currUser && currUser.role === 'user') { %>
+        <a class="nav-link" href="#">Lorem</a>
+        <% } %>
+      </div>
+
+      <div class="navbar-nav ms-auto">
+        <% if (!currUser) { %>
+        <a class="nav-link" href="/login">Login</a>
+        <% } else { %>
+        <a class="nav-link" href="/logout">Logout</a>
+        <% } %>
       </div>
     </div>
   </div>

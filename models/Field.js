@@ -21,7 +21,7 @@ const fieldSchema = new mongoose.Schema({
       type: Number,
       required: true,
    },
-   publicID: {
+   fieldID: {
       type: String,
       default: uuidv4,
       required: true,
