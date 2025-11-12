@@ -3,6 +3,12 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const { v4: uuidv4 } = require("uuid");
 
 const userSchema = new mongoose.Schema({
+   userID: {
+      type: String,
+      required: true,
+      unique: true,
+      default: uuidv4,
+   },
    username: {
       type: String,
       required: true,
@@ -20,12 +26,6 @@ const userSchema = new mongoose.Schema({
       enum: ["user", "admin"],
       required: true,
       default: "user",
-   },
-   userID: {
-      type: String,
-      required: true,
-      unique: true,
-      default: uuidv4,
    },
 });
 

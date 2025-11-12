@@ -48,7 +48,7 @@ const handleLogout = async (req, res, next) => {
          return res.redirect("/fields");
       }
 
-      req.flash("Logged Out!");
+      req.flash("success", "Logged Out!");
       return res.redirect("/fields");
    });
 };

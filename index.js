@@ -133,6 +133,9 @@ app.use("/", authRoutes);
 const fieldRoutes = require("./routes/fieldRoutes.js");
 app.use("/fields", fieldRoutes);
 
+const bookingRoutes = require("./routes/bookingRoutes.js");
+app.use("/fields/:fieldID/users", bookingRoutes);
+
 // landing page
 app.get("/", (req, res) => {
    return res.render("landing-page.ejs");

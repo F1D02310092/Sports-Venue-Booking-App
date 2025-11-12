@@ -3,16 +3,18 @@ const User = require("../schemas/userSchema.js");
 class UserModel {
    static async create(userData) {
       if (!userData.email || !userData.password || !userData.username) {
-         req.flash("error", "Fill in all your credentials");
-         return res.redirect("/register");
+         throw new Error("All credentials are required");
       }
 
       if (userData.password.length < 8 || /\s/.test(userData.password)) {
-         req.flash("error", userData.password.length < 8 ? "Password must be at least 8 characters" : "Password cannot contain spaces");
-         return res.redirect("/register");
+         throw new Error(userData.password.length < 8 ? "Password must be at least 8 characters" : "Password cannot contain spaces");
       }
 
-      return await User.register(new User({ email: userData.email, username: userData.username, role: userData.role || "user" }), userData.password);
+      try {
+         return await User.register(new User({ email: userData.email, username: userData.username, role: userData.role || "user" }), userData.password);
+      } catch (error) {
+         throw new Error(error);
+      }
    }
 
    static async findByEmail(email) {

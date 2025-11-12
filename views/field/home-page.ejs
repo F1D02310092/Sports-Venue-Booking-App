@@ -8,7 +8,7 @@
       <h5 class="card-title "><%= f.name %></h5>
       <p class="my-2"><b>Open: <%=  minutesToHHMM(f.openTime) %> - Close: <%= minutesToHHMM(f.closeTime) %></b></p>
       <p class="card-subtitle mb-2 text-body-secondary">Rp<%= f.price %></p>
-      <a href="/fields/<%= f.fieldID %>" class="btn btn-info">See details</a>
+      <a href="/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-info">See details</a>
     </div>
   </div>
   <%}%>

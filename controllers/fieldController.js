@@ -1,15 +1,20 @@
+const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
-const { toMinutes, minutesToHHMM } = require("../utils/timeFormat.js");
+const { toMinutes, minutesToHHMM, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
 
 const getHomePage = async (req, res, next) => {
    try {
       const fields = await FieldModel.find();
 
-      if (!fields && fields.length === 0) {
+      if (fields.length === 0) {
          return res.render("field/home-page", { fields });
       }
 
-      return res.render("field/home-page", { fields, minutesToHHMM });
+      const todayLocal = new Date();
+      todayLocal.setHours(0, 0, 0, 0);
+      const queryDate = formatDateYYYYMMDD(todayLocal);
+
+      return res.render("field/home-page", { fields, minutesToHHMM, queryDate });
    } catch (error) {
       console.log(error);
    }
@@ -45,13 +50,53 @@ const getShowPage = async (req, res) => {
    const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
 
    if (field) {
-      // time session (slot waktu)
-      const timeSlots = [];
-      for (let i = field.openTime; i + 60 <= field.closeTime; i += 60) {
-         timeSlots.push(i);
+      const todayLocal = new Date();
+      todayLocal.setHours(0, 0, 0, 0);
+      let queryDateLocal;
+      console.log(req.query.date);
+      const [year, month, day] = req.query.date.split("-").map(Number);
+
+      if (req.query.date) {
+         queryDateLocal = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      } else {
+         queryDateLocal = todayLocal;
       }
 
-      return res.render("field/show-field.ejs", { field, minutesToHHMM, timeSlots });
+      const queryDateStr = formatDateYYYYMMDD(queryDateLocal);
+      const minDate = formatDateYYYYMMDD(todayLocal);
+      const maxDate = formatDateYYYYMMDD(new Date(todayLocal.getTime() + 1000 * 60 * 60 * 24 * 30));
+
+      if (queryDateLocal.toISOString().slice(0, 10) > maxDate || queryDateLocal.toISOString().slice(0, 10) < minDate) {
+         req.flash("error", `${queryDateLocal.toISOString().slice(0, 10)} is out of bound`);
+         return res.redirect(`/fields/${req.params.fieldID}?date=${minDate}`);
+      }
+
+      const queryDateFormatted = queryDateLocal.toLocaleDateString("en-EN", {
+         weekday: "long",
+         year: "numeric",
+         month: "long",
+         day: "numeric",
+      });
+
+      const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+      // Date.UTC(year, monthIndex, day, hour, minute, second, millisecond), month dimulai dari index 0
+
+      const booking = await BookingModel.find({
+         field: field._id,
+         date: { $gte: startOfDay, $lte: endOfDay },
+         status: "success",
+      });
+
+      // time session (slot waktu)
+      const timeSlots = new Set();
+      for (let i = field.openTime; i + 60 <= field.closeTime; i += 60) {
+         timeSlots.add(i);
+      }
+
+      const successBook = new Map(booking.flatMap((b) => b.slots.map((slot) => [slot, b.user.toString()])));
+
+      return res.render("field/show-field.ejs", { field, minutesToHHMM, timeSlots, queryDateStr, queryDateFormatted, minDate, maxDate, successBook });
    }
 
    return res.status(404).send("Page not found!");

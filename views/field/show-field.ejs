@@ -4,37 +4,48 @@
   <h1><%= field.name %></h1>
   <h2>Rp<%=field.price %></h2>
   <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
+
+  <form action="" method="GET" id="date-picker-form">
+    <input type="hidden" id="field-id" value="<%= field.fieldID %>" />
+    <input type="date" name="" id="booking-date-picker" value="<%= queryDateStr %>" min="<%= minDate %>" max="<%= maxDate %>" />
+  </form>
+
+  <%if(currUser.role === 'admin'){%>
   <a class="btn btn-secondary" href="/fields/<%= field.fieldID %>/edit">Manage</a>
+  <%}%>
+
+   <h3 class="my-2" id="selected-date"><%= queryDateFormatted %></h3>
 </div>
 
-<form action="#" class="container" id="form-booking">
+<form action="/fields/<%= field.fieldID %>/users/booking" method="POST" class="container" id="form-booking">
+  <input type="hidden" name="date" id="selected-booking-date" value="<%= queryDateStr %>" />
+
   <div class="my-2">
     <%for(let slot of timeSlots){%>
     <div class="btn-group my-1" role="group" aria-label="Basic checkbox toggle button group">
-      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" />
-      <label class="btn btn-outline-primary" for="slot-<%=slot%>">
-        <p><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
+      <% if(successBook && successBook.has(slot)){%>
+      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" value="<%= slot %>" disabled />
+      <label class="btn btn-outline-danger" for="slot-<%=slot%>" aria-disabled="true">
+        <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
+
+        <% if(currUser._id.toString() === successBook.get(slot).toString()){%>
+        <span><b>My Book</b></span>
+        <% } else{%>
+        <span><b>Booked</b></span>
+        <% }%>
+
       </label>
+      <% } else {%>
+      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" value="<%= slot %>" />
+      <label class="btn btn-outline-primary" for="slot-<%=slot%>">
+        <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
+        <span><b>Available</b></span>
+      </label>
+      <%}%>
+      </div>
+      <%}%>
     </div>
-    <%}%>
-   </div>
-   <button class="btn btn-success">Book</button>
+    <button class="btn btn-success">Book</button>
 </form>
 
-<script>
-   document.querySelector("#form-booking").addEventListener("submit", (evt) => {
-      evt.preventDefault();
-      const checkedSlots = document.querySelectorAll('input[name="slots"]:checked'); // HTML Nodelist
-      console.log(checkedSlots)
-
-      const selectedTimes = Array.from(checkedSlots).map((el) => el.id.replace("slot-", "")); 
-      // karena format id slot: "slot-${waktu}", maka hapus "slot-", sehingga tersisa Number ${waktu} saja
-      console.log(selectedTimes)
-
-      const startTime = selectedTimes[0]; // start slot pertama
-      const endTime = Number(selectedTimes[selectedTimes.length - 1]) + 60; // handle booking banyak slot
-
-      console.log("Start:", startTime);
-      console.log("End:", endTime);
-   });
-</script>
+<script src="/js/showField.js"></script>

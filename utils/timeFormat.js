@@ -18,7 +18,23 @@ function minutesToHHMM(m) {
    return `${h}:${mm}`;
 }
 
+function formatDateYYYYMMDD(date) {
+   const y = date.getFullYear();
+   const m = String(date.getMonth() + 1).padStart(2, "0");
+   const d = String(date.getDate()).padStart(2, "0");
+   return `${y}-${m}-${d}`;
+}
+
+function parseLocalDateToUTC(dateStr) {
+   // dateStr: "YYYY-MM-DD" (dari <input type="date">, zona lokal browser)
+   const [y, m, d] = dateStr.split("-").map(Number);
+   const dt = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0)); // UTC midnight
+   return dt;
+}
+
 module.exports = {
    toMinutes,
    minutesToHHMM,
+   formatDateYYYYMMDD,
+   parseLocalDateToUTC,
 };
