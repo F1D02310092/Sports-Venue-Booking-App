@@ -1,6 +1,6 @@
 const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
-const { toMinutes, minutesToHHMM, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
+const { toMinutes, minutesToHHMM, formatDateYYYYMMDD, getTodayInWITA } = require("../utils/timeFormat.js");
 
 const getHomePage = async (req, res, next) => {
    try {
@@ -50,11 +50,12 @@ const getShowPage = async (req, res) => {
    const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
 
    if (field) {
-      const todayLocal = new Date();
-      todayLocal.setHours(0, 0, 0, 0);
+      const todayLocal = getTodayInWITA();
+
       let queryDateLocal;
-      console.log(req.query.date);
       const [year, month, day] = req.query.date.split("-").map(Number);
+      console.log(req.query.date.split("-").map(Number));
+      console.log(year, month, day);
 
       if (req.query.date) {
          queryDateLocal = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
@@ -66,21 +67,31 @@ const getShowPage = async (req, res) => {
       const minDate = formatDateYYYYMMDD(todayLocal);
       const maxDate = formatDateYYYYMMDD(new Date(todayLocal.getTime() + 1000 * 60 * 60 * 24 * 30));
 
+      console.log(queryDateLocal);
+
       if (queryDateLocal.toISOString().slice(0, 10) > maxDate || queryDateLocal.toISOString().slice(0, 10) < minDate) {
          req.flash("error", `${queryDateLocal.toISOString().slice(0, 10)} is out of bound`);
          return res.redirect(`/fields/${req.params.fieldID}?date=${minDate}`);
       }
 
-      const queryDateFormatted = queryDateLocal.toLocaleDateString("en-EN", {
+      const queryDateFormatted = queryDateLocal.toLocaleDateString("en-CA", {
          weekday: "long",
          year: "numeric",
          month: "long",
          day: "numeric",
+         timeZone: "Asia/Singapore",
       });
 
       const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
       const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
       // Date.UTC(year, monthIndex, day, hour, minute, second, millisecond), month dimulai dari index 0
+
+      console.log("a", req.query.date);
+      console.log("b", queryDateLocal);
+      console.log("start", startOfDay);
+      console.log("end", endOfDay);
+      console.log(queryDateLocal.toISOString().slice(0, 10) < minDate);
+      console.log(queryDateLocal.toISOString().slice(0, 10) > maxDate);
 
       const booking = await BookingModel.find({
          field: field._id,

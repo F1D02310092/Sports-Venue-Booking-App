@@ -1,19 +1,3 @@
-// AKAN DIHAPUS SETELAH ADA HANDLE BOOKING DI BACKEND
-document.querySelector("#form-booking").addEventListener("submit", (evt) => {
-   const checkedSlots = document.querySelectorAll('input[name="slots"]:checked'); // HTML Nodelist
-   console.log(checkedSlots);
-
-   const selectedTimes = Array.from(checkedSlots).map((el) => el.id.replace("slot-", ""));
-   // karena format id slot: "slot-${waktu}", maka hapus "slot-", sehingga tersisa Number ${waktu} saja
-   console.log(selectedTimes);
-
-   const startTime = selectedTimes[0]; // start slot pertama
-   const endTime = Number(selectedTimes[selectedTimes.length - 1]) + 60; // handle booking banyak slot
-
-   console.log("Start:", startTime);
-   console.log("End:", endTime);
-});
-
 const bookingDatePicker = document.querySelector("#booking-date-picker");
 const selectedBookingDate = document.querySelector("#selected-booking-date");
 const selectedDate = document.querySelector("#selected-date");
@@ -22,11 +6,12 @@ const fieldID = document.querySelector("#field-id").value;
 
 function formattedDate(dateString) {
    const date = new Date(dateString);
-   return date.toLocaleDateString("en-EN", {
+   return date.toLocaleDateString("en-CA", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "Asia/Singapore",
    });
 }
 
@@ -42,7 +27,7 @@ bookingDatePicker.addEventListener("change", function (evt) {
 
 document.addEventListener("DOMContentLoaded", () => {
    const url = new URL(window.location.href);
-   const today = new Date().toISOString().split("T")[0]; // format YYYY-MM-DD
+   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Makassar" });
    const currentDateParam = url.searchParams.get("date");
 
    // Jika user baru saja merefresh halaman DAN ada param date yang bukan hari ini,
