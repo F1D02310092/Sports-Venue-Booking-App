@@ -1,3 +1,9 @@
+if (process.env.NODE_ENV !== "production") {
+   require("dotenv").config();
+}
+
+process.env.TZ = "Asia/Singapore";
+
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -133,8 +139,13 @@ app.use("/", authRoutes);
 const fieldRoutes = require("./routes/fieldRoutes.js");
 app.use("/fields", fieldRoutes);
 
+// booking routes
 const bookingRoutes = require("./routes/bookingRoutes.js");
 app.use("/fields/:fieldID/users", bookingRoutes);
+
+// payment routes
+const paymentRoutes = require("./routes/paymentRoutes.js");
+app.use("/payment", paymentRoutes);
 
 // landing page
 app.get("/", (req, res) => {

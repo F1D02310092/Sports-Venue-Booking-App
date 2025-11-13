@@ -5,6 +5,7 @@ const { parseLocalDateToUTC, formatDateYYYYMMDD } = require("../utils/timeFormat
 
 const createBooking = async (req, res) => {
    // masih ada egde cases yang harus di-handle
+   // race-condition
 
    try {
       const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
@@ -24,13 +25,13 @@ const createBooking = async (req, res) => {
          field: field._id,
          user: req.user._id,
          date: bookingDateUTC,
-         slots: { $in: [slots] },
+         slots: { $in: slots },
          status: "success",
       });
 
       if (conflictBooking) {
-         req.flash("error", "Session(s) are already booked!");
-         return res.redirect(`/fields/${req.params.fieldID}?date=${date}`);
+         req.flash("error", "Session(s) are already booked, please finish payment");
+         return res.redirect(`/payment/create${conflictBooking.bookingID}`);
       }
 
       const dateOfToday = formatDateYYYYMMDD(new Date());
@@ -60,12 +61,10 @@ const createBooking = async (req, res) => {
       };
 
       const newBooking = await BookingModel.create(bookingData);
-      console.log(newBooking);
 
-      req.flash("success", "Successfully booked a session(s)!");
-      return res.redirect(`/fields/${req.params.fieldID}?date=${date}`);
+      return res.redirect(`/payment/create/${newBooking.bookingID}`);
    } catch (error) {
-      console.log(error);
+      console.error(error);
       return res.send(error);
    }
 };

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Payment Success</title>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Payment Successful!</h1>
+    <p>Your booking has been confirmed.</p>
+
+    <div class="booking-details">
+      <h3>Booking Details:</h3>
+      <p>Field: <%= booking.field.name %></p>
+      <p>Date: <%= booking.date.toLocaleDateString() %></p>
+      <p>Time: <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %></p>
+      <p>Total: Rp <%= booking.totalPrice.toLocaleString() %></p>
+    </div>
+
+    <a href="/fields/">Back</a>
+  </div>
+</body>
+<script>
+  const date = new Date()
+  setTimeout(function() {
+    window.location.href = `/fields/<%= booking.field.fieldID %>?date=${date.toISOString().split('T')[0]}`;
+  }, 3000);
+</script>
+
+</html>

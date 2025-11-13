@@ -48,9 +48,26 @@ const bookingSchema = new mongoose.Schema(
       },
       status: {
          type: String,
-         enum: ["success", "pending", "cancelled"],
+         enum: ["success", "pending", "failed"],
          default: "pending",
          required: true,
+      },
+
+      // utk Midtrans
+      orderID: {
+         type: String,
+      },
+      transactionID: {
+         type: String,
+      },
+      payementToken: {
+         type: String,
+      },
+      paymentTime: {
+         type: Date,
+      },
+      redirectURL: {
+         type: String,
       },
    },
    { timestamps: true }

@@ -54,8 +54,6 @@ const getShowPage = async (req, res) => {
 
       let queryDateLocal;
       const [year, month, day] = req.query.date.split("-").map(Number);
-      console.log(req.query.date.split("-").map(Number));
-      console.log(year, month, day);
 
       if (req.query.date) {
          queryDateLocal = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
@@ -85,13 +83,6 @@ const getShowPage = async (req, res) => {
       const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
       const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
       // Date.UTC(year, monthIndex, day, hour, minute, second, millisecond), month dimulai dari index 0
-
-      console.log("a", req.query.date);
-      console.log("b", queryDateLocal);
-      console.log("start", startOfDay);
-      console.log("end", endOfDay);
-      console.log(queryDateLocal.toISOString().slice(0, 10) < minDate);
-      console.log(queryDateLocal.toISOString().slice(0, 10) > maxDate);
 
       const booking = await BookingModel.find({
          field: field._id,

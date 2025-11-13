@@ -21,8 +21,38 @@ class BookingModel {
       }
    }
 
-   static async findOne(fieldID, userID, date, slots, status) {
-      return await Booking.findOne(fieldID, userID, date, slots, status);
+   static async findOne(query) {
+      return await Booking.findOne(query);
+   }
+
+   static async findOneAndPopulate(query) {
+      return await Booking.findOne(query).populate("field").populate("user");
+   }
+
+   static async findOneAndUpdate(query, updateData, options = {}) {
+      try {
+         const booking = await Booking.findOneAndUpdate(query, updateData, {
+            runValidators: true,
+            ...options,
+         });
+
+         return booking;
+      } catch (error) {
+         throw new Error(`Failed: ${error.message}`);
+      }
+   }
+
+   static async updateMany(query, updateData, options = {}) {
+      try {
+         const result = await Booking.updateMany(query, updateData, {
+            runValidators: true,
+            ...options,
+         });
+
+         return result; // hasilnya berisi matchedCount, modifiedCount, dll
+      } catch (error) {
+         throw new Error(`Failed to update booking: ${error.message}`);
+      }
    }
 
    static async find(id) {
