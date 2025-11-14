@@ -49,4 +49,52 @@
     <button class="btn btn-success">Book</button>
 </form>
 
+
+
+<%if(currUser && currUser.role === 'user'){%>
+
+<div class="container my-4 d-flex flex-row" style="width: 100%;">
+  <div class=" card card-body" style="width: 50%;">
+    <form action="/fields/<%= field.fieldID %>/review" method="POST">
+      <div class="mb-3 d-flex flex-column">
+        <label for="review_text" class="form-label">Your Review</label>
+        <textarea name="text" id="review_text" placeholder="Leave your review" rows="8" cols="50" class="p-2" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="review_rating" class="form-label">Rating</label>
+        <input type="number" class="form-control" id="review_rating" name="rating" required min="1" max="5" step="0.5" value="1">
+      </div>
+
+      <button class="btn btn-success">Submit</button>
+
+    </form>
+  </div>
+
+  <div class="container" style=" width: 50%;">
+    <%if(field.reviews.length > 0){%>
+    <%  for(rev of field.reviews){%>
+    <div class="card mb-2">
+      <div class="card-body">
+        <h6><b><%= rev.user.username.toUpperCase() %></b></h6>
+        <p class="my-1"><%= rev.text %></p>
+        <b><%= rev.rating %>⭐</b>
+
+
+        <% if(rev.user._id.toString() === currUser._id.toString()){%>
+        <form action="/fields/<%= field.fieldID %>/review/<%= rev.reviewID %>?_method=DELETE" method="POST">
+          <button class="btn btn-danger mt-2">Delete</button>
+        </form>
+        <% }%>
+      </div>
+    </div>
+    <%   }%>
+    <%} else {%>
+    <h2 class="text-center" style="margin-top: 30%;">Be the first to leave a review!</h2>
+    <% }%>
+  </div>
+</div>
+
+<%}%>
+
 <script src="/js/showField.js"></script>

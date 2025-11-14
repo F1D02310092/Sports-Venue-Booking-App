@@ -47,25 +47,32 @@ const postFieldCreation = async (req, res) => {
 };
 
 const getShowPage = async (req, res) => {
-   const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
+   const field = await FieldModel.findOne({ fieldID: req.params.fieldID }).populate({
+      path: "reviews",
+      populate: {
+         path: "user",
+      },
+   });
 
    if (field) {
       const todayLocal = getTodayInWITA();
 
       let queryDateLocal;
-      const [year, month, day] = req.query.date.split("-").map(Number);
+      let year, month, day;
 
       if (req.query.date) {
+         [year, month, day] = req.query.date.split("-").map(Number);
          queryDateLocal = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
       } else {
          queryDateLocal = todayLocal;
+         year = todayLocal.getUTCFullYear();
+         month = todayLocal.getUTCMonth() + 1;
+         day = todayLocal.getUTCDate();
       }
 
       const queryDateStr = formatDateYYYYMMDD(queryDateLocal);
       const minDate = formatDateYYYYMMDD(todayLocal);
       const maxDate = formatDateYYYYMMDD(new Date(todayLocal.getTime() + 1000 * 60 * 60 * 24 * 30));
-
-      console.log(queryDateLocal);
 
       if (queryDateLocal.toISOString().slice(0, 10) > maxDate || queryDateLocal.toISOString().slice(0, 10) < minDate) {
          req.flash("error", `${queryDateLocal.toISOString().slice(0, 10)} is out of bound`);

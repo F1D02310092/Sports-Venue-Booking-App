@@ -147,6 +147,10 @@ app.use("/fields/:fieldID/users", bookingRoutes);
 const paymentRoutes = require("./routes/paymentRoutes.js");
 app.use("/payment", paymentRoutes);
 
+// review routes
+const reviewRoutes = require("./routes/reviewRoutes.js");
+app.use("/fields/:fieldID/review", reviewRoutes);
+
 // landing page
 app.get("/", (req, res) => {
    return res.render("landing-page.ejs");

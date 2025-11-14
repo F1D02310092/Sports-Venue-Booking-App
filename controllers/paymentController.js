@@ -23,6 +23,7 @@ const createPayment = async (req, res) => {
       }
 
       // edge cases
+      // block double book (debouncer on FE and idempotency key on BE)
       // bisa cek expired dgn tambahin expired di schema dan atur sesuai dgn payload midtrans
       // jika slot sudah diambil oleh success payment, maka semua booking lain yg ada slot ini harus di cancel
 

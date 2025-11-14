@@ -14,6 +14,12 @@ const fieldSchema = new mongoose.Schema({
          ref: "Booking",
       },
    ],
+   reviews: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Review",
+      },
+   ],
    name: {
       type: String,
       required: true,
