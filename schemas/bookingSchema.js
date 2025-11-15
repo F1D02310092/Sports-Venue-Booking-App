@@ -69,6 +69,16 @@ const bookingSchema = new mongoose.Schema(
       redirectURL: {
          type: String,
       },
+
+      // utk manual booking
+      manualName: {
+         type: String,
+         trim: true,
+      },
+      manualContact: {
+         type: String,
+         trim: true,
+      },
    },
    { timestamps: true }
 );

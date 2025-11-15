@@ -67,8 +67,7 @@ const createPayment = async (req, res) => {
       booking.redirectURL = transaction.redirect_url;
 
       await booking.save();
-      console.log(booking.redirectURL);
-      console.log(transaction.token);
+
       res.json({
          token: transaction.token,
          redirect_url: transaction.redirect_url,

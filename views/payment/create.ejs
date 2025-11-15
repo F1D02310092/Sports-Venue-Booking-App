@@ -1,75 +1,66 @@
-<!DOCTYPE html>
-<html>
+<% layout('layout/boilerplate.ejs') %>
 
-<head>
-  <title>Payment - Booking <%= booking.field.name %></title>
-</head>
+<div class="container">
+  <h1>Complete Your Payment</h1>
 
-<body>
-  <div class="container">
-    <h1>Complete Your Payment</h1>
-
-    <div class="booking-details">
-      <h3>Booking Details:</h3>
-      <p>Field: <strong><%= booking.field.name %></strong></p>
-      <p>Date: <strong><%= booking.date.toLocaleDateString('id-ID') %></strong></p>
-      <p>Time: <strong><%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %></strong></p>
-      <p>Total: <strong>Rp <%= booking.totalPrice.toLocaleString('id-ID') %></strong></p>
-      <p>Status: <span class="badge bg-warning"><%= booking.status %></span></p>
-    </div>
-
-    <button id="pay-button" class="btn btn-primary btn-lg">Pay Now</button>
-
-    <a href="/fields" class="btn btn-secondary">Cancel</a>
+  <div class="booking-details">
+    <h3>Booking Details:</h3>
+    <p>Field: <strong><%= booking.field.name %></strong></p>
+    <p>Date: <strong><%= booking.date.toLocaleDateString('id-ID') %></strong></p>
+    <p>Time: <strong><%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %></strong></p>
+    <p>Total: <strong>Rp <%= booking.totalPrice.toLocaleString('id-ID') %></strong></p>
+    <p>Status: <span class="badge bg-warning"><%= booking.status %></span></p>
   </div>
 
-  <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="<%= clientKey %>"></script>
+  <button id="pay-button" class="btn btn-primary">Pay Now</button>
 
-  <script>
-    document.getElementById('pay-button').onclick = async function() {
-      // Fetch Snap token dari server
-      fetch('/payment/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+  <a href="/fields/" class="btn btn-secondary">Cancel Booking</a>
+</div>
+
+<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="<%= clientKey %>"></script>
+
+<script>
+  document.getElementById('pay-button').onclick = async function() {
+    // Fetch Snap token dari server
+    fetch('/payment/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingID: '<%= booking.bookingID %>'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Server response:", data);
+        if (data.error) {
+          alert('Error: ' + data.error);
+          return;
+        }
+
+        // Buka Snap popup
+        snap.pay(data.token, {
+          onSuccess: function(result) {
+            console.log("Payment success:", result);
+            window.location.href = "/payment/success?fieldID=<%= booking.field.fieldID %>";
           },
-          body: JSON.stringify({
-            bookingID: '<%= booking.bookingID %>'
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log("Server response:", data);
-          if (data.error) {
-            alert('Error: ' + data.error);
-            return;
+          onPending: function(result) {
+            console.log("Payment pending:", result);
+            window.location.href = "/payment/pendign?fieldID=<%= booking.field.fieldID %>";
+          },
+          onError: function(result) {
+            console.error("Payment error:", result);
+            window.location.href = "/payment/failed?fieldID=<%= booking.field.fieldID %>";
+          },
+          onClose: function() {
+            console.log("User closed the popup before finishing payment");
           }
-
-          // Buka Snap popup
-          snap.pay(data.token, {
-            onSuccess: function(result) {
-              console.log("Payment success:", result);
-              window.location.href = "/payment/finish?fieldID=<%= booking.field.fieldID %>";
-            },
-            onPending: function(result) {
-              console.log("Payment pending:", result);
-              window.location.href = "/payment/finish?fieldID=<%= booking.field.fieldID %>";
-            },
-            onError: function(result) {
-              console.error("Payment error:", result);
-              window.location.href = "/payment/finish?fieldID=<%= booking.field.fieldID %>";
-            },
-            onClose: function() {
-              console.log("User closed the popup before finishing payment");
-            }
-          });
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Payment failed to initialize');
         });
-    };
-  </script>
-</body>
-
-</html>
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Payment failed to initialize');
+      });
+  };
+</script>

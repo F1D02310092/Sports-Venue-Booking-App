@@ -1,0 +1,79 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<div class="container">
+  <h1><%= field.name %></h1>
+  <h2>Rp<%=field.price %></h2>
+  <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
+
+  <form action="" method="GET" id="date-picker-form">
+    <input type="hidden" id="field-id" value="<%= field.fieldID %>" />
+    <input type="date" name="" id="booking-date-picker" value="<%= queryDateStr %>" min="<%= minDate %>" max="<%= maxDate %>" />
+  </form>
+
+  <%if(currUser&&currUser.role === 'admin'){%>
+  <a class="btn btn-secondary my-2" href="/fields/<%= field.fieldID %>/edit">Manage</a>
+  <%}%>
+
+   <h3 class="my-2" id="selected-date"><%= queryDateFormatted %></h3>
+</div>
+
+<form action="/admin/fields/<%= field.fieldID %>/m-booking" method="GET" class="container mb-4" id="form-booking">
+  <input type="hidden" name="date" id="selected-booking-date" value="<%= queryDateStr %>" />
+
+  <div class="my-2">
+    <%for(let slot of timeSlots){%>
+    <div class="btn-group my-1" role="group" aria-label="Basic checkbox toggle button group">
+      <% if(successBook && successBook.has(slot)){%>
+      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" value="<%= slot %>" disabled />
+      <label class="btn btn-outline-danger" for="slot-<%=slot%>" aria-disabled="true">
+        <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
+
+        <% if(currUser._id.toString() === successBook.get(slot).toString()){%>
+        <span><b>My Book</b></span>
+        <% } else{%>
+        <span><b>Booked</b></span>
+        <% }%>
+
+      </label>
+      <% } else {%>
+      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" value="<%= slot %>" />
+      <label class="btn btn-outline-primary" for="slot-<%=slot%>">
+        <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
+
+        <span><b>Available</b></span>
+      </label>
+      <%}%>
+      </div>
+      <%}%>
+    </div>
+
+    <button class="btn btn-success">Manual book</button>
+
+
+</form>
+
+<div class="container" style="width: 100%;">
+  <%if(field.reviews.length > 0){%>
+  <%  for(rev of field.reviews){%>
+  <div class="card mb-2">
+    <div class="card-body">
+      <h6><b><%= rev.user.username.toUpperCase() %></b></h6>
+      <p class="my-1"><%= rev.text %></p>
+      <b><%= rev.rating %>⭐</b>
+
+
+      <% if(rev.user._id.toString() === currUser._id.toString()){%>
+      <form action="/fields/<%= field.fieldID %>/review/<%= rev.reviewID %>?_method=DELETE" method="POST">
+        <button class="btn btn-danger mt-2">Delete</button>
+      </form>
+      <% }%>
+    </div>
+  </div>
+  <%   }%>
+  <%} else {%>
+  <h2 class="text-center" style="margin-top: 30%;">Be the first to leave a review!</h2>
+  <% }%>
+</div>
+</div>
+
+<script src="/js/showField.js"></script>

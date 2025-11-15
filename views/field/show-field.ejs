@@ -10,11 +10,9 @@
     <input type="date" name="" id="booking-date-picker" value="<%= queryDateStr %>" min="<%= minDate %>" max="<%= maxDate %>" />
   </form>
 
-  <%if(currUser.role === 'admin'){%>
-  <a class="btn btn-secondary" href="/fields/<%= field.fieldID %>/edit">Manage</a>
-  <%}%>
 
-   <h3 class="my-2" id="selected-date"><%= queryDateFormatted %></h3>
+
+  <h3 class="my-2" id="selected-date"><%= queryDateFormatted %></h3>
 </div>
 
 <form action="/fields/<%= field.fieldID %>/users/booking" method="POST" class="container" id="form-booking">
@@ -46,14 +44,25 @@
       </div>
       <%}%>
     </div>
+
+    <% if(!currUser){%>
+
+    <span class="text-body-secondary"><em>Please <a class="text-reset" href="/login">sign-in</a> first before booking</em></span>
+
+    <% } else {%>
     <button class="btn btn-success">Book</button>
+
+    <% }%>
 </form>
 
 
 
 <%if(currUser && currUser.role === 'user'){%>
 
+
+
 <div class="container my-4 d-flex flex-row" style="width: 100%;">
+
   <div class=" card card-body" style="width: 50%;">
     <form action="/fields/<%= field.fieldID %>/review" method="POST">
       <div class="mb-3 d-flex flex-column">
@@ -71,7 +80,8 @@
     </form>
   </div>
 
-  <div class="container" style=" width: 50%;">
+
+  <div class="container" style="width: 50%;">
     <%if(field.reviews.length > 0){%>
     <%  for(rev of field.reviews){%>
     <div class="card mb-2">

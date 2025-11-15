@@ -76,7 +76,11 @@ const getShowPage = async (req, res) => {
 
       if (queryDateLocal.toISOString().slice(0, 10) > maxDate || queryDateLocal.toISOString().slice(0, 10) < minDate) {
          req.flash("error", `${queryDateLocal.toISOString().slice(0, 10)} is out of bound`);
-         return res.redirect(`/fields/${req.params.fieldID}?date=${minDate}`);
+         if (req.user.role === "user") {
+            return res.redirect(`/fields/${req.params.fieldID}?date=${minDate}`);
+         } else {
+            return res.redirect(`/admin/fields/${req.params.fieldID}?date=${minDate}`);
+         }
       }
 
       const queryDateFormatted = queryDateLocal.toLocaleDateString("en-CA", {
@@ -103,9 +107,23 @@ const getShowPage = async (req, res) => {
          timeSlots.add(i);
       }
 
-      const successBook = new Map(booking.flatMap((b) => b.slots.map((slot) => [slot, b.user.toString()])));
+      console.log(booking);
 
-      return res.render("field/show-field.ejs", { field, minutesToHHMM, timeSlots, queryDateStr, queryDateFormatted, minDate, maxDate, successBook });
+      const successBook = new Map();
+
+      for (const b of booking) {
+         const bookedBy = b.user ? b.user.toString() : b.manualName;
+
+         for (const slot of b.slots) {
+            successBook.set(slot, bookedBy);
+         }
+      }
+
+      if (req.user.role === "user") {
+         return res.render("field/show-field.ejs", { field, minutesToHHMM, timeSlots, queryDateStr, queryDateFormatted, minDate, maxDate, successBook });
+      } else {
+         return res.render("admin/admin-field-page.ejs", { field, minutesToHHMM, timeSlots, queryDateStr, queryDateFormatted, minDate, maxDate, successBook });
+      }
    }
 
    return res.status(404).send("Page not found!");

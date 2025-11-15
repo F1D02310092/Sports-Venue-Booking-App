@@ -1,10 +1,9 @@
-const UserModel = require("../models/User.js");
 const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
 const { parseLocalDateToUTC, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
 
 const createBooking = async (req, res) => {
-   // masih ada egde cases yang harus di-handle
+   // masih banyak egde cases yang harus di-handle
    // race-condition
 
    try {
@@ -14,6 +13,12 @@ const createBooking = async (req, res) => {
       }
 
       let { date, slots } = req.body;
+
+      if (!date || !slots) {
+         req.flash("error", "Select at least one slot");
+         return res.redirect(`/fields/${req.params.fieldID}`);
+      }
+
       const bookingDateUTC = parseLocalDateToUTC(date);
 
       if (!Array.isArray(slots)) {
@@ -26,12 +31,12 @@ const createBooking = async (req, res) => {
          user: req.user._id,
          date: bookingDateUTC,
          slots: { $in: slots },
-         status: "success",
+         status: "pending",
       });
 
       if (conflictBooking) {
-         req.flash("error", "Session(s) are already booked, please finish payment");
-         return res.redirect(`/payment/create${conflictBooking.bookingID}`);
+         req.flash("error", `Some sessions are already booked, please finish payment`);
+         return res.redirect(`/payment/create/${conflictBooking.bookingID}`);
       }
 
       const dateOfToday = formatDateYYYYMMDD(new Date());

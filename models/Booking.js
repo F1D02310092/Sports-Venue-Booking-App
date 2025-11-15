@@ -21,6 +21,24 @@ class BookingModel {
       }
    }
 
+   static async createManual(bookingData) {
+      if (!bookingData.manualContact || !bookingData.manualName || !bookingData.field || !bookingData.date || !bookingData.startTime || !bookingData.endTime || !bookingData.totalPrice || !bookingData.status) {
+         throw new Error("Missing booking data");
+      }
+
+      try {
+         const newBooking = new Booking(bookingData);
+         const field = await Field.findById(bookingData.field);
+
+         field.bookings.push(newBooking);
+         await newBooking.save();
+         await field.save();
+         return newBooking;
+      } catch (error) {
+         throw new Error(error);
+      }
+   }
+
    static async findOne(query) {
       return await Booking.findOne(query);
    }

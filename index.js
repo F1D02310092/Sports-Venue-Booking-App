@@ -131,6 +131,10 @@ app.use(methodOverride("_method"));
 // serving static files
 app.use(express.static(path.join(__dirname, "public")));
 
+// admin routes
+const adminRoutes = require("./routes/adminRoutes.js");
+app.use("/admin", adminRoutes);
+
 // auth routes
 const authRoutes = require("./routes/authRoutes.js");
 app.use("/", authRoutes);

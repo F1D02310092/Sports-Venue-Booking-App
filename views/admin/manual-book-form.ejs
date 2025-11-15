@@ -1,0 +1,25 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<div class="container" style="width: 40rem;">
+  <div class="card">
+    <div class="card-header">
+      Booking <%= field.name %>
+    </div>
+    <form class="card-body" action="/admin/fields/<%= field.fieldID %>/m-booking" method="POST">
+      <div class="mb-3">
+        <label for="manual-booking-name" class="form-label">Customer Name</label>
+        <input type="text" class="form-control" id="manual-booking-name" placeholder="Enter Customer Name" name="manualName" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="manual-booking-contact" class="form-label">Customer Contact</label>
+        <input type="text" class="form-control" id="manual-booking-contact" placeholder="e.g. 08123456789 or user@mail.com" name="manualContact" required>
+      </div>
+
+      <input type="hidden" name="slots" value="<%= slots %>">
+      <input type="hidden" name="date" value="<%= date %>">
+
+      <button class="btn btn-success">Book</button>
+    </form>
+  </div>
+</div>
