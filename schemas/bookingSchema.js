@@ -60,14 +60,17 @@ const bookingSchema = new mongoose.Schema(
       transactionID: {
          type: String,
       },
-      payementToken: {
+      paymentToken: {
          type: String,
       },
       paymentTime: {
          type: Date,
       },
-      redirectURL: {
-         type: String,
+      // redirectURL: {
+      //    type: String,
+      // },
+      expiredAt: {
+         type: Date,
       },
 
       // utk manual booking
@@ -82,5 +85,9 @@ const bookingSchema = new mongoose.Schema(
    },
    { timestamps: true }
 );
+
+bookingSchema.index({ user: 1, createdAt: -1 });
+bookingSchema.index({ status: 1 });
+bookingSchema.index({ field: 1 });
 
 module.exports = mongoose.model("Booking", bookingSchema);

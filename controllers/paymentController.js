@@ -1,5 +1,6 @@
 const BookingModel = require("../models/Booking.js");
 const snap = require("../config/midtrans.js");
+const { minutesToHHMM } = require("../utils/timeFormat");
 
 const createPayment = async (req, res) => {
    try {
@@ -22,10 +23,29 @@ const createPayment = async (req, res) => {
          return res.redirect(`/fields/${booking.field.fieldID}`);
       }
 
+      if (booking.expiredAt < new Date()) {
+         booking.status = "failed";
+         await booking.save();
+         req.flash("error", "Booking already expired!");
+         return res.redirect(`/fields/${booking.field.fieldID}`);
+      }
+
       // edge cases
       // block double book (debouncer on FE and idempotency key on BE)
       // bisa cek expired dgn tambahin expired di schema dan atur sesuai dgn payload midtrans
       // jika slot sudah diambil oleh success payment, maka semua booking lain yg ada slot ini harus di cancel
+
+      const now = new Date();
+      const expiredAt = new Date(booking.expiredAt);
+      let timeBeforeExpire = Math.ceil((expiredAt - now) / 60000);
+
+      // kalau udah lewat waktu, anggap expired
+      if (timeBeforeExpire <= 0) {
+         booking.status = "failed";
+         await booking.save();
+         req.flash("error", "Booking already expired!");
+         return res.redirect(`/fields/${booking.field.fieldID}`);
+      }
 
       let parameter = {
          transaction_details: {
@@ -55,7 +75,7 @@ const createPayment = async (req, res) => {
          },
          expiry: {
             unit: "minutes",
-            duration: 10,
+            duration: timeBeforeExpire,
          },
       };
 
@@ -64,13 +84,13 @@ const createPayment = async (req, res) => {
       booking.orderID = parameter.transaction_details.order_id;
       booking.paymentToken = transaction.token;
       booking.transactionID = transaction.transaction_id;
-      booking.redirectURL = transaction.redirect_url;
+      // booking.redirectURL = transaction.redirect_url;
 
       await booking.save();
 
       res.json({
          token: transaction.token,
-         redirect_url: transaction.redirect_url,
+         // redirect_url: transaction.redirect_url,
       });
    } catch (error) {
       console.error("Payment error: ", error);
@@ -148,13 +168,10 @@ const handlePaymentNotification = async (req, res) => {
                },
                {
                   status: "failed",
-                  isOverridden: true,
                }
             );
          }
       }
-
-      console.log(`[Midtrans] Order ${orderId} | Transaction: ${transactionStatus} | Fraud: ${fraudStatus} | New status: ${newStatus}`);
 
       return res.status(200).send("Notification received: OK");
    } catch (error) {
@@ -174,9 +191,22 @@ const paymentSuccess = async (req, res) => {
          return res.redirect("/");
       }
 
+      const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
+         weekday: "long",
+         year: "numeric",
+         month: "long",
+         day: "2-digit",
+         hour: "2-digit",
+         minute: "2-digit",
+         second: "2-digit",
+         hour12: false,
+         timeZone: "Asia/Singapore",
+      });
+
       return res.render("payment/success", {
          booking,
          minutesToHHMM: require("../utils/timeFormat").minutesToHHMM,
+         formattedExpiredAt,
       });
    } catch (error) {
       console.error(error);
@@ -215,7 +245,19 @@ const paymentFailed = async (req, res) => {
          return res.redirect("/");
       }
 
-      return res.render("payment/failed", { booking });
+      const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
+         weekday: "long",
+         year: "numeric",
+         month: "long",
+         day: "2-digit",
+         hour: "2-digit",
+         minute: "2-digit",
+         second: "2-digit",
+         hour12: false,
+         timeZone: "Asia/Singapore",
+      });
+
+      return res.render("payment/failed", { booking, minutesToHHMM: require("../utils/timeFormat").minutesToHHMM, formattedExpiredAt });
    } catch (error) {
       console.error(error);
       req.flash("error", "Failed to load payment page");
@@ -241,16 +283,89 @@ const showPaymentPage = async (req, res) => {
          return res.redirect("/fields");
       }
 
+      const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
+         weekday: "long",
+         year: "numeric",
+         month: "long",
+         day: "2-digit",
+         hour: "2-digit",
+         minute: "2-digit",
+         second: "2-digit",
+         hour12: false,
+         timeZone: "Asia/Singapore",
+      });
+
       // Render payment page dengan data booking dan clientKey
       return res.render("payment/create", {
          booking,
          clientKey: process.env.MIDTRANS_CLIENT_KEY,
          minutesToHHMM: require("../utils/timeFormat").minutesToHHMM,
+         formattedExpiredAt,
       });
    } catch (error) {
       console.error("Show payment page error:", error);
       req.flash("error", "Failed to load payment page");
       return res.redirect("/fields");
+   }
+};
+
+const getUserPaymentHistory = async (req, res) => {
+   try {
+      const user = req.user;
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+      const statusFilter = req.query.status;
+
+      let query = { user: user._id };
+      if (statusFilter && statusFilter !== "all") {
+         query.status = statusFilter;
+      }
+
+      const bookings = await BookingModel.findAllByQuery(query)
+         .populate("field")
+         .sort({ createdAt: -1 })
+         .skip((page - 1) * limit)
+         .limit(limit);
+      // mongo akan 'membangun' query-query untuk kemudian 'await' menutup query dan baru dieksekusi
+
+      const totalBookings = await BookingModel.countDocuments(query);
+      const totalPages = Math.ceil(totalBookings / limit);
+
+      const now = new Date();
+      const expiredBookings = bookings.filter((b) => b.expiredAt < now && b.status === "pending");
+      if (expiredBookings.length > 0) {
+         await BookingModel.updateMany(
+            {
+               _id: { $in: expiredBookings.map((b) => b._id) },
+            },
+            {
+               status: "failed",
+            }
+         );
+      }
+
+      return res.render("payment/user-transactions-history.ejs", {
+         page,
+         limit,
+         bookings,
+         totalBookings,
+         totalPages,
+         currentPage: page,
+         statusFilter,
+         minutesToHHMM,
+         formattedDate: (date) =>
+            date.toLocaleString("en-CA", {
+               weekday: "long",
+               year: "numeric",
+               month: "long",
+               day: "numeric",
+               timeZone: "Asia/Singapore",
+            }),
+         formatPrice: (price) => price.toLocaleString("id-ID"),
+      });
+   } catch (error) {
+      console.error(error);
+      return res.status(500).send("Something went wrong");
    }
 };
 
@@ -261,4 +376,5 @@ module.exports = {
    paymentPending,
    paymentFailed,
    showPaymentPage,
+   getUserPaymentHistory,
 };

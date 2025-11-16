@@ -1,0 +1,76 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<div class="container pb-4">
+  <form method="GET" class="row">
+    <div class="col-md-4">
+      <select name="status" class="form-select">
+        <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
+        <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+        <option value="success" <%= statusFilter === 'success' ? 'selected' : '' %>>Success</option>
+        <option value="failed" <%= statusFilter === 'failed' ? 'selected' : '' %>>Failed</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+  </form>
+
+  <%if(bookings.length === 0){%>
+  <div class="alert alert-info">No transactions found</div>
+  <%} else {%>
+  <%  bookings.forEach((booking)=>{%>
+  <div class="card mt-3">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="me-2 mb-0">
+              <%= booking.field && booking.field.name ? booking.field.name : 'no name' %>
+            </h5>
+
+            <% 
+               const badgeClass = 
+               booking.status === "success" ? "badge bg-success" :
+               booking.status === "failed"  ? "badge bg-danger" :
+               booking.status === "pending" ? "badge bg-warning text-dark" : "";
+          %>
+
+            <div>
+              <span class="<%= badgeClass %>">
+                <%= booking.status.toUpperCase() %>
+              </span>
+            </div>
+          </div>
+
+          <p>
+            <strong>Date:</strong> <%= formattedDate(booking.date) %><br>
+            <% if (booking.slots && booking.slots.length > 0) { %>
+            <strong>Time:</strong> <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime + 60) %><br>
+            <% } %>
+
+            <strong>Total:</strong> Rp<%= formatPrice(booking.totalPrice) %><br>
+
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <% })%>
+  <%}%>
+
+<% if (totalPages > 1) { %>
+  <nav class="my-2">
+    <ul class="pagination">
+      <% for (let i = 1; i <= totalPages; i++) { %>
+      <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+        <a class="page-link" href="/payment/users/transactions-history?page=<%= i %>&limit=<%= limit %>&status=<%= statusFilter %>">
+          <%= i %>
+        </a>
+      </li>
+      <% } %>
+    </ul>
+  </nav>
+  <% } %>
+
+</div>

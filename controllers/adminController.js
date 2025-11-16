@@ -59,8 +59,6 @@ const createManualBooking = async (req, res) => {
          return res.status(404).send("Not found");
       }
 
-      console.log(slots);
-
       if (!Array.isArray(slots)) {
          slots = slots.split(",");
       }

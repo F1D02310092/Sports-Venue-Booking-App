@@ -26,7 +26,6 @@ const getAddField = (req, res) => {
 
 const postFieldCreation = async (req, res) => {
    try {
-      console.log(req.body);
       const { name, price, openTime, closeTime } = req.body;
 
       const fieldData = {
@@ -106,8 +105,6 @@ const getShowPage = async (req, res) => {
       for (let i = field.openTime; i + 60 <= field.closeTime; i += 60) {
          timeSlots.add(i);
       }
-
-      console.log(booking);
 
       const successBook = new Map();
 

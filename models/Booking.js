@@ -76,6 +76,16 @@ class BookingModel {
    static async find(id) {
       return await Booking.find(id);
    }
+
+   static findAllByQuery(query) {
+      return Booking.find(query); // returns query object
+
+      // method utk handle `Chained Query Builder` ditulis sebagai method biasa (bukan async), sehingga tidak ada keyword `await`
+   }
+
+   static async countDocuments(query) {
+      return await Booking.countDocuments(query);
+   }
 }
 
 module.exports = BookingModel;

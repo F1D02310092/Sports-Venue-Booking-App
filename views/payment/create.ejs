@@ -6,9 +6,10 @@
   <div class="booking-details">
     <h3>Booking Details:</h3>
     <p>Field: <strong><%= booking.field.name %></strong></p>
-    <p>Date: <strong><%= booking.date.toLocaleDateString('id-ID') %></strong></p>
-    <p>Time: <strong><%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %></strong></p>
-    <p>Total: <strong>Rp <%= booking.totalPrice.toLocaleString('id-ID') %></strong></p>
+    <p>Date: <strong><%= booking.date.toLocaleDateString('en-CA') %></strong></p>
+    <p>Time: <strong><%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime + 60)  %></strong></p>
+    <p>Total: <strong>Rp <%= booking.totalPrice.toLocaleString('en-CA') %></strong></p>
+    <p>Expired at: <strong><%= formattedExpiredAt %></strong></p>
     <p>Status: <span class="badge bg-warning"><%= booking.status %></span></p>
   </div>
 
@@ -59,8 +60,13 @@
         });
       })
       .catch(error => {
-        console.error('Error:', error);
-        alert('Payment failed to initialize');
+        console.error("Error:", error);
+        alert('Payment failed to initialize, redirecting back to field page');
+
+        setTimeout(() => {
+          window.location.href = "/fields/<%= booking.field.fieldID %>";
+        }, 1000);
       });
+
   };
 </script>

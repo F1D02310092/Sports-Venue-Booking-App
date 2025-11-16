@@ -26,19 +26,6 @@ const createBooking = async (req, res) => {
       }
       slots = slots.map(Number);
 
-      const conflictBooking = await BookingModel.findOne({
-         field: field._id,
-         user: req.user._id,
-         date: bookingDateUTC,
-         slots: { $in: slots },
-         status: "pending",
-      });
-
-      if (conflictBooking) {
-         req.flash("error", `Some sessions are already booked, please finish payment`);
-         return res.redirect(`/payment/create/${conflictBooking.bookingID}`);
-      }
-
       const dateOfToday = formatDateYYYYMMDD(new Date());
       if (date === dateOfToday) {
          const now = new Date();
@@ -54,6 +41,28 @@ const createBooking = async (req, res) => {
          }
       }
 
+      const conflictBooking = await BookingModel.findOne({
+         field: field._id,
+         user: req.user._id,
+         date: bookingDateUTC,
+         slots: { $in: slots },
+         status: "pending",
+      });
+
+      if (conflictBooking && conflictBooking.expiredAt < new Date()) {
+         req.flash("error", "Your book is expired, please make new book");
+         conflictBooking.status = "failed";
+         await conflictBooking.save();
+         return res.redirect(`/fields/${req.params.fieldID}`);
+      }
+
+      if (conflictBooking) {
+         req.flash("error", `Some sessions are already booked, please finish payment`);
+         return res.redirect(`/payment/create/${conflictBooking.bookingID}`);
+      }
+
+      const now = new Date();
+
       const bookingData = {
          field: field._id,
          user: req.user._id,
@@ -63,6 +72,7 @@ const createBooking = async (req, res) => {
          endTime: slots[slots.length - 1],
          totalPrice: field.price * slots.length,
          status: "pending",
+         expiredAt: new Date(now.getTime() + 1000 * 60 * 10), // 10 min
       };
 
       const newBooking = await BookingModel.create(bookingData);
