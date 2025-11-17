@@ -29,6 +29,13 @@ const isAdmin = async (req, res, next) => {
    next();
 };
 
+const isUser = async (req, res, next) => {
+   if (req.user.role !== "user") {
+      return res.status(403).send("Restricted access");
+   }
+   next();
+};
+
 const isReviewAuthor = async (req, res, next) => {
    const review = await ReviewModel.findOne({ reviewID: req.params.reviewID });
    if (!review) {
@@ -48,4 +55,5 @@ module.exports = {
    isLoggedIn,
    isAdmin,
    isReviewAuthor,
+   isUser,
 };

@@ -16,30 +16,30 @@
   </form>
 
   <%if(bookings.length === 0){%>
-  <div class="alert alert-info">No transactions found</div>
+  <div class="alert alert-info my-4">No transactions found</div>
   <%} else {%>
   <%  bookings.forEach((booking)=>{%>
   <div class="card mt-3">
     <div class="card-body">
-      <div class="row">
-        <div class="col-md-8">
+      <div class="d-flex justify-content-between align-items-center">
+
+
+        <div class="me-3 flex-grow-1">
           <div class="d-flex align-items-center mb-2">
             <h5 class="me-2 mb-0">
               <%= booking.field && booking.field.name ? booking.field.name : 'no name' %>
             </h5>
 
             <% 
-               const badgeClass = 
-               booking.status === "success" ? "badge bg-success" :
-               booking.status === "failed"  ? "badge bg-danger" :
-               booking.status === "pending" ? "badge bg-warning text-dark" : "";
+             const badgeClass = 
+             booking.status === "success" ? "badge bg-success" :
+             booking.status === "failed"  ? "badge bg-danger" :
+             booking.status === "pending" ? "badge bg-warning text-dark" : "";
           %>
 
-            <div>
-              <span class="<%= badgeClass %>">
-                <%= booking.status.toUpperCase() %>
-              </span>
-            </div>
+            <span class="<%= badgeClass %>">
+              <%= booking.status.toUpperCase() %>
+            </span>
           </div>
 
           <p>
@@ -47,15 +47,23 @@
             <% if (booking.slots && booking.slots.length > 0) { %>
             <strong>Time:</strong> <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime + 60) %><br>
             <% } %>
-
             <strong>Total:</strong> Rp<%= formatPrice(booking.totalPrice) %><br>
-
           </p>
+        </div>
+
+
+        <div class="text-end">
+          <% if(booking.status === 'pending'){%>
+          <a href="/payment/create/<%= booking.bookingID %>" class="btn btn-warning text-dark">Finish Payment</a>
+          <% } else if (booking.status === 'success'){%>
+          <a href="/payment/details/<%= booking.bookingID %>" class="btn btn-success">Details</a>
+          <% }%>
         </div>
 
       </div>
     </div>
   </div>
+
   <% })%>
   <%}%>
 

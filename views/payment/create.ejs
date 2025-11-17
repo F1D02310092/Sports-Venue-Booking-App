@@ -13,9 +13,13 @@
     <p>Status: <span class="badge bg-warning"><%= booking.status %></span></p>
   </div>
 
-  <button id="pay-button" class="btn btn-primary">Pay Now</button>
+  <div class="d-flex">
+    <button id="pay-button" class="btn btn-primary">Pay Now</button>
 
-  <a href="/fields/" class="btn btn-secondary">Cancel Booking</a>
+    <form action="/payment/cancel/<%= booking.bookingID %>" method="POST" class="mx-2">
+      <button class="btn btn-secondary">Cancel</button>
+    </form>
+  </div>
 </div>
 
 <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="<%= clientKey %>"></script>

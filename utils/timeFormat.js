@@ -41,10 +41,18 @@ function getTodayInWITA() {
    return witaDate;
 }
 
+function createWITATime() {
+   const now = new Date();
+
+   const witaDateTime = new Date(now.getTime() + 1000 * 60 * 60 * 8);
+   return witaDateTime;
+}
+
 module.exports = {
    toMinutes,
    minutesToHHMM,
    formatDateYYYYMMDD,
    parseLocalDateToUTC,
    getTodayInWITA,
+   createWITATime,
 };

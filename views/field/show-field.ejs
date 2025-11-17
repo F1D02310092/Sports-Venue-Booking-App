@@ -27,7 +27,7 @@
         <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
 
         <% if(currUser._id.toString() === successBook.get(slot).toString()){%>
-        <span><b>My Book</b></span>
+        <span><a>My Book</a></span>
         <% } else{%>
         <span><b>Booked</b></span>
         <% }%>

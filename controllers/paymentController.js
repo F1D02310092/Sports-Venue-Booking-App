@@ -1,6 +1,6 @@
 const BookingModel = require("../models/Booking.js");
 const snap = require("../config/midtrans.js");
-const { minutesToHHMM } = require("../utils/timeFormat");
+const { minutesToHHMM, createWITATime } = require("../utils/timeFormat");
 
 const createPayment = async (req, res) => {
    try {
@@ -84,13 +84,11 @@ const createPayment = async (req, res) => {
       booking.orderID = parameter.transaction_details.order_id;
       booking.paymentToken = transaction.token;
       booking.transactionID = transaction.transaction_id;
-      // booking.redirectURL = transaction.redirect_url;
 
       await booking.save();
 
       res.json({
          token: transaction.token,
-         // redirect_url: transaction.redirect_url,
       });
    } catch (error) {
       console.error("Payment error: ", error);
@@ -117,6 +115,7 @@ const handlePaymentNotification = async (req, res) => {
    try {
       const notification = req.body;
       const orderId = notification.order_id;
+      const transactionID = notification.transaction_id;
       const transactionStatus = notification.transaction_status;
       const fraudStatus = notification.fraud_status;
 
@@ -128,6 +127,10 @@ const handlePaymentNotification = async (req, res) => {
 
       if (booking.status === "success") {
          return res.status(200).send("Notification received: Booking success");
+      }
+
+      if (!booking.transactionID && transactionID) {
+         booking.transactionID = transactionID;
       }
 
       // nanti tambah edge handle conflict
@@ -153,7 +156,7 @@ const handlePaymentNotification = async (req, res) => {
       // Only update if status changed
       if (newStatus !== booking.status) {
          booking.status = newStatus;
-         booking.paymentTime = new Date();
+         booking.paymentTime = createWITATime();
          await booking.save();
 
          // CANCEL OTHERS PENDING BOOKINGS jika payment success
@@ -369,6 +372,46 @@ const getUserPaymentHistory = async (req, res) => {
    }
 };
 
+const cancelBooking = async (req, res) => {
+   try {
+      const booking = await BookingModel.findOne({ bookingID: req.params.bookingID });
+      if (!booking) {
+         return res.status(404).send("Not Found!");
+      }
+
+      booking.status = "failed";
+      await booking.save();
+
+      req.flash("success", "Your booking is cancelled");
+      return res.redirect("/fields");
+   } catch (error) {
+      console.error(error);
+      return res.send(error);
+   }
+};
+
+const getPaymentDetails = async (req, res) => {
+   const booking = await BookingModel.findOneAndPopulate({ bookingID: req.params.bookingID });
+
+   if (!booking) {
+      return res.status(404).send("Not Found!");
+   }
+
+   return res.render("payment/user-transactions-detail.ejs", {
+      booking,
+      minutesToHHMM,
+      formattedDate: (date) =>
+         date.toLocaleString("en-CA", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            timeZone: "Asia/Singapore",
+         }),
+      formatPrice: (price) => price.toLocaleString("id-ID"),
+   });
+};
+
 module.exports = {
    createPayment,
    handlePaymentNotification,
@@ -377,4 +420,6 @@ module.exports = {
    paymentFailed,
    showPaymentPage,
    getUserPaymentHistory,
+   cancelBooking,
+   getPaymentDetails,
 };
