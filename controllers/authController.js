@@ -53,10 +53,61 @@ const handleLogout = async (req, res, next) => {
    });
 };
 
+const getProfilePage = async (req, res) => {
+   const user = await UserModel.findOne({ userID: req.params.userID });
+   if (!user) {
+      return res.status(404).send("Not Found!");
+   }
+
+   return res.render("auth/profile.ejs", { user });
+};
+
+const handleUpdateProfile = async (req, res) => {
+   try {
+      const user = await UserModel.findOne({ userID: req.params.userID });
+      if (!user) {
+         return res.status(404).send("Not Found!");
+      }
+
+      const { username, password, newPassword } = req.body;
+
+      user.username = username;
+
+      if (!password && !newPassword) {
+         await user.save();
+         req.flash("success", "Successfully change username");
+         return res.redirect("/fields");
+      }
+
+      if (!password || !newPassword) {
+         req.flash("error", "Please input all crendentials");
+         return res.redirect(`/users/${req.params.userID}/profile`);
+      }
+
+      const isCorrect = await user.authenticate(password);
+      if (!isCorrect.user) {
+         req.flash("error", "Current password incorrect");
+         return res.redirect(`/users/${user.userID}/profile`);
+      }
+
+      await user.setPassword(newPassword);
+      await user.save();
+
+      req.flash("success", "Successfully change password");
+      return res.redirect("/fields");
+   } catch (error) {
+      console.error(error);
+
+      return res.send(error);
+   }
+};
+
 module.exports = {
    getRegisterPage,
    getLoginPage,
    handleRegistration,
    handleLogin,
    handleLogout,
+   getProfilePage,
+   handleUpdateProfile,
 };

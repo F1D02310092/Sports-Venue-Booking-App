@@ -1,0 +1,126 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<style>
+  .checkbox-wrapper-6 .tgl {
+    display: none;
+  }
+
+  .checkbox-wrapper-6 .tgl,
+  .checkbox-wrapper-6 .tgl:after,
+  .checkbox-wrapper-6 .tgl:before,
+  .checkbox-wrapper-6 .tgl *,
+  .checkbox-wrapper-6 .tgl *:after,
+  .checkbox-wrapper-6 .tgl *:before,
+  .checkbox-wrapper-6 .tgl+.tgl-btn {
+    box-sizing: border-box;
+  }
+
+  .checkbox-wrapper-6 .tgl::-moz-selection,
+  .checkbox-wrapper-6 .tgl:after::-moz-selection,
+  .checkbox-wrapper-6 .tgl:before::-moz-selection,
+  .checkbox-wrapper-6 .tgl *::-moz-selection,
+  .checkbox-wrapper-6 .tgl *:after::-moz-selection,
+  .checkbox-wrapper-6 .tgl *:before::-moz-selection,
+  .checkbox-wrapper-6 .tgl+.tgl-btn::-moz-selection,
+  .checkbox-wrapper-6 .tgl::selection,
+  .checkbox-wrapper-6 .tgl:after::selection,
+  .checkbox-wrapper-6 .tgl:before::selection,
+  .checkbox-wrapper-6 .tgl *::selection,
+  .checkbox-wrapper-6 .tgl *:after::selection,
+  .checkbox-wrapper-6 .tgl *:before::selection,
+  .checkbox-wrapper-6 .tgl+.tgl-btn::selection {
+    background: none;
+  }
+
+  .checkbox-wrapper-6 .tgl+.tgl-btn {
+    outline: 0;
+    display: inline-block;
+    width: 2em;
+    height: 1em;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .checkbox-wrapper-6 .tgl+.tgl-btn:after,
+  .checkbox-wrapper-6 .tgl+.tgl-btn:before {
+    position: relative;
+    display: block;
+    content: "";
+    width: 50%;
+    height: 100%;
+  }
+
+  .checkbox-wrapper-6 .tgl+.tgl-btn:after {
+    left: 0;
+  }
+
+  .checkbox-wrapper-6 .tgl+.tgl-btn:before {
+    display: none;
+  }
+
+  .checkbox-wrapper-6 .tgl:checked+.tgl-btn:after {
+    left: 50%;
+  }
+
+  .checkbox-wrapper-6 .tgl-light+.tgl-btn {
+    background: #f0f0f0;
+    border-radius: 2em;
+    padding: 2px;
+    transition: all 0.4s ease;
+  }
+
+  .checkbox-wrapper-6 .tgl-light+.tgl-btn:after {
+    border-radius: 50%;
+    background: #fff;
+    transition: all 0.2s ease;
+  }
+
+  .checkbox-wrapper-6 .tgl-light:checked+.tgl-btn {
+    background: #9fd6ae;
+  }
+</style>
+
+<div class="container" style="width: 450px">
+  <form method="POST" action="/users/<%= user.userID %>?_method=PUT">
+    <div class="card">
+      <h5 class="card-header">Edit <%= user.username %></h5>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" placeholder="email@example.com" name="username" required value="<%= user.username %>" />
+        </div>
+
+        <div class="d-flex align-items-center mb-2">
+          <span>Change Password</span>
+
+          <div class="checkbox-wrapper-6 d-flex align-items-center ms-2">
+            <input class="tgl tgl-light" id="change-pass" type="checkbox" />
+            <label class="tgl-btn" for="change-pass"></label>
+          </div>
+        </div>
+
+        <div class="mb-3" id="pass-div" style="display: none">
+          <input type="password" class="form-control" id="password" placeholder="Enter Current Password" name="password" />
+          <input type="password" class="form-control mt-3" id="password" placeholder="Enter New Password" name="newPassword" />
+        </div>
+
+        <button class="btn btn-primary my-2 d-block">Edit</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  const changePass = document.querySelector("#change-pass");
+  changePass.addEventListener("change", function(evt) {
+    if (changePass.checked) {
+      document.querySelector("#pass-div").style.display = "block";
+    } else {
+      document.querySelector("#pass-div").style.display = "none";
+    }
+  });
+</script>

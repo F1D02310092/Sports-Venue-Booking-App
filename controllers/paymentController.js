@@ -310,6 +310,20 @@ const showPaymentPage = async (req, res) => {
          return res.redirect("/fields");
       }
 
+      const now = new Date();
+      const expiredAt = new Date(booking.expiredAt);
+      let timeBeforeExpire = Math.ceil((expiredAt - now) / 60000);
+
+      if (timeBeforeExpire <= 0) {
+         booking.status = "failed";
+         await booking.save();
+         return res.status(400).json({ error: "Booking already expired" });
+      }
+
+      if (booking.slots[0] < now.getHours() * 60) {
+         return res.status(400).json({ error: "Session(s) already passed" });
+      }
+
       const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
          weekday: "long",
          year: "numeric",

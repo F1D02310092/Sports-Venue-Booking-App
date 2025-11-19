@@ -21,6 +21,10 @@ class UserModel {
       return await User.findOne({ email: email });
    }
 
+   static async findOne(query) {
+      return await User.findOne(query);
+   }
+
    static async findById(id) {
       return await User.findById({ _id: id });
    }
