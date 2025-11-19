@@ -9,31 +9,16 @@ const createPayment = async (req, res) => {
       const booking = await BookingModel.findOneAndPopulate({ bookingID });
 
       if (!booking) {
-         req.flash("error", "Booking not found!");
-         return res.redirect(`/fields/${booking.field.fieldID}`);
+         return res.status(404).json({ error: "Booking not found" });
       }
 
       if (req.user._id.toString() !== booking.user._id.toString()) {
-         req.flash("error", "401 unauthorized request");
-         return res.redirect("/fields");
+         return res.status(403).json({ error: "Unauthorized request" });
       }
 
       if (booking.status !== "pending") {
-         req.flash("error", "Payment already processed");
-         return res.redirect(`/fields/${booking.field.fieldID}`);
+         return res.status(400).json({ error: "Payment already processed" });
       }
-
-      if (booking.expiredAt < new Date()) {
-         booking.status = "failed";
-         await booking.save();
-         req.flash("error", "Booking already expired!");
-         return res.redirect(`/fields/${booking.field.fieldID}`);
-      }
-
-      // edge cases
-      // block double book (debouncer on FE and idempotency key on BE)
-      // bisa cek expired dgn tambahin expired di schema dan atur sesuai dgn payload midtrans
-      // jika slot sudah diambil oleh success payment, maka semua booking lain yg ada slot ini harus di cancel
 
       const now = new Date();
       const expiredAt = new Date(booking.expiredAt);
@@ -43,9 +28,17 @@ const createPayment = async (req, res) => {
       if (timeBeforeExpire <= 0) {
          booking.status = "failed";
          await booking.save();
-         req.flash("error", "Booking already expired!");
-         return res.redirect(`/fields/${booking.field.fieldID}`);
+         return res.status(400).json({ error: "Booking already expired" });
       }
+
+      if (booking.slots[0] < now.getHours() * 60) {
+         return res.status(400).json({ error: "Session(s) already passed" });
+      }
+
+      // edge cases
+      // block double book (debouncer on FE and idempotency key on BE)
+      // bisa cek expired dgn tambahin expired di schema dan atur sesuai dgn payload midtrans
+      // jika slot sudah diambil oleh success payment, maka semua booking lain yg ada slot ini harus di cancel
 
       let parameter = {
          transaction_details: {
@@ -97,7 +90,7 @@ const createPayment = async (req, res) => {
       // Rollback jika gagal, mark booking sebagai failed
       try {
          await BookingModel.findOneAndUpdate(
-            { bookingID },
+            { bookingID: booking.bookingID },
             {
                status: "failed",
                cancellationReason: `Payment creation failed: ${error.message}`,
@@ -133,7 +126,38 @@ const handlePaymentNotification = async (req, res) => {
          booking.transactionID = transactionID;
       }
 
-      // nanti tambah edge handle conflict
+      if ((transactionStatus === "capture" || transactionStatus === "settlement") && (fraudStatus === "accept" || !fraudStatus)) {
+         const updateBooking = await BookingModel.findOneAndUpdate(
+            {
+               _id: booking._id,
+               paymentStatus: { $ne: "success" },
+               // atomic lock
+               $nor: [
+                  {
+                     field: booking.field._id,
+                     date: booking.date,
+                     slots: { $in: booking.slots },
+                     status: "success",
+                  },
+               ],
+            },
+            {
+               status: "success",
+               paymentTime: createWITATime(),
+            },
+            { new: true }
+         );
+
+         if (!updateBooking) {
+            await BookingModel.findOneAndUpdate(
+               { _id: booking._id },
+               {
+                  status: "failed",
+               }
+            );
+            return res.status(200).send("Notificatoin received: Session(s) has just been booked by other user");
+         }
+      }
 
       let newStatus = booking.status;
 

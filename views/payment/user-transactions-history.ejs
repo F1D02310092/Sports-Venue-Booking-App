@@ -54,7 +54,12 @@
 
         <div class="text-end">
           <% if(booking.status === 'pending'){%>
-          <a href="/payment/create/<%= booking.bookingID %>" class="btn btn-warning text-dark">Finish Payment</a>
+          <div class="d-flex">
+            <a href="/payment/create/<%= booking.bookingID %>" class="btn btn-warning text-dark">Finish Payment</a>
+            <form action="/payment/cancel/<%= booking.bookingID %>" method="POST" class="mx-2">
+              <button class="btn btn-danger">Cancel</button>
+            </form>
+          </div>
           <% } else if (booking.status === 'success'){%>
           <a href="/payment/details/<%= booking.bookingID %>" class="btn btn-success">Details</a>
           <% }%>

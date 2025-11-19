@@ -29,6 +29,7 @@
     // Fetch Snap token dari server
     fetch('/payment/create', {
         method: 'POST',
+        credentials: "same-origin",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -52,7 +53,7 @@
           },
           onPending: function(result) {
             console.log("Payment pending:", result);
-            window.location.href = "/payment/pendign?fieldID=<%= booking.field.fieldID %>";
+            window.location.href = "/payment/pending?fieldID=<%= booking.field.fieldID %>";
           },
           onError: function(result) {
             console.error("Payment error:", result);
@@ -65,7 +66,8 @@
       })
       .catch(error => {
         console.error("Error:", error);
-        alert('Payment failed to initialize, redirecting back to field page');
+
+        alert('Payment failed to initialize, redirecting back to field');
 
         setTimeout(() => {
           window.location.href = "/fields/<%= booking.field.fieldID %>";
