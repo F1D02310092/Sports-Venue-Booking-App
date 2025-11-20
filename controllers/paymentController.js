@@ -57,7 +57,7 @@ const createPayment = async (req, res) => {
                id: booking.field.fieldID,
                price: booking.field.price,
                quantity: booking.slots.length,
-               name: `${booking.field.name.substring(0, 30)} - ${booking.slots.length} slot(s)`.substring(0, 50),
+               name: `${booking.field.name} - ${booking.slots.length} slot(s)`,
                category: "Sports Venue",
             },
          ],
@@ -79,6 +79,9 @@ const createPayment = async (req, res) => {
       booking.transactionID = transaction.transaction_id;
 
       await booking.save();
+
+      console.log("SNAP TRANS: ", transaction);
+      console.log("SNAP Parameter: ", parameter);
 
       res.json({
          token: transaction.token,
