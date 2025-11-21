@@ -44,8 +44,7 @@ function getTodayInWITA() {
 function createWITATime() {
    const now = new Date();
 
-   const witaDateTime = new Date(now.getTime() + 1000 * 60 * 60 * 8);
-   return witaDateTime;
+   return now;
 }
 
 module.exports = {

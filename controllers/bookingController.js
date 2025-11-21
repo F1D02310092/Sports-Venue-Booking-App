@@ -69,7 +69,7 @@ const createBooking = async (req, res) => {
          date: new Date(date),
          slots: slots,
          startTime: slots[0],
-         endTime: slots[slots.length - 1],
+         endTime: slots[slots.length - 1] + 60,
          totalPrice: field.price * slots.length,
          status: "pending",
          expiredAt: new Date(now.getTime() + 1000 * 60 * 10), // 10 min

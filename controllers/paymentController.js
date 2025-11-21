@@ -80,9 +80,6 @@ const createPayment = async (req, res) => {
 
       await booking.save();
 
-      console.log("SNAP TRANS: ", transaction);
-      console.log("SNAP Parameter: ", parameter);
-
       res.json({
          token: transaction.token,
       });
@@ -96,7 +93,6 @@ const createPayment = async (req, res) => {
             { bookingID: booking.bookingID },
             {
                status: "failed",
-               cancellationReason: `Payment creation failed: ${error.message}`,
             }
          );
       } catch (rollbackError) {

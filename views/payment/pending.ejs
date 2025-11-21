@@ -8,7 +8,7 @@
     <h3>Booking Details:</h3>
     <p>Field: <%= booking.field.name %></p>
     <p>Date: <%= booking.date.toLocaleDateString() %></p>
-    <p>Time: <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime + 60) %></p>
+    <p>Time: <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime ) %></p>
     <p>Total: Rp <%= booking.totalPrice.toLocaleString() %></p>
   </div>
 

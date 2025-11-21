@@ -100,7 +100,7 @@ const createManualBooking = async (req, res) => {
          date: new Date(date),
          slots: slots,
          startTime: slots[0],
-         endTime: slots[slots.length - 1],
+         endTime: slots[slots.length - 1] + 60,
          totalPrice: field.price * slots.length,
          status: "success",
       };

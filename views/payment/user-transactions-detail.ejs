@@ -1,42 +1,149 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<div class="container my-4">
-  <div class="card shadow-sm rounded-3">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6 border-end">
-          <h5 class="fw-bold mb-3">Payment Details</h5>
+<style>
+  /* Gaya global khusus receipt */
+  #receipt-content {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 420px;
+    background: #fff;
+    font-family: "Courier New", monospace;
+    margin-bottom: 24px;
+  }
 
-          <span class="badge bg-secondary mb-2"> ORDER ID: <%= booking.orderID %> </span>
+  #receipt-content h1,
+  #receipt-content h2 {
+    margin: 0;
+    font-family: "Courier New", monospace;
+  }
 
-          <p class="mb-1"><strong>Field:</strong> <%= booking.field.name %></p>
+  .receipt-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #28a745;
+    color: #fff;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+  }
 
-          <p class="mb-1"><strong>Date:</strong> <%= formattedDate(booking.date) %></p>
 
-          <p class="mb-1">
-            <strong>Time Session:</strong>
-            <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime + 60) %>
-          </p>
+  .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 2px 0;
+    font-family: "Courier New", monospace;
+  }
 
-          <% if(currUser && currUser.role === 'admin'){ %>
-          <div class="mt-3">
-            <a target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transactionID %>" class="btn btn-info"> Check Midtrans </a>
-          </div>
-          <% } %>
-        </div>
+  .receipt-title {
+    font-weight: bold;
+    margin-top: 10px;
+  }
 
-        <div class="col-md-6">
-          <h5 class="fw-bold mb-3">User Details</h5>
+  .download-buttons button {
+    font-family: monospace;
+    padding: 6px 12px;
+  }
+</style>
 
-          <p class="mb-1"><strong>Username:</strong> <%= booking.user.username %></p>
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center">
+    <div class="col-lg-12" style="width: fit-content">
 
-          <p class="mb-1"><strong>Email:</strong> <%= booking.user.email %></p>
-        </div>
+      <div class="download-buttons d-flex justify-content-evenly mb-3">
+        <button onclick="downloadPDF('<%= booking.orderID%>', this)">Download PDF</button>
+        <button onclick="downloadJPG('<%= booking.orderID%>', this)">Download JPG</button>
       </div>
-    </div>
 
-    <div class="card-footer text-center bg-light">
-      <small class="text-muted fst-italic">Thank you for using our services!</small>
+      <div id="receipt-content">
+        <div class="text-center" style="border-bottom: 2px solid black;">
+          <h1>PAYMENT DETAILS</h1>
+          <h2>GOR FUTSAL</h2>
+          <p>Jln. Kita Masih Panjang, No. 123, Jakarta</p>
+          <p>Telp: (123) 1234-1234</p>
+        </div>
+
+
+        <div class="py-3" style="border-bottom: 2px solid black;">
+          <div class="receipt-row"><span>Customer:</span><span><%= booking.user.username %></span></div>
+          <div class="receipt-row"><span>Email:</span><span><%= booking.user.email %></span></div>
+        </div>
+
+
+
+        <div class="my-3">
+          <div class="receipt-row"><span>Field:</span><span><%= booking.field.name %></span></div>
+          <div class="receipt-row"><span>Date:</span><span><%= formattedDate(booking.date) %></span></div>
+          <div class="receipt-row">
+            <span>Status:</span>
+            <span class="receipt-badge"><%= booking.status %></span>
+          </div>
+
+          <p class="receipt-title">Playing Session(s):</p>
+
+          <% booking.slots.forEach((sess, idx) => { %>
+          <div class="receipt-row">
+            <span>Slot <%= idx + 1 %>: <%= minutesToHHMM(sess) %> - <%= minutesToHHMM(sess + 60) %></span>
+            <span>Rp<%= formatPrice(booking.totalPrice / booking.slots.length) %></span>
+          </div>
+          <% }) %>
+        </div>
+
+
+
+
+
+        <div class="receipt-row receipt-title" style="border-top: 2px solid black;">
+          <span>Total:</span>
+          <span>Rp<%= formatPrice(booking.totalPrice) %></span>
+        </div>
+
+        <div class="receipt-title mt-4">Payment Info</div>
+        <div class="receipt-row"><span>Method:</span><span>Midtrans Gateway</span></div>
+        <hr>
+        <div class="receipt-row" style="flex-direction: column; align-items: flex-start;">
+          <span>Order ID:</span>
+          <span><%= booking.orderID %></span>
+        </div>
+        <hr>
+
+
+
+        <div class="receipt-row" style="flex-direction: column; align-items: flex-start;">
+          <span>Paid At:</span>
+          <span style="text-align:right;">
+            <%= booking.paymentTime.toLocaleString("en-CA", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              hour12: false
+            }) %>
+          </span>
+        </div>
+        <hr>
+
+        <% if(currUser && currUser.role === 'user'){ %>
+        <p class="text-center mt-3">Thank you for using our services!</p>
+        <% } %>
+      </div>
+
+      <% if(currUser && currUser.role === 'admin'){ %>
+      <div class="d-flex justify-content-evenly mt-3">
+        <a class="btn btn-info" target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transactionID %>">
+          Verify Status
+        </a>
+      </div>
+      <% } %>
+
     </div>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="/js/receiptDownload.js"></script>

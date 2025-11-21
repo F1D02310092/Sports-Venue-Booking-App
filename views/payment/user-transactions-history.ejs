@@ -45,7 +45,7 @@
           <p>
             <strong>Date:</strong> <%= formattedDate(booking.date) %><br>
             <% if (booking.slots && booking.slots.length > 0) { %>
-            <strong>Time:</strong> <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime + 60) %><br>
+            <strong>Time:</strong> <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %><br>
             <% } %>
             <strong>Total:</strong> Rp<%= formatPrice(booking.totalPrice) %><br>
           </p>
