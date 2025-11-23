@@ -1,24 +1,42 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<div class="container">
-  <%  if(fields && fields.length >0){ %>
-  <%for(let f of fields){%>
-  <div class="card" style="width: 100%; margin: 12px 0;">
-    <div class="card-body">
-      <h5 class="card-title "><%= f.name %></h5>
-      <p class="my-2"><b>Open: <%=  minutesToHHMM(f.openTime) %> - Close: <%= minutesToHHMM(f.closeTime) %></b></p>
-      <p class="card-subtitle mb-2 text-body-secondary">Rp<%= f.price %></p>
+<div class="container mt-4">
+  <% if (fields && fields.length > 0) { %>
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    <% for (let f of fields) { %>
 
-      <% if(!currUser || currUser.role === 'user'){%>
+    <div class="col">
+      <div class="card h-100">
+        <% if (f.images && f.images.length > 0) { %>
+        <img src="<%= f.images[0].thumbnail %>" class="card-img-top rounded" alt="<%= f.name %>" />
+        <% } %>
 
-      <a href="/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-info">See details</a>
-      <%} else if (currUser && currUser.role === 'admin'){%>
-      <a href="/admin/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-secondary">See details</a>
-      <%} %>
+        <div class="card-body">
+          <h5 class="card-title"><%= f.name %></h5>
+
+          <p class="my-2">
+            <b> Open: <%= minutesToHHMM(f.openTime) %> – Close: <%= minutesToHHMM(f.closeTime) %> </b>
+          </p>
+
+          <p class="card-subtitle mb-2 text-body-secondary">Rp<%= f.price %></p>
+        </div>
+
+        <div class="px-3 mb-2">
+          <% if (!currUser || currUser.role === 'user') { %>
+          <a href="/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-info">See details</a>
+          <% } else if (currUser && currUser.role === 'admin') { %>
+          <a href="/admin/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-secondary">See details</a>
+          <% } %>
+        </div>
+      </div>
     </div>
+
+    <% } %>
   </div>
-  <%}%>
-  <%} else {%>
-  <h2>Empty</h2>
-  <%}%>
+
+  <% } else { %>
+
+  <h2 class="text-center">Empty</h2>
+
+  <% } %>
 </div>

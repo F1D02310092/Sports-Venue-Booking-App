@@ -1,7 +1,7 @@
 <% layout('layout/boilerplate.ejs') %>
 
 <div class="container">
-  <form method="POST" action="/fields">
+  <form method="POST" action="/fields" enctype="multipart/form-data">
     <div class="card">
       <h5 class="card-header">Add Field</h5>
       <div class="card-body">
@@ -13,6 +13,12 @@
         <div class="mb-3">
           <label for="field_price" class="form-label">Price</label>
           <input type="number" class="form-control" id="field_price" placeholder="Enter Price" name="price" min="0" required>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label mb-0" for="image">Upload Image</label>
+          <input class="form-control" type="file" name="images" id="image" required multiple />
+
         </div>
 
         <div class="row">

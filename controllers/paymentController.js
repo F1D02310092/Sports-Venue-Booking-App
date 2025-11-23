@@ -62,10 +62,11 @@ const createPayment = async (req, res) => {
             },
          ],
          callbacks: {
-            finish: `${process.env.BASE_URL}/payment/success?fieldID=${booking.field.fieldID}`,
-            error: `${process.env.BASE_URL}/payment/failed?fieldID=${booking.field.fieldID}`,
-            pending: `${process.env.BASE_URL}/payment/pending?fieldID=${booking.field.fieldID}`,
+            finish: `${process.env.BASE_URL}/payment/success?bookingID=${booking.bookingID}`,
+            error: `${process.env.BASE_URL}/payment/failed?bookingID=${booking.bookingID}`,
+            pending: `${process.env.BASE_URL}/payment/pending?bookingID=${booking.bookingID}`,
          },
+
          expiry: {
             unit: "minutes",
             duration: timeBeforeExpire,
@@ -208,13 +209,15 @@ const handlePaymentNotification = async (req, res) => {
 
 const paymentSuccess = async (req, res) => {
    try {
-      const { order_id } = req.query;
+      const { bookingID } = req.query;
 
-      const booking = await BookingModel.findOneAndPopulate({ orderId: order_id });
+      console.log(req.query);
+
+      const booking = await BookingModel.findOneAndPopulate({ bookingID });
 
       if (!booking) {
          req.flash("error", "Booking not found");
-         return res.redirect("/");
+         return res.redirect("/fields");
       }
 
       const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
@@ -229,6 +232,8 @@ const paymentSuccess = async (req, res) => {
          timeZone: "Asia/Singapore",
       });
 
+      console.log(booking);
+
       return res.render("payment/success", {
          booking,
          minutesToHHMM: require("../utils/timeFormat").minutesToHHMM,
@@ -237,38 +242,38 @@ const paymentSuccess = async (req, res) => {
    } catch (error) {
       console.error(error);
       req.flash("error", "Failed to load payment success page");
-      return res.redirect("/");
+      return res.redirect("/fields");
    }
 };
 
 const paymentPending = async (req, res) => {
    try {
-      const { order_id } = req.query;
+      const { bookingID } = req.query;
 
-      const booking = await BookingModel.findOneAndPopulate({ orderId: order_id });
+      const booking = await BookingModel.findOneAndPopulate({ bookingID });
 
       if (!booking) {
          req.flash("error", "Booking not found");
-         return res.redirect("/");
+         return res.redirect("/fields");
       }
 
       return res.render("payment/pending", { booking });
    } catch (error) {
       console.error(error);
       req.flash("error", "Failed to load payment page");
-      return res.redirect("/");
+      return res.redirect("/fields");
    }
 };
 
 const paymentFailed = async (req, res) => {
    try {
-      const { order_id } = req.query;
+      const { bookingID } = req.query;
 
-      const booking = await BookingModel.findOneAndPopulate({ orderId: order_id });
+      const booking = await BookingModel.findOneAndPopulate({ bookingID });
 
       if (!booking) {
          req.flash("error", "Booking not found");
-         return res.redirect("/");
+         return res.redirect("/fields");
       }
 
       const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
@@ -287,7 +292,7 @@ const paymentFailed = async (req, res) => {
    } catch (error) {
       console.error(error);
       req.flash("error", "Failed to load payment page");
-      return res.redirect("/");
+      return res.redirect("/fields");
    }
 };
 

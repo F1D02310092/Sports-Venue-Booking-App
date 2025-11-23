@@ -48,16 +48,13 @@
         // Buka Snap popup
         snap.pay(data.token, {
           onSuccess: function(result) {
-            console.log("Payment success:", result);
-            window.location.href = "/payment/success?fieldID=<%= booking.field.fieldID %>";
+            window.location.href = "/payment/success?bookingID=<%= booking.bookingID %>";
           },
           onPending: function(result) {
-            console.log("Payment pending:", result);
-            window.location.href = "/payment/pending?fieldID=<%= booking.field.fieldID %>";
+            window.location.href = "/payment/pending?bookingID=<%= booking.bookingID %>";
           },
           onError: function(result) {
-            console.error("Payment error:", result);
-            window.location.href = "/payment/failed?fieldID=<%= booking.field.fieldID %>";
+            window.location.href = "/payment/failed?bookingID=<%= booking.bookingID %>";
           },
           onClose: function() {
             console.log("User closed the popup before finishing payment");

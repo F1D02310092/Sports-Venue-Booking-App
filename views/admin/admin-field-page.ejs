@@ -3,7 +3,33 @@
 <div class="container">
   <h1><%= field.name %></h1>
   <h2>Rp<%=field.price %></h2>
-  <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
+
+
+
+  <% if(field.images.length > 0){%>
+  <div id="carouselExample" class="carousel slide my-2">
+    <div class="carousel-inner">
+      <% field.images.forEach((img, i) => { %>
+      <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+        <img crossorigin="anonymous" src="<%= img.url %>" class="d-block w-100" style="height: 600px; object-fit: cover;" />
+      </div>
+      <% }); %>
+    </div>
+
+    <% if(field.images.length > 1) {%>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+
+    <% }%>
+  </div>
+
+  <% }%>
 
   <form action="" method="GET" id="date-picker-form">
     <input type="hidden" id="field-id" value="<%= field.fieldID %>" />
@@ -14,7 +40,11 @@
   <a class="btn btn-secondary my-2" href="/fields/<%= field.fieldID %>/edit">Manage</a>
   <%}%>
 
-   <h3 class="my-2" id="selected-date"><%= queryDateFormatted %></h3>
+
+
+   <h3 class="my-2" id="selected-date"><%= queryDateFormatted %>
+  <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
+  </h3>
 </div>
 
 <form action="/admin/fields/<%= field.fieldID %>/m-booking" method="GET" class="container mb-4" id="form-booking">

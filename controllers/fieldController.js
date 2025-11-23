@@ -1,3 +1,4 @@
+const { cloudinary } = require("../config/imageUpload.js");
 const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
 const { toMinutes, minutesToHHMM, formatDateYYYYMMDD, getTodayInWITA } = require("../utils/timeFormat.js");
@@ -36,6 +37,27 @@ const postFieldCreation = async (req, res) => {
       };
 
       const newField = new FieldModel(fieldData);
+
+      if (req.files && req.files.length > 0) {
+         const uploadedImgs = [];
+
+         for (f of req.files) {
+            const base64 = `data:${f.mimetype};base64,${f.buffer.toString("base64")}`;
+
+            const result = await cloudinary.uploader.upload(base64, {
+               folder: "Futsal",
+               allowed_formats: ["jpg", "jpeg", "png"],
+            });
+
+            uploadedImgs.push({
+               url: result.secure_url,
+               filename: result.public_id,
+            });
+         }
+
+         newField.images = uploadedImgs;
+      }
+
       await newField.save();
 
       req.flash("success", "Successfully adding a new field");
@@ -116,7 +138,7 @@ const getShowPage = async (req, res) => {
          }
       }
 
-      if (req.user.role === "user") {
+      if (!req.user || req.user.role === "user") {
          return res.render("field/show-field.ejs", { field, minutesToHHMM, timeSlots, queryDateStr, queryDateFormatted, minDate, maxDate, successBook });
       } else {
          return res.render("admin/admin-field-page.ejs", { field, minutesToHHMM, timeSlots, queryDateStr, queryDateFormatted, minDate, maxDate, successBook });
@@ -147,11 +169,49 @@ const putFieldEdit = async (req, res) => {
          closeTime: toMinutes(closeTime),
       };
 
-      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, fieldData, { runValidators: true });
+      const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, fieldData, { runValidators: true, new: true });
+
+      if (req.files && req.files.length > 0) {
+         const uploadedImgs = [];
+
+         for (f of req.files) {
+            const base64 = `data:${f.mimetype};base64,${f.buffer.toString("base64")}`;
+
+            const result = await cloudinary.uploader.upload(base64, {
+               folder: "Futsal",
+               allowed_formats: ["jpg", "jpeg", "png"],
+            });
+
+            uploadedImgs.push({
+               url: result.secure_url,
+               filename: result.public_id,
+            });
+         }
+
+         field.images.push(...uploadedImgs);
+         await field.save();
+      }
+
+      if (req.body.deleteImages) {
+         for (let filename of req.body.deleteImages) {
+            await cloudinary.uploader.destroy(filename);
+         }
+         await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { $pull: { images: { filename: { $in: req.body.deleteImages } } } });
+      }
 
       req.flash("success", `Successfully edit a field`);
       return res.redirect(`/fields/${req.params.fieldID}`);
    } catch (error) {
+      if (req.files && req.files.length > 0) {
+         for (const file of req.files) {
+            try {
+               await cloudinary.uploader.destroy(file.filename);
+            } catch (deleteError) {
+               console.error("Error deleting uploaded file:", deleteError);
+            }
+         }
+      }
+      console.error(error);
       return res.status(500).send(error);
    }
 };

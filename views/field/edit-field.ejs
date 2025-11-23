@@ -6,7 +6,7 @@
 
   <div class="card-body">
     <!-- Form Edit -->
-    <form id="editForm" method="POST" action="/fields/<%= field.fieldID %>?_method=PUT">
+    <form id="editForm" method="POST" action="/fields/<%= field.fieldID %>?_method=PUT" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="field_name" class="form-label">Field Name</label>
         <input type="text" class="form-control" id="field_name" name="name" required value="<%= field.name %>">
@@ -15,6 +15,13 @@
       <div class="mb-3">
         <label for="field_price" class="form-label">Price</label>
         <input type="number" class="form-control" id="field_price" name="price" min="0" required value="<%= field.price %>">
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label mb-0" for="image">Upload Image</label>
+        <input class="form-control" type="file" name="images" id="image" multiple />
+
+
       </div>
 
       <div class="row">
@@ -27,17 +34,35 @@
           <input type="text" id="field-close" name="closeTime" class="form-control" required value="<%= minutesToHHMM(field.closeTime) %>" />
         </div>
       </div>
+
+      <%if(field.images.length > 0){%>
+      <div class="d-flex">
+        <% field.images.forEach((img, idx)=>{%>
+        <div class="card d-flex flex-column justify-content-between" style="width: 18rem;">
+          <img src="<%= img.thumbnail %>" class="card-img-top" alt="...">
+          <div class="card-body ">
+            <input type="checkbox" name="deleteImages[]" id="deleteImgs<%= idx %>" value="<%= img.filename %>">
+            <label for="deleteImgs<%= idx %>">Delete image?</label>
+          </div>
+        </div>
+        <%})%>
+      </div>
+      <%}%>
+
     </form>
 
 
     <div class="d-flex gap-2 ">
       <button type="submit" form="editForm" class="btn btn-primary">Edit</button>
       <form id="form-delete" action="/fields/<%= field.fieldID %>?_method=DELETE" method="POST">
-        <button type="submit" class="btn btn-danger">Delete</button>
-      </form>
-    </div>
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
   </div>
 </div>
+</div>
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="/js/flatpickr.js"></script>
