@@ -130,7 +130,7 @@ const handlePaymentNotification = async (req, res) => {
          const updateBooking = await BookingModel.findOneAndUpdate(
             {
                _id: booking._id,
-               paymentStatus: { $ne: "success" },
+               status: { $ne: "success" },
                // atomic lock
                $nor: [
                   {

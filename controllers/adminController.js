@@ -9,7 +9,7 @@ const getManualBookForm = async (req, res) => {
          return res.redirect(`/admin/fields/${req.params.fieldID}`);
       }
 
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
+      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
       if (!field) {
          return res.status(404).send("Not found");
       }
@@ -53,7 +53,7 @@ const createManualBooking = async (req, res) => {
          return res.redirect(`/fields/${req.params.fieldID}`);
       }
 
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
+      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
 
       if (!field) {
          return res.status(404).send("Not found");

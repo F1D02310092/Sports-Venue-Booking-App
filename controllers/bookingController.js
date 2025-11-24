@@ -7,7 +7,7 @@ const createBooking = async (req, res) => {
    // race-condition
 
    try {
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
+      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
       if (!field) {
          return res.status(404).send("Page not found!");
       }

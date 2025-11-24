@@ -5,7 +5,7 @@ const { toMinutes, minutesToHHMM, formatDateYYYYMMDD, getTodayInWITA } = require
 
 const getHomePage = async (req, res, next) => {
    try {
-      const fields = await FieldModel.find();
+      const fields = await FieldModel.find({ isActive: true });
 
       if (fields.length === 0) {
          return res.render("field/home-page", { fields });
@@ -68,7 +68,7 @@ const postFieldCreation = async (req, res) => {
 };
 
 const getShowPage = async (req, res) => {
-   const field = await FieldModel.findOne({ fieldID: req.params.fieldID }).populate({
+   const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true }).populate({
       path: "reviews",
       populate: {
          path: "user",
@@ -149,10 +149,12 @@ const getShowPage = async (req, res) => {
 };
 
 const getEditPage = async (req, res) => {
-   const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
+   const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
 
    if (field) {
-      return res.render("field/edit-field.ejs", { field, minutesToHHMM });
+      const minDate = formatDateYYYYMMDD(new Date());
+
+      return res.render("field/edit-field.ejs", { field, minutesToHHMM, minDate });
    }
 
    return res.status(404).send("Page not found!");
@@ -169,7 +171,7 @@ const putFieldEdit = async (req, res) => {
          closeTime: toMinutes(closeTime),
       };
 
-      const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, fieldData, { runValidators: true, new: true });
+      const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID, isActive: true }, fieldData, { runValidators: true, new: true });
 
       if (req.files && req.files.length > 0) {
          const uploadedImgs = [];
@@ -196,7 +198,7 @@ const putFieldEdit = async (req, res) => {
          for (let filename of req.body.deleteImages) {
             await cloudinary.uploader.destroy(filename);
          }
-         await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { $pull: { images: { filename: { $in: req.body.deleteImages } } } });
+         await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID, isActive: true }, { $pull: { images: { filename: { $in: req.body.deleteImages } } } });
       }
 
       req.flash("success", `Successfully edit a field`);
@@ -218,12 +220,46 @@ const putFieldEdit = async (req, res) => {
 
 const deleteField = async (req, res) => {
    try {
-      await FieldModel.findOneAndDelete({ fieldID: req.params.fieldID });
+      const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: false }, { runValidators: true });
 
-      req.flash("success", `Successfully delete a field`);
+      if (field) {
+         await BookingModel.findOneAndUpdate(
+            {
+               field: field._id,
+               date: { $gte: new Date() },
+               status: { $ne: "success" },
+            },
+            {
+               status: "failed",
+            }
+         );
+      }
+
+      req.flash("success", `Successfully deactivate a field`);
       return res.redirect("/fields");
    } catch (error) {
       return res.status(500).send(error);
+   }
+};
+
+const getDeactivatedFieldsPage = async (req, res) => {
+   const fields = await FieldModel.find({ isActive: false });
+   if (!fields) {
+      return res.render("admin/deactivated-fields.ejs");
+   }
+
+   return res.render("admin/deactivated-fields.ejs", { fields, minutesToHHMM });
+};
+
+const reactivateField = async (req, res) => {
+   try {
+      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: true }, { runValidators: true });
+
+      await req.flash("success", "Field is now active");
+      return res.redirect("/fields");
+   } catch (error) {
+      console.error(error);
+      return res.status(500).send("Something went wrong");
    }
 };
 
@@ -235,4 +271,6 @@ module.exports = {
    getEditPage,
    putFieldEdit,
    deleteField,
+   getDeactivatedFieldsPage,
+   reactivateField,
 };

@@ -3,7 +3,7 @@ const FieldModel = require("../models/Field.js");
 
 const handleReviewPost = async (req, res) => {
    try {
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID });
+      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
 
       if (!field) {
          req.flash("500 Something went wrong!");
@@ -38,7 +38,7 @@ const handleReviewPost = async (req, res) => {
 const deleteReview = async (req, res) => {
    try {
       const review = await ReviewModel.findOne({ reviewID: req.params.reviewID });
-      const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { $pull: { reviews: review._id } });
+      const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID, isActive: true }, { $pull: { reviews: review._id } });
 
       if (!field) {
          return res.status(500).send("Something went wrong");
