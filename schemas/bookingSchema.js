@@ -90,4 +90,11 @@ bookingSchema.index({ user: 1, createdAt: -1 });
 bookingSchema.index({ status: 1 });
 bookingSchema.index({ field: 1 });
 
+bookingSchema.index(
+   { field: 1, date: 1, slots: 1 },
+   {
+      unique: true,
+      partialFilterExpression: { status: "success" },
+   }
+);
 module.exports = mongoose.model("Booking", bookingSchema);

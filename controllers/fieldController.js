@@ -1,4 +1,5 @@
 const { cloudinary } = require("../config/imageUpload.js");
+const mongoose = require("mongoose");
 const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
 const { toMinutes, minutesToHHMM, formatDateYYYYMMDD, getTodayInWITA } = require("../utils/timeFormat.js");
@@ -252,14 +253,35 @@ const getDeactivatedFieldsPage = async (req, res) => {
 };
 
 const reactivateField = async (req, res) => {
-   try {
-      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: true }, { runValidators: true });
+   const session = await mongoose.startSession();
+   session.startTransaction();
 
+   try {
+      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: true }, { runValidators: true }).session(session);
+
+      if (field) {
+         await BookingModel.updateMany(
+            {
+               field: field._id,
+               date: { $gte: new Date() },
+               status: { $ne: "success" },
+            },
+            {
+               status: "failed",
+            },
+            { session }
+         );
+      }
+
+      await session.commitTransaction();
       await req.flash("success", "Field is now active");
       return res.redirect("/fields");
    } catch (error) {
+      if (session.inTransaction()) await session.abortTransaction();
       console.error(error);
       return res.status(500).send("Something went wrong");
+   } finally {
+      session.endSession();
    }
 };
 

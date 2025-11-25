@@ -1,4 +1,5 @@
 const BookingModel = require("../models/Booking.js");
+const mongoose = require("mongoose");
 const FieldModel = require("../models/Field.js");
 const { formatDateYYYYMMDD, parseLocalDateToUTC } = require("../utils/timeFormat.js");
 
@@ -45,6 +46,9 @@ const getManualBookForm = async (req, res) => {
 // cek conflict pas POST aja lgsg
 
 const createManualBooking = async (req, res) => {
+   const session = await mongoose.startSession();
+   session.startTransaction();
+
    try {
       let { date, slots, manualName, manualContact } = req.body;
 
@@ -53,9 +57,10 @@ const createManualBooking = async (req, res) => {
          return res.redirect(`/fields/${req.params.fieldID}`);
       }
 
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
+      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true }).session(session);
 
       if (!field) {
+         await session.abortTransaction();
          return res.status(404).send("Not found");
       }
 
@@ -66,14 +71,18 @@ const createManualBooking = async (req, res) => {
 
       const bookingDateUTC = parseLocalDateToUTC(date);
 
-      const conflictBooking = await BookingModel.findOne({
-         field: field._id,
-         date: bookingDateUTC,
-         slots: { $in: slots },
-         status: "success",
-      });
+      const conflictBooking = await BookingModel.findOne(
+         {
+            field: field._id,
+            date: bookingDateUTC,
+            slots: { $in: slots },
+            status: "success",
+         },
+         { session }
+      );
 
       if (conflictBooking) {
+         await session.abortTransaction();
          req.flash("error", "Session(s) are already booked");
          return res.redirect(`/admin/field/${req.params.fieldID}?date=${date}`);
       }
@@ -105,10 +114,34 @@ const createManualBooking = async (req, res) => {
          status: "success",
       };
 
-      await BookingModel.createManual(bookingData);
+      await BookingModel.createManual(bookingData, { session });
 
+      await BookingModel.updateMany(
+         {
+            field: field._id,
+            date: new Date(date),
+            slots: { $in: slots },
+            status: "pending",
+         },
+         { status: "failed" },
+         { session }
+      );
+
+      await session.commitTransaction();
       return res.redirect(`/admin/fields/${req.params.fieldID}`);
-   } catch (error) {}
+   } catch (error) {
+      if (session.inTransaction()) await session.abortTransaction();
+      console.error("Manual Booking Error:", error);
+
+      if (error.code === 11000) {
+         req.flash("error", "System blocked double booking.");
+      } else {
+         req.flash("error", "Error creating booking");
+      }
+      return res.send(":(");
+   } finally {
+      session.endSession();
+   }
 };
 
 module.exports = {

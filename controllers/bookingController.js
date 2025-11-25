@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
 const { parseLocalDateToUTC, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
@@ -6,9 +7,13 @@ const createBooking = async (req, res) => {
    // masih banyak egde cases yang harus di-handle
    // race-condition
 
+   const session = await mongoose.startSession();
+   session.startTransaction();
+
    try {
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true });
+      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true }).session(session);
       if (!field) {
+         await session.abortTransaction();
          return res.status(404).send("Page not found!");
       }
 
@@ -36,33 +41,55 @@ const createBooking = async (req, res) => {
          });
 
          if (invalidSlots.length > 0) {
+            await session.abortTransaction();
             req.flash("error", "Session(s) already passed!");
             return res.redirect(`/fields/${req.params.fieldID}?date=${date}`);
          }
       }
 
-      const conflictBooking = await BookingModel.findOne({
-         field: field._id,
-         user: req.user._id,
-         date: bookingDateUTC,
-         slots: { $in: slots },
-         status: "pending",
-      });
+      const soldOut = await BookingModel.findOne(
+         {
+            field: field._id,
+            date: bookingDateUTC,
+            slots: { $in: slots },
+            status: "success",
+         },
+         { session }
+      );
 
-      if (conflictBooking && conflictBooking.expiredAt < new Date()) {
-         req.flash("error", "Your book is expired, please make new book");
-         conflictBooking.status = "failed";
-         await conflictBooking.save();
-         return res.redirect(`/fields/${req.params.fieldID}`);
+      if (soldOut) {
+         await session.abortTransaction();
+         req.flash("error", "Slot was just booked by another user.");
+         return res.redirect(`/fields/${req.params.fieldID}?date=${date}`);
       }
 
-      if (conflictBooking) {
-         req.flash("error", `Some sessions are already booked, please finish payment`);
-         return res.redirect(`/payment/create/${conflictBooking.bookingID}`);
+      const userPending = await BookingModel.findOne(
+         {
+            field: field._id,
+            user: req.user._id,
+            date: bookingDateUTC,
+            slots: { $in: slots },
+            status: "pending",
+         },
+         { session }
+      );
+
+      if (userPending) {
+         if (userPending.expiredAt < new Date()) {
+            userPending.status = "failed";
+            await userPending.save({ session });
+            await session.commitTransaction(); // Commit the fail status
+
+            req.flash("error", "Previous booking expired. Please try again.");
+            return res.redirect(`/fields/${req.params.fieldID}`);
+         } else {
+            // Still active pending
+            await session.abortTransaction();
+            return res.redirect(`/payment/create/${userPending.bookingID}`);
+         }
       }
 
       const now = new Date();
-
       const bookingData = {
          field: field._id,
          user: req.user._id,
@@ -75,12 +102,19 @@ const createBooking = async (req, res) => {
          expiredAt: new Date(now.getTime() + 1000 * 60 * 10), // 10 min
       };
 
-      const newBooking = await BookingModel.create(bookingData);
+      const newBooking = await BookingModel.create(bookingData, { session });
+
+      await session.commitTransaction();
 
       return res.redirect(`/payment/create/${newBooking.bookingID}`);
    } catch (error) {
+      if (session.inTransaction()) {
+         await session.abortTransaction();
+      }
       console.error(error);
-      return res.send(error);
+      return res.send(":(");
+   } finally {
+      session.endSession();
    }
 };
 

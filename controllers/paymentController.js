@@ -1,6 +1,7 @@
 const BookingModel = require("../models/Booking.js");
 const snap = require("../config/midtrans.js");
 const { minutesToHHMM, createWITATime } = require("../utils/timeFormat");
+const mongoose = require("mongoose");
 
 const createPayment = async (req, res) => {
    try {
@@ -105,6 +106,9 @@ const createPayment = async (req, res) => {
 };
 
 const handlePaymentNotification = async (req, res) => {
+   const session = await mongoose.startSession();
+   session.startTransaction();
+
    try {
       const notification = req.body;
       const orderId = notification.order_id;
@@ -112,13 +116,16 @@ const handlePaymentNotification = async (req, res) => {
       const transactionStatus = notification.transaction_status;
       const fraudStatus = notification.fraud_status;
 
-      const booking = await BookingModel.findOneAndPopulate({ orderID: orderId });
+      const booking = await BookingModel.findOneAndPopulate({ orderID: orderId }, { session });
 
       if (!booking) {
+         await session.abortTransaction();
          return res.status(200).send("Notification received: No booking found!");
       }
 
       if (booking.status === "success") {
+         await session.abortTransaction();
+
          return res.status(200).send("Notification received: Booking success");
       }
 
@@ -126,92 +133,81 @@ const handlePaymentNotification = async (req, res) => {
          booking.transactionID = transactionID;
       }
 
-      if ((transactionStatus === "capture" || transactionStatus === "settlement") && (fraudStatus === "accept" || !fraudStatus)) {
-         const updateBooking = await BookingModel.findOneAndUpdate(
+      let targetStatus = booking.status; // default to current status
+
+      if (transactionStatus === "settlement") {
+         targetStatus = "success";
+      } else if (transactionStatus === "capture") {
+         if (fraudStatus === "accept") targetStatus = "success";
+         else if (fraudStatus === "challenge") targetStatus = "pending";
+         else targetStatus = "failed";
+      } else if (transactionStatus === "pending") {
+         targetStatus = "pending";
+      } else if (["cancel", "deny", "expire"].includes(transactionStatus)) {
+         targetStatus = "failed";
+      }
+
+      if (targetStatus === "success") {
+         const conflict = await BookingModel.findOne(
             {
-               _id: booking._id,
-               status: { $ne: "success" },
-               // atomic lock
-               $nor: [
-                  {
-                     field: booking.field._id,
-                     date: booking.date,
-                     slots: { $in: booking.slots },
-                     status: "success",
-                  },
-               ],
-            },
-            {
+               field: booking.field,
+               date: booking.date,
+               slots: { $in: booking.slots },
                status: "success",
-               paymentTime: createWITATime(),
+               _id: { $ne: booking._id },
             },
-            { new: true }
+            { session } // CRITICAL
          );
 
-         if (!updateBooking) {
-            await BookingModel.findOneAndUpdate(
-               { _id: booking._id },
-               {
-                  status: "failed",
-               }
-            );
-            return res.status(200).send("Notificatoin received: Session(s) has just been booked by other user");
+         if (conflict) {
+            // RACE CONDITION LOST : REFUND NEEDED
+            booking.status = "failed";
+
+            await booking.save({ session });
+            await session.commitTransaction(); // COMMIT ROLLBACK STATE
+
+            console.log(`Race Condition: Order ${orderId} failed, REFUND NEEDED`);
+            return res.status(200).send("Conflict detected");
          }
-      }
 
-      let newStatus = booking.status;
-
-      if (transactionStatus == "capture") {
-         if (fraudStatus == "accept") {
-            newStatus = "success";
-         } else if (fraudStatus == "challenge") {
-            newStatus = "pending";
-         } else {
-            newStatus = "failed";
-         }
-      } else if (transactionStatus == "settlement") {
-         newStatus = "success";
-      } else if (transactionStatus == "pending") {
-         newStatus = "pending";
-      } else if (transactionStatus == "cancel" || transactionStatus == "deny" || transactionStatus == "expire") {
-         newStatus = "failed";
-      }
-
-      // Only update if status changed
-      if (newStatus !== booking.status) {
-         booking.status = newStatus;
+         // WIN: Update to Success
+         booking.status = "success";
          booking.paymentTime = createWITATime();
-         await booking.save();
+         await booking.save({ session });
 
-         // CANCEL OTHERS PENDING BOOKINGS jika payment success
-         if (newStatus === "success") {
-            await BookingModel.updateMany(
-               {
-                  field: booking.field._id,
-                  date: booking.date,
-                  slots: { $in: booking.slots },
-                  status: "pending",
-                  _id: { $ne: booking._id },
-               },
-               {
-                  status: "failed",
-               }
-            );
-         }
+         // Kill other pendings
+         await BookingModel.updateMany(
+            {
+               field: booking.field,
+               date: booking.date,
+               slots: { $in: booking.slots },
+               status: "pending",
+               _id: { $ne: booking._id },
+            },
+            { status: "failed" },
+            { session } // CRITICAL
+         );
+      } else if (targetStatus !== booking.status) {
+         booking.status = targetStatus;
+         booking.paymentTime = createWITATime();
+         await booking.save({ session });
       }
+
+      await session.commitTransaction();
 
       return res.status(200).send("Notification received: OK");
    } catch (error) {
+      if (session.inTransaction()) await session.abortTransaction();
       console.error("Payment notification error:", error);
       return res.status(200).send("Notification received: Payment error");
+   } finally {
+      session.endSession();
    }
 };
 
 const paymentSuccess = async (req, res) => {
    try {
       const { bookingID } = req.query;
-
-      console.log(req.query);
 
       const booking = await BookingModel.findOneAndPopulate({ bookingID });
 
@@ -231,8 +227,6 @@ const paymentSuccess = async (req, res) => {
          hour12: false,
          timeZone: "Asia/Singapore",
       });
-
-      console.log(booking);
 
       return res.render("payment/success", {
          booking,

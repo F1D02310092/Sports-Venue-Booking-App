@@ -18,7 +18,7 @@ const LocalStrategy = require("passport-local").Strategy;
 
 const UserModel = require("./models/User.js");
 
-const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/futsal";
+const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/futsal?replicaSet=rs0";
 const main = async function () {
    try {
       await mongoose.connect(DB_URL);
