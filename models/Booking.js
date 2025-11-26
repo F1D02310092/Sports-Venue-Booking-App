@@ -107,6 +107,10 @@ class BookingModel {
    static async countDocuments(query) {
       return await Booking.countDocuments(query);
    }
+
+   static async aggregate(pipeline, options = {}) {
+      return await Booking.aggregate(pipeline).option(options);
+   }
 }
 
 module.exports = BookingModel;

@@ -32,26 +32,9 @@ function parseLocalDateToUTC(dateStr) {
    return dt;
 }
 
-function getTodayInWITA() {
-   const now = new Date();
-   // UTC+8 → 8 jam * 60 * 60 * 1000
-   const witaOffsetMs = 8 * 60 * 60 * 1000;
-   const witaDate = new Date(now.getTime() + witaOffsetMs);
-   witaDate.setUTCHours(0, 0, 0, 0);
-   return witaDate;
-}
-
-function createWITATime() {
-   const now = new Date();
-
-   return now;
-}
-
 module.exports = {
    toMinutes,
    minutesToHHMM,
    formatDateYYYYMMDD,
    parseLocalDateToUTC,
-   getTodayInWITA,
-   createWITATime,
 };

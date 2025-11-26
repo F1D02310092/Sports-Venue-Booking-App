@@ -2,7 +2,7 @@ const { cloudinary } = require("../config/imageUpload.js");
 const mongoose = require("mongoose");
 const BookingModel = require("../models/Booking.js");
 const FieldModel = require("../models/Field.js");
-const { toMinutes, minutesToHHMM, formatDateYYYYMMDD, getTodayInWITA } = require("../utils/timeFormat.js");
+const { toMinutes, minutesToHHMM, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
 
 const getHomePage = async (req, res, next) => {
    try {
@@ -77,7 +77,7 @@ const getShowPage = async (req, res) => {
    });
 
    if (field) {
-      const todayLocal = getTodayInWITA();
+      const todayLocal = new Date();
 
       let queryDateLocal;
       let year, month, day;

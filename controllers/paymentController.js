@@ -1,6 +1,6 @@
 const BookingModel = require("../models/Booking.js");
 const snap = require("../config/midtrans.js");
-const { minutesToHHMM, createWITATime } = require("../utils/timeFormat");
+const { minutesToHHMM } = require("../utils/timeFormat");
 const mongoose = require("mongoose");
 
 const createPayment = async (req, res) => {
@@ -172,7 +172,7 @@ const handlePaymentNotification = async (req, res) => {
 
          // WIN: Update to Success
          booking.status = "success";
-         booking.paymentTime = createWITATime();
+         booking.paymentTime = new Date();
          await booking.save({ session });
 
          // Kill other pendings
@@ -189,7 +189,7 @@ const handlePaymentNotification = async (req, res) => {
          );
       } else if (targetStatus !== booking.status) {
          booking.status = targetStatus;
-         booking.paymentTime = createWITATime();
+         booking.paymentTime = new Date();
          await booking.save({ session });
       }
 

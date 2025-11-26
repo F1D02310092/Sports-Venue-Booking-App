@@ -10,6 +10,7 @@
         <% if (currUser && currUser.role === 'admin') { %>
         <a class="nav-link" href="/fields/add">Add Field</a>
         <a class="nav-link" href="/fields/deactivated">Deactivated Field</a>
+        <a class="nav-link" href="/admin/analytics">Analytics</a>
 
         <% } else if (currUser && currUser.role === 'user') { %>
         <a class="nav-link" href="/payment/users/transactions-history">Transactions</a>

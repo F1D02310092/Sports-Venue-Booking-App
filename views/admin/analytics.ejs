@@ -1,0 +1,97 @@
+<% layout('layout/boilerplate.ejs') %>
+
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <form action="/admin/analytics" method="GET" class="row">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Start Date</label>
+          <input type="date" name="startDate" id="" value="<%= formatDate(filters.startDate) %>">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">End Date</label>
+          <input type="date" name="endDate" id="" value="<%= formatDate(filters.endDate) %>">
+        </div>
+
+        <div class="col-md-3">
+          <select name="fieldFilter" class="form-select" aria-label="Default select example">
+            <option value="all" <%= filters.fields === 'all' ? 'selected' : '' %>>All fields</option>
+
+            <% for(let f of fieldFilterDropdown){%>
+            <option value="<%= f.fieldID %>" <%= filters.fields === f.fieldID ? 'selected' : '' %>><%= f.name %></option>
+            <% }%>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button>Filter</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="row ">
+    <div class="col my-2">
+      <div class="card ">
+        <div class="card-body">
+          <h6 class="fw-bold">Total Revenue</h6>
+
+          <h2>Rp<%= formatPrice(analytics.revenue[0].totalRevenue) %></h2>
+
+        </div>
+      </div>
+    </div>
+    <div class="col my-2">
+      <div class="card ">
+        <div class="card-body">
+          <h6 class="fw-bold">Total Bookings</h6>
+          <h2><%= analytics.revenue[0].totalBookings %></h2>
+
+        </div>
+      </div>
+    </div>
+    <div class="col my-2">
+      <div class="card ">
+        <div class="card-body">
+          <h6 class="fw-bold">Active Courts</h6>
+          <h2><%= fieldCount %></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-7">
+      <div class="card">
+        <div class="card-header">Revenue Chart</div>
+        <div class="card-body">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-5">
+      <div class="card">
+        <div class="card-header">Total Bookings</div>
+        <div class="card-body">
+          <canvas id="bookingsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Kirim data server
+  window.analyticsData = {
+    revenueByDate: <%- JSON.stringify(analytics.revenueByDate) %>,
+    revenueByCourt: <%- JSON.stringify(analytics.revenueByCourt) %>,
+    selectedField: "<%= filters.field %>"
+  };
+</script>
+<script src="/js/analytics-chart.js"></script>

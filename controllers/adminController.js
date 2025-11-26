@@ -112,6 +112,7 @@ const createManualBooking = async (req, res) => {
          endTime: slots[slots.length - 1] + 60,
          totalPrice: field.price * slots.length,
          status: "success",
+         paymentTime: new Date(),
       };
 
       await BookingModel.createManual(bookingData, { session });
