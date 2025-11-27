@@ -348,14 +348,20 @@ const showPaymentPage = async (req, res) => {
    }
 };
 
-const getUserPaymentHistory = async (req, res) => {
+const getPaymentHistory = async (req, res) => {
    try {
-      const user = req.user;
+      let user;
+      if (req.user.role === "user") {
+         user = req.user;
+      }
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 5;
       const statusFilter = req.query.status;
 
-      let query = { user: user._id };
+      let query = {};
+      if (user) {
+         query = { user: user._id };
+      }
       if (statusFilter && statusFilter !== "all") {
          query.status = statusFilter;
       }
@@ -383,7 +389,7 @@ const getUserPaymentHistory = async (req, res) => {
          );
       }
 
-      return res.render("payment/user-transactions-history.ejs", {
+      return res.render("payment/transactions-history.ejs", {
          page,
          limit,
          bookings,
@@ -433,7 +439,7 @@ const getPaymentDetails = async (req, res) => {
       return res.status(404).send("Not Found!");
    }
 
-   return res.render("payment/user-transactions-detail.ejs", {
+   return res.render("payment/transactions-detail.ejs", {
       booking,
       minutesToHHMM,
       formattedDate: (date) =>
@@ -455,7 +461,7 @@ module.exports = {
    paymentPending,
    paymentFailed,
    showPaymentPage,
-   getUserPaymentHistory,
+   getPaymentHistory,
    cancelBooking,
    getPaymentDetails,
 };

@@ -4,10 +4,15 @@ const { isLoggedIn, isAdmin } = require("../middleware");
 const { getManualBookForm, createManualBooking } = require("../controllers/adminController");
 const { reactivateField } = require("../controllers/fieldController");
 const { getAnalyticsPage } = require("../controllers/analyticsContoller");
+const { getPaymentHistory, getPaymentDetails } = require("../controllers/paymentController");
 const router = express.Router();
 
 // base url -> /admin/...
 router.route("/analytics").get(isLoggedIn, isAdmin, getAnalyticsPage);
+
+router.route("/analytics/transactions-history").get(isLoggedIn, isAdmin, getPaymentHistory);
+
+router.route("/analytics/transactions-history/details/:bookingID").get(isLoggedIn, isAdmin, getPaymentDetails);
 
 router.route("/fields/:fieldID").get(isLoggedIn, isAdmin, getShowPage);
 

@@ -115,12 +115,14 @@ const createManualBooking = async (req, res) => {
          paymentTime: new Date(),
       };
 
-      await BookingModel.createManual(bookingData, { session });
+      const newBook = await BookingModel.createManual(bookingData, { session });
+      newBook.orderID = newBook.bookingID;
+      await newBook.save({ session });
 
       await BookingModel.updateMany(
          {
             field: field._id,
-            date: new Date(date),
+            date: bookingDateUTC,
             slots: { $in: slots },
             status: "pending",
          },

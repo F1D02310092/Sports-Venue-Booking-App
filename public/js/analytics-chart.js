@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
    const revenueCtx = document.getElementById("revenueChart").getContext("2d");
 
-   // Gradient hijau (atas solid → bawah transparan)
    const greenGradient = revenueCtx.createLinearGradient(0, 0, 0, 300);
    greenGradient.addColorStop(0, "rgba(0, 255, 68, 0.6)");
    greenGradient.addColorStop(1, "rgba(181, 182, 181, 0)");

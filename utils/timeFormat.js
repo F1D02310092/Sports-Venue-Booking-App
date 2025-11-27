@@ -26,7 +26,6 @@ function formatDateYYYYMMDD(date) {
 }
 
 function parseLocalDateToUTC(dateStr) {
-   // dateStr: "YYYY-MM-DD" (dari <input type="date">, zona lokal browser)
    const [y, m, d] = dateStr.split("-").map(Number);
    const dt = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0)); // UTC midnight
    return dt;

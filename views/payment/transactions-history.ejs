@@ -5,7 +5,9 @@
     <div class="col-md-4">
       <select name="status" class="form-select">
         <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
+        <% if(currUser.role==='user'){%>
         <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+        <% }%>
         <option value="success" <%= statusFilter === 'success' ? 'selected' : '' %>>Success</option>
         <option value="failed" <%= statusFilter === 'failed' ? 'selected' : '' %>>Failed</option>
       </select>
@@ -52,6 +54,7 @@
         </div>
 
 
+        <% if(currUser && currUser.role === 'user'){%>
         <div class="text-end">
           <% if(booking.status === 'pending'){%>
           <div class="d-flex">
@@ -64,6 +67,18 @@
           <a href="/payment/details/<%= booking.bookingID %>" class="btn btn-success">Details</a>
           <% }%>
         </div>
+        <% }%>
+
+        <%  if(currUser && currUser.role === 'admin'){%>
+        <div class="text-end">
+          <% if(booking.status === 'failed' || booking.status === 'success'){%>
+          <div class="d-flex">
+            <a href="/admin/analytics/transactions-history/details/<%= booking.bookingID %>" class="btn btn-success">Details</a>
+          </div>
+          <% } %>
+        </div>
+        <% }%>
+
 
       </div>
     </div>
