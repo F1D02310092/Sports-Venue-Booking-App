@@ -64,8 +64,8 @@ const createPayment = async (req, res) => {
          ],
          callbacks: {
             finish: `${process.env.BASE_URL}/payment/success?bookingID=${booking.bookingID}`,
-            error: `${process.env.BASE_URL}/payment/failed?bookingID=${booking.bookingID}`,
-            pending: `${process.env.BASE_URL}/payment/pending?bookingID=${booking.bookingID}`,
+            // error: `${process.env.BASE_URL}/payment/failed?bookingID=${booking.bookingID}`,
+            // pending: `${process.env.BASE_URL}/payment/pending?bookingID=${booking.bookingID}`,
          },
 
          expiry: {
@@ -240,56 +240,6 @@ const paymentSuccess = async (req, res) => {
    }
 };
 
-const paymentPending = async (req, res) => {
-   try {
-      const { bookingID } = req.query;
-
-      const booking = await BookingModel.findOneAndPopulate({ bookingID });
-
-      if (!booking) {
-         req.flash("error", "Booking not found");
-         return res.redirect("/fields");
-      }
-
-      return res.render("payment/pending", { booking });
-   } catch (error) {
-      console.error(error);
-      req.flash("error", "Failed to load payment page");
-      return res.redirect("/fields");
-   }
-};
-
-const paymentFailed = async (req, res) => {
-   try {
-      const { bookingID } = req.query;
-
-      const booking = await BookingModel.findOneAndPopulate({ bookingID });
-
-      if (!booking) {
-         req.flash("error", "Booking not found");
-         return res.redirect("/fields");
-      }
-
-      const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
-         weekday: "long",
-         year: "numeric",
-         month: "long",
-         day: "2-digit",
-         hour: "2-digit",
-         minute: "2-digit",
-         second: "2-digit",
-         hour12: false,
-         timeZone: "Asia/Singapore",
-      });
-
-      return res.render("payment/failed", { booking, minutesToHHMM: require("../utils/timeFormat").minutesToHHMM, formattedExpiredAt });
-   } catch (error) {
-      console.error(error);
-      req.flash("error", "Failed to load payment page");
-      return res.redirect("/fields");
-   }
-};
-
 const showPaymentPage = async (req, res) => {
    try {
       const { bookingID } = req.params;
@@ -317,8 +267,8 @@ const showPaymentPage = async (req, res) => {
          await booking.save();
          return res.status(400).json({ error: "Booking already expired" });
       }
-
-      if (booking.slots[0] < now.getHours() * 60) {
+      console.log(booking.date, now);
+      if (booking.date === now && booking.slots[0] < now.getHours() * 60) {
          return res.status(400).json({ error: "Session(s) already passed" });
       }
 
@@ -458,8 +408,6 @@ module.exports = {
    createPayment,
    handlePaymentNotification,
    paymentSuccess,
-   paymentPending,
-   paymentFailed,
    showPaymentPage,
    getPaymentHistory,
    cancelBooking,

@@ -90,11 +90,21 @@ bookingSchema.index({ user: 1, createdAt: -1 });
 bookingSchema.index({ status: 1 });
 bookingSchema.index({ field: 1 });
 
+// cegah catat double bayar
 bookingSchema.index(
    { field: 1, date: 1, slots: 1 },
    {
       unique: true,
       partialFilterExpression: { status: "success" },
+   }
+);
+
+// cegah ada double booking
+bookingSchema.index(
+   { field: 1, date: 1, user: 1, slots: 1 },
+   {
+      unique: true,
+      partialFilterExpression: { status: "pending" },
    }
 );
 module.exports = mongoose.model("Booking", bookingSchema);

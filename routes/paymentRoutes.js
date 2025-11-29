@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createPayment, handlePaymentNotification, paymentSuccess, paymentPending, paymentFailed, showPaymentPage, getPaymentHistory, cancelBooking, getPaymentDetails } = require("../controllers/paymentController");
+const { createPayment, handlePaymentNotification, paymentSuccess, showPaymentPage, getPaymentHistory, cancelBooking, getPaymentDetails } = require("../controllers/paymentController");
 const { isLoggedIn, isUser } = require("../middleware");
 
 // base url -> /payment/
@@ -11,10 +11,6 @@ router.route("/create").post(isLoggedIn, isUser, createPayment);
 router.route("/notification").post(handlePaymentNotification);
 
 router.route("/success").get(isLoggedIn, isUser, paymentSuccess);
-
-router.route("/pending").get(isLoggedIn, isUser, paymentPending);
-
-router.route("/failed").get(isLoggedIn, isUser, paymentFailed);
 
 router.route("/cancel/:bookingID").post(isLoggedIn, isUser, cancelBooking);
 

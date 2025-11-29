@@ -32,6 +32,7 @@ const createBooking = async (req, res) => {
       slots = slots.map(Number);
 
       const dateOfToday = formatDateYYYYMMDD(new Date());
+
       if (date === dateOfToday) {
          const now = new Date();
          const minutes = now.getHours() * 60 + now.getMinutes();
@@ -85,6 +86,7 @@ const createBooking = async (req, res) => {
          } else {
             // Still active pending
             await session.abortTransaction();
+            req.flash("error", "You've already book some session(s). Please finish payment.");
             return res.redirect(`/payment/create/${userPending.bookingID}`);
          }
       }

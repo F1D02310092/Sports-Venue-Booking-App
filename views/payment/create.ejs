@@ -51,10 +51,10 @@
             window.location.href = "/payment/success?bookingID=<%= booking.bookingID %>";
           },
           onPending: function(result) {
-            window.location.href = "/payment/pending?bookingID=<%= booking.bookingID %>";
+            window.location.href = "/payment/users/transactions-history";
           },
           onError: function(result) {
-            window.location.href = "/payment/failed?bookingID=<%= booking.bookingID %>";
+            window.location.href = "/payment/users/transactions-history";
           },
           onClose: function() {
             console.log("User closed the popup before finishing payment");
