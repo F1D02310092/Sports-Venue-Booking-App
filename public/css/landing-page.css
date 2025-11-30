@@ -93,3 +93,79 @@
    font-weight: 500;
    transition: 0.3s ease;
 }
+
+/* About Us */
+#AboutUs-section {
+   padding-top: 50px;
+   padding-bottom: 50px;
+}
+
+#AboutUs-section .section-label {
+   font-size: 1rem;
+   color: #6c757d; /* Warna abu-abu */
+   font-weight: 600;
+   letter-spacing: 0.5px;
+}
+
+#AboutUs-section .title {
+   font-family: "Lexend Deca", sans-serif;
+   font-weight: 500; /* Sedikit lebih tipis agar elegan */
+   line-height: 1.3;
+   font-size: 2rem; /* Ukuran font disesuaikan */
+   color: #222;
+}
+
+#AboutUs-section .highlight {
+   color: #222; /* Di referensi warnanya hitam biasa, hanya bold */
+   font-weight: 700;
+   font-style: italic;
+}
+
+/* Deskripsi Teks */
+#AboutUs-section .desc {
+   font-size: 0.95rem;
+   line-height: 1.6;
+   color: #555;
+   margin-bottom: 1rem;
+}
+
+/* Gambar Kiri Besar */
+#AboutUs-section .big-img {
+   width: 100%;
+   object-fit: cover;
+   /* Height 100% diatur lewat class bootstrap h-100 di HTML */
+   max-height: 620px;
+   border-radius: 4px;
+}
+
+/* Gambar Kecil & Overlay Nomor */
+#AboutUs-section .small-img-wrapper img {
+   width: 100%;
+   height: 250px; /* Tinggi fix agar seragam */
+   object-fit: cover;
+   border-radius: 4px;
+}
+
+#AboutUs-section .img-number {
+   position: absolute;
+   bottom: 15px;
+   left: 20px;
+   color: white;
+   font-weight: 400;
+   font-size: 0.9rem;
+   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+   z-index: 2;
+}
+
+/* Efek gradient tipis di bawah gambar kecil agar nomor terbaca */
+#AboutUs-section .small-img-wrapper::after {
+   content: "";
+   position: absolute;
+   bottom: 0;
+   left: 0;
+   width: 100%;
+   height: 30%;
+   background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+   border-bottom-left-radius: 4px;
+   border-bottom-right-radius: 4px;
+}
