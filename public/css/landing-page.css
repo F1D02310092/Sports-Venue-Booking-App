@@ -134,7 +134,7 @@
    width: 100%;
    object-fit: cover;
    /* Height 100% diatur lewat class bootstrap h-100 di HTML */
-   max-height: 620px;
+   max-height: 630px;
    border-radius: 4px;
 }
 
@@ -144,17 +144,6 @@
    height: 250px; /* Tinggi fix agar seragam */
    object-fit: cover;
    border-radius: 4px;
-}
-
-#AboutUs-section .img-number {
-   position: absolute;
-   bottom: 15px;
-   left: 20px;
-   color: white;
-   font-weight: 400;
-   font-size: 0.9rem;
-   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-   z-index: 2;
 }
 
 /* Efek gradient tipis di bawah gambar kecil agar nomor terbaca */
@@ -168,4 +157,55 @@
    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
    border-bottom-left-radius: 4px;
    border-bottom-right-radius: 4px;
+}
+
+/* FACILITIES SECTION */
+#Facilities-section .section-label {
+   font-size: 1rem;
+   color: #6c757d;
+   font-weight: 600;
+   letter-spacing: 0.5px;
+   text-transform: uppercase;
+}
+
+.facility-img-wrapper {
+   position: relative;
+   overflow: hidden;
+   border-radius: 8px; /* Radius sedikit lebih tajam agar terlihat sleek */
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Shadow halus */
+}
+
+.facility-img {
+   width: 100%;
+   height: 380px; /* Tinggi gambar sedikit ditambah agar lebih megah */
+   object-fit: cover;
+   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Efek zoom saat hover lebih smooth */
+.facility-img-wrapper:hover .facility-img {
+   transform: scale(1.04);
+}
+
+.facility-title {
+   font-family: "Lexend Deca", sans-serif;
+   font-weight: 600;
+   font-size: 2rem;
+   color: #111;
+   letter-spacing: -0.5px;
+}
+
+.facility-list li {
+   margin-bottom: 12px;
+   font-size: 1rem;
+   color: #444;
+   font-weight: 500;
+   display: flex;
+   align-items: center;
+}
+
+/* Warna icon check menjadi hitam/dark */
+.facility-list .bi-check-circle-fill {
+   color: #111 !important;
+   font-size: 1.1rem;
 }
