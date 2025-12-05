@@ -1,7 +1,31 @@
+/* =========================================
+   COLOR PALETTE & VARIABLES
+   ========================================= */
+:root {
+   /* Palette defined by User */
+   --turf-green: #41704f;
+   --dusty-olive: #617966;
+   --dark-spruce: #24482e;
+   --alabaster-grey: #dbdbdb;
+   --burnt-peach: #d87142;
+   --saddle-brown: #83451e;
+   --ash-grey: #a0a9a2;
+}
+
+/* =========================================
+   GLOBAL STYLES
+   ========================================= */
 * {
    font-family: "Lexend Deca", sans-serif;
 }
 
+body {
+   color: #000000;
+}
+
+/* =========================================
+   HERO SECTION
+   ========================================= */
 .hero-div {
    position: relative;
    height: 100vh;
@@ -55,9 +79,11 @@
    transition: border-bottom-color 0.3s ease;
 }
 
+/* Hover Navbar TETAP PUTIH (Pengecualian sesuai request) */
 .navbar .nav-link:hover,
 .navbar-brand:hover {
    border-bottom-color: white;
+   color: white !important;
 }
 
 /* HERO CONTENT */
@@ -73,10 +99,12 @@
 }
 
 .hero-title {
-   font-size: 5rem;
+   font-size: 5.5rem;
    font-weight: 700;
    line-height: 1.1;
    margin: 0;
+   font-family: "Funnel Sans", sans-serif;
+   letter-spacing: 3.5px;
 }
 
 .hero-desc {
@@ -92,9 +120,19 @@
    padding: 12px 32px;
    font-weight: 500;
    transition: 0.3s ease;
+   background-color: white;
+   color: var(--dark-spruce); /* Text tombol hijau gelap */
+   border: none;
 }
 
-/* About Us */
+.hero-btn:hover {
+   background-color: var(--burnt-peach); /* Hover tombol jadi Oranye */
+   color: white;
+}
+
+/* =========================================
+   ABOUT US SECTION
+   ========================================= */
 #AboutUs-section {
    padding-top: 50px;
    padding-bottom: 50px;
@@ -102,21 +140,23 @@
 
 #AboutUs-section .section-label {
    font-size: 1rem;
-   color: #6c757d; /* Warna abu-abu */
+   /* Menggunakan warna abu-abu (Dusty Olive) dari palette */
+   color: var(--ash-grey);
    font-weight: 600;
    letter-spacing: 0.5px;
 }
 
 #AboutUs-section .title {
    font-family: "Lexend Deca", sans-serif;
-   font-weight: 500; /* Sedikit lebih tipis agar elegan */
+   font-weight: 500;
    line-height: 1.3;
-   font-size: 2rem; /* Ukuran font disesuaikan */
-   color: #222;
+   font-size: 2rem;
+   color: #222; /* Judul tetap hitam */
 }
 
+/* EMPHASIS / HIGHLIGHT ORANYE */
 #AboutUs-section .highlight {
-   color: #222; /* Di referensi warnanya hitam biasa, hanya bold */
+   color: var(--burnt-peach); /* Burnt Peach (Oranye) */
    font-weight: 700;
    font-style: italic;
 }
@@ -125,28 +165,24 @@
 #AboutUs-section .desc {
    font-size: 0.95rem;
    line-height: 1.6;
-   color: #555;
+   color: #555; /* Deskripsi tetap dark grey/blackish */
    margin-bottom: 1rem;
 }
 
-/* Gambar Kiri Besar */
 #AboutUs-section .big-img {
    width: 100%;
    object-fit: cover;
-   /* Height 100% diatur lewat class bootstrap h-100 di HTML */
    max-height: 630px;
    border-radius: 4px;
 }
 
-/* Gambar Kecil & Overlay Nomor */
 #AboutUs-section .small-img-wrapper img {
    width: 100%;
-   height: 250px; /* Tinggi fix agar seragam */
+   height: 250px;
    object-fit: cover;
    border-radius: 4px;
 }
 
-/* Efek gradient tipis di bawah gambar kecil agar nomor terbaca */
 #AboutUs-section .small-img-wrapper::after {
    content: "";
    position: absolute;
@@ -154,15 +190,18 @@
    left: 0;
    width: 100%;
    height: 30%;
-   background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+   background: linear-gradient(to top, rgba(36, 72, 46, 0.5), transparent); /* Shadow hijau gelap */
    border-bottom-left-radius: 4px;
    border-bottom-right-radius: 4px;
 }
 
-/* FACILITIES SECTION */
+/* =========================================
+   FACILITIES SECTION
+   ========================================= */
 #Facilities-section .section-label {
    font-size: 1rem;
-   color: #6c757d;
+   /* Menggunakan warna abu-abu (Dusty Olive) dari palette */
+   color: var(--ash-grey);
    font-weight: 600;
    letter-spacing: 0.5px;
    text-transform: uppercase;
@@ -171,41 +210,154 @@
 .facility-img-wrapper {
    position: relative;
    overflow: hidden;
-   border-radius: 8px; /* Radius sedikit lebih tajam agar terlihat sleek */
-   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Shadow halus */
+   border-radius: 8px;
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .facility-img {
    width: 100%;
-   height: 380px; /* Tinggi gambar sedikit ditambah agar lebih megah */
+   height: 380px;
    object-fit: cover;
    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Efek zoom saat hover lebih smooth */
-.facility-img-wrapper:hover .facility-img {
-   transform: scale(1.04);
 }
 
 .facility-title {
    font-family: "Lexend Deca", sans-serif;
    font-weight: 600;
    font-size: 2rem;
-   color: #111;
+   color: #111; /* Judul Fasilitas tetap Hitam */
    letter-spacing: -0.5px;
 }
 
 .facility-list li {
    margin-bottom: 12px;
    font-size: 1rem;
-   color: #444;
+   color: #444; /* List item text hitam/gelap */
    font-weight: 500;
    display: flex;
    align-items: center;
 }
 
-/* Warna icon check menjadi hitam/dark */
+/* Icon Checklist menggunakan Turf Green */
 .facility-list .bi-check-circle-fill {
-   color: #111 !important;
+   color: var(--turf-green) !important;
    font-size: 1.1rem;
+}
+
+/* =========================================
+   FOOTER STYLES (COMPACT)
+   ========================================= */
+#Footer-section {
+   /* Menggunakan Dark Spruce (Hijau Gelap) sebagai background footer */
+   background-color: var(--dark-spruce);
+   color: #fff;
+   padding-top: 50px;
+   padding-bottom: 25px;
+   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-cta-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-size: 5.5rem;
+   font-weight: 800;
+   font-style: italic;
+   line-height: 1;
+   text-transform: uppercase;
+   margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+   .footer-cta-title {
+      font-size: 2.5rem;
+   }
+}
+
+.footer-brand {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   text-transform: uppercase;
+   letter-spacing: 1px;
+   font-size: 1.25rem;
+}
+
+.footer-desc {
+   font-size: 0.9rem;
+   line-height: 1.5;
+   max-width: 400px;
+   /* Menggunakan Alabaster Grey (putih tulang) agar tidak terlalu kontras menyakitkan mata */
+   color: var(--alabaster-grey) !important;
+}
+
+/* Link Style Normal */
+.footer-link {
+   color: var(--ash-grey); /* Menggunakan Ash Grey untuk link normal */
+   text-decoration: none;
+   font-size: 0.95rem;
+   font-weight: 400;
+   transition: color 0.3s ease, padding-left 0.3s ease;
+}
+
+/* Link Style Hover (ORANYE) */
+.footer-link:hover {
+   color: var(--burnt-peach); /* Burnt Peach (Oranye) saat hover */
+   padding-left: 5px;
+}
+
+/* =========================================
+   SCROLL REVEAL ANIMATIONS
+   ========================================= */
+
+/* Base State: Tersembunyi & Turun Sedikit */
+.reveal {
+   opacity: 0;
+   transform: translateY(50px); /* Geser ke bawah 50px */
+   transition: all 1s cubic-bezier(0.5, 0, 0, 1); /* Easing yang sangat smooth */
+   will-change: opacity, transform; /* Optimasi performa render */
+}
+
+/* Active State: Muncul Normal */
+.reveal.active {
+   opacity: 1;
+   transform: translateY(0);
+}
+
+/* Variasi: Muncul dari Kiri */
+.reveal-left {
+   transform: translateX(-50px);
+}
+
+/* Variasi: Muncul dari Kanan */
+.reveal-right {
+   transform: translateX(50px);
+}
+
+/* Active State untuk Kiri/Kanan */
+.reveal-left.active,
+.reveal-right.active {
+   opacity: 1;
+   transform: translateX(0);
+}
+
+/* Utility: Delay (Agar elemen muncul berurutan/staggered) */
+.delay-100 {
+   transition-delay: 0.1s;
+}
+.delay-200 {
+   transition-delay: 0.2s;
+}
+.delay-300 {
+   transition-delay: 0.3s;
+}
+.delay-400 {
+   transition-delay: 0.4s;
+}
+
+/* =========================================
+   FIX ANIMASI TOMBOL
+   ========================================= */
+/* Ini memastikan tombol tetap memiliki animasi muncul yang halus (1 detik),
+   tapi saat di-hover warnanya berubah instan/cepat (0.3 detik).
+*/
+.hero-btn.reveal {
+   transition: opacity 1s cubic-bezier(0.5, 0, 0, 1), /* Muncul pelan */ transform 1s cubic-bezier(0.5, 0, 0, 1), /* Geser pelan */ background-color 0.3s ease, /* Hover warna cepat */ color 0.3s ease; /* Hover teks cepat */
 }
