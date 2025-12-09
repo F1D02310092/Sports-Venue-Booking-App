@@ -54,7 +54,7 @@ const handleLogout = async (req, res, next) => {
 };
 
 const getProfilePage = async (req, res) => {
-   const user = await UserModel.findOne({ userID: req.params.userID });
+   const user = await UserModel.findByUserId(req.params.userID);
    if (!user) {
       return res.status(404).send("Not Found!");
    }
@@ -64,7 +64,7 @@ const getProfilePage = async (req, res) => {
 
 const handleUpdateProfile = async (req, res) => {
    try {
-      const user = await UserModel.findOne({ userID: req.params.userID });
+      const user = await UserModel.findByUserId(req.params.userID);
       if (!user) {
          return res.status(404).send("Not Found!");
       }

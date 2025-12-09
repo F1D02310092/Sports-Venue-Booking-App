@@ -7,7 +7,7 @@ CREATE DATABASE futsal_db;
 -- Table: users
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    user_id VARCHAR(36) NOT NULL UNIQUE,
+    user_id VARCHAR(36) NOT NULL UNIQUE, -- UUIDV4
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
