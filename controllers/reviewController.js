@@ -1,5 +1,5 @@
-const ReviewModel = require("../models/Review.js");
-const FieldModel = require("../models/Field.js");
+const ReviewModel = require("../models/Mongo/Review.js");
+const FieldModel = require("../models/Mongo/Field.js");
 
 const handleReviewPost = async (req, res) => {
    try {

@@ -1,6 +1,6 @@
-const BookingModel = require("../models/Booking.js");
+const BookingModel = require("../models/Postgres/Booking.js");
 const mongoose = require("mongoose");
-const FieldModel = require("../models/Field.js");
+const FieldModel = require("../models/Mongo/Field.js");
 const { formatDateYYYYMMDD, parseLocalDateToUTC } = require("../utils/timeFormat.js");
 
 const getManualBookForm = async (req, res) => {

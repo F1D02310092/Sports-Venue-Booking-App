@@ -1,7 +1,7 @@
 const { cloudinary } = require("../config/imageUpload.js");
 const mongoose = require("mongoose");
-const BookingModel = require("../models/Booking.js");
-const FieldModel = require("../models/Field.js");
+const BookingModel = require("../models/Postgres/Booking.js");
+const FieldModel = require("../models/Mongo/Field.js");
 const { toMinutes, minutesToHHMM, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
 
 const getHomePage = async (req, res, next) => {

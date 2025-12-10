@@ -1,4 +1,4 @@
-const BookingModel = require("../models/Booking.js");
+const BookingModel = require("../models/Postgres/Booking.js");
 const snap = require("../config/midtrans.js");
 const { minutesToHHMM } = require("../utils/timeFormat");
 const mongoose = require("mongoose");

@@ -16,7 +16,7 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
-const UserModel = require("./models/User.js");
+const UserModel = require("./models/Postgres/User.js");
 
 const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/futsal?replicaSet=rs0";
 const main = async function () {
@@ -92,20 +92,15 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-   done(null, user._id);
+   done(null, user.user_id);
 });
 
 passport.deserializeUser(async (id, done) => {
    try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-         return done(new Error("Invalid user ID"), null);
-      }
-
-      const user = await UserModel.findById(id);
+      const user = await UserModel.findByUserId(id);
       if (!user) {
          return done(new Error("User not found"), null);
       }
-
       done(null, user);
    } catch (err) {
       done(err, null);

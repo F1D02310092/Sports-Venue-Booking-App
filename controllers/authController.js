@@ -1,4 +1,4 @@
-const UserModel = require("../models/User.js");
+const UserModel = require("../models/Postgres/User.js");
 
 const getRegisterPage = (req, res) => {
    return res.render("auth/register.ejs");
@@ -71,27 +71,16 @@ const handleUpdateProfile = async (req, res) => {
 
       const { username, password, newPassword } = req.body;
 
-      user.username = username;
-
-      if (!password && !newPassword) {
-         await user.save();
-         req.flash("success", "Successfully change username");
-         return res.redirect("/fields");
+      if (username && username !== user.username) {
+         await UserModel.update(user.user_id, { username });
       }
 
-      if (!password || !newPassword) {
-         req.flash("error", "Please input all crendentials");
-         return res.redirect(`/users/${req.params.userID}/profile`);
+      if (password && newPassword) {
+         await UserModel.changePassword(user.user_id, password, newPassword);
+         req.flash("success", "Password changed successfully");
+      } else if (username) {
+         req.flash("success", "Profile updated successfully");
       }
-
-      const isCorrect = await user.authenticate(password);
-      if (!isCorrect.user) {
-         req.flash("error", "Current password incorrect");
-         return res.redirect(`/users/${user.userID}/profile`);
-      }
-
-      await user.setPassword(newPassword);
-      await user.save();
 
       req.flash("success", "Successfully change password");
       return res.redirect("/fields");

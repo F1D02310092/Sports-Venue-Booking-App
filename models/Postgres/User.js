@@ -55,13 +55,6 @@ class UserModel {
       return result.rows[0] || null;
    }
 
-   static async findById(id) {
-      const query = `SELECT * FROM users WHERE id = $1`;
-      const result = await db.query(query, [id]);
-
-      return result.rows[0] || null;
-   }
-
    static async findOne(queryObj) {
       let whereClause = "";
       const conditions = [];
@@ -80,10 +73,6 @@ class UserModel {
       const result = await db.query(query, values);
 
       return result.rows[0] || null;
-   }
-
-   static async isLocked(user) {
-      return user.lock_until && user.lock_until > Date.now();
    }
 
    static async update(userID, updateData) {
@@ -119,11 +108,14 @@ class UserModel {
          return { success: false, message: "Invalid email or password" };
       }
 
-      if (this.isLocked(user)) {
-         return { success: false, message: "Account locked, try again later" };
+      if (user.lock_until && new Date(user.lock_until) > new Date()) {
+         return {
+            success: false,
+            message: "Account locked. Try again later.",
+         };
       }
 
-      const isValid = await bcrypt.compare(password, password_hash);
+      const isValid = await bcrypt.compare(password, user.password_hash);
       if (!isValid) {
          const loginAttempts = (user.login_attempts || 0) + 1;
 

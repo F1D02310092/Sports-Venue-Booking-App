@@ -1,5 +1,5 @@
-const FieldModel = require("../models/Field.js");
-const BookingModel = require("../models/Booking.js");
+const FieldModel = require("../models/Mongo/Field.js");
+const BookingModel = require("../models/Postgres/Booking.js");
 const { formatDateYYYYMMDD } = require("../utils/timeFormat.js");
 
 const getAnalyticsPage = async (req, res) => {

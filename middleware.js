@@ -1,4 +1,4 @@
-const ReviewModel = require("./models/Review.js");
+const ReviewModel = require("./models/Mongo/Review.js");
 
 const storeReturnTo = async (req, res, next) => {
    if (!req.session.returnTo && req.originalUrl !== "/login") {
