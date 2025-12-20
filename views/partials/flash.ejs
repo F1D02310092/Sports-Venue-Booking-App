@@ -1,31 +1,47 @@
-<div class="flash-container-body container mt-3">
-  <% if (successFlashMsg && successFlashMsg.length) { %>
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <%= successFlashMsg %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <link rel="stylesheet" href="/css/flash.css" />
+
+
+  <div class="flash-wrapper">
+
+    <% if (successFlashMsg && successFlashMsg.length) { %>
+    <div class="alert custom-alert alert-success d-flex align-items-center" role="alert">
+      <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+      <div>
+        <h6 class="alert-heading mb-0">Success</h6>
+        <div class="alert-body"><%= successFlashMsg %></div>
+      </div>
+      <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <% if (errorFlashMsg && errorFlashMsg.length) { %>
+    <div class="alert custom-alert alert-danger d-flex align-items-center" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+      <div>
+        <h6 class="alert-heading mb-0">Attention</h6>
+        <div class="alert-body"><%= errorFlashMsg %></div>
+      </div>
+      <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
   </div>
-  <% } %> <% if (errorFlashMsg && errorFlashMsg.length) { %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <%= errorFlashMsg %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  <% } %>
-</div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const alerts = document.querySelectorAll(".alert");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const alerts = document.querySelectorAll(".custom-alert");
 
-    alerts.forEach((alert) => {
-      // Auto dismiss after 5s
-      setTimeout(() => {
-        alert.classList.add("hide");
+      alerts.forEach((alert) => {
+        // Auto dismiss setelah 5 detik
+        setTimeout(() => {
+          // Tambahkan class 'hiding' untuk memicu animasi keluar CSS
+          alert.classList.add("hiding");
 
-        // Hapus dari DOM setelah animasi selesai
-        alert.addEventListener("animationend", () => {
-          alert.remove();
-        });
-      }, 5000); // 5 detik
+          // Hapus element dari DOM setelah animasi CSS selesai
+          alert.addEventListener("animationend", () => {
+            alert.remove();
+          });
+        }, 5000);
+      });
     });
-  });
-</script>
+  </script>

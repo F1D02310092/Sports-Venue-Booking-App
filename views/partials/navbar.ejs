@@ -1,32 +1,75 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/fields">Home</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <% if (currUser && currUser.role === 'admin') { %>
-        <a class="nav-link" href="/fields/add">Add Field</a>
-        <a class="nav-link" href="/fields/deactivated">Deactivated Field</a>
-        <a class="nav-link" href="/admin/analytics">Analytics</a>
-        <a class="nav-link" href="/admin/analytics/transactions-history">Transactions</a>
+  <link rel="stylesheet" href="/css/navbar.css" />
 
 
-        <% } else if (currUser && currUser.role === 'user') { %>
-        <a class="nav-link" href="/payment/users/transactions-history">Transactions</a>
-        <% } %>
-      </div>
+  <nav class="navbar navbar-expand-lg apex-navbar sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/fields">
+        <span>APEX SPORTS</span>
+      </a>
 
-      <div class="navbar-nav ms-auto">
-        <% if (!currUser) { %>
-        <a class="nav-link" href="/login">Login</a>
-        <% } else { %>
-        <a class="nav-link" href="/users/<%= currUser.user_id %>/profile"><%= currUser.role === 'admin' ? 'Admin' : 'Profile' %></a>
-        <a class="nav-link" href="/logout">Logout</a>
-        <% } %>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#apexNavbarNav" aria-controls="apexNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon-custom">
+          <i class="bi bi-list"></i>
+        </span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="apexNavbarNav">
+        <div class="navbar-nav gap-3 mt-3 mt-lg-0">
+          <a class="nav-link" href="/fields">
+            Home
+          </a>
+
+          <% if (currUser && currUser.role === 'admin') { %>
+          <a class="nav-link" href="/fields/add">
+            <i class="bi bi-plus-lg me-1"></i>Add
+          </a>
+          <a class="nav-link" href="/fields/deactivated">
+            <i class="bi bi-eye-slash me-1"></i>Deactivated
+          </a>
+
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Analytics
+            </a>
+            <ul class="dropdown-menu apex-dropdown">
+              <li><a class="dropdown-item" href="/admin/analytics">Overview</a></li>
+              <li><a class="dropdown-item" href="/admin/analytics/transactions-history">Transactions</a></li>
+            </ul>
+          </div>
+
+          <% } else if (currUser && currUser.role === 'user') { %>
+          <a class="nav-link" href="/payment/users/transactions-history">History</a>
+          <% } %>
+        </div>
+
+        <div class="navbar-nav ms-auto gap-2 mt-3 mt-lg-0">
+          <% if (!currUser) { %>
+          <a class="nav-link btn-login px-4" href="/login">Login</a>
+          <% } else { %>
+          <div class="nav-item dropdown">
+            <a class="nav-link profile-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="profile-icon">
+                <%= currUser.username.charAt(0).toUpperCase() %>
+              </div>
+              <span class="d-lg-none">Profile</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end apex-dropdown">
+              <li>
+                <h6 class="dropdown-header">Hello, <%= currUser.username %></h6>
+              </li>
+              <li>
+                <a class="dropdown-item" href="/users/<%= currUser.user_id %>/profile">
+                  Edit Profile
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+            </ul>
+          </div>
+          <% } %>
+        </div>
       </div>
     </div>
-  </div>
-</nav>
+  </nav>

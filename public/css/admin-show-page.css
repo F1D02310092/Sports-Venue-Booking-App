@@ -1,0 +1,197 @@
+/* =========================================
+   ADMIN DETAIL STYLES (MATCHING USER STYLE)
+   ========================================= */
+
+:root {
+   --apex-green: #41704f;
+   --apex-dark: #24482e;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+   --apex-border: #e9ecef;
+
+   /* Admin Specific Status Colors */
+   --status-booked: #e0e0e0; /* Abu-abu solid */
+   --status-reserved: #fff3cd; /* Kuning Pucat */
+}
+
+/* --- TYPOGRAPHY (Sama dengan User) --- */
+.field-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   font-size: 2.5rem;
+   text-transform: uppercase;
+   color: var(--apex-dark);
+   line-height: 1.1;
+}
+
+.field-price {
+   font-family: "Lexend Deca", sans-serif;
+   color: var(--apex-green);
+   font-weight: 700;
+}
+
+.section-heading {
+   font-family: "Lexend Deca", sans-serif;
+   font-weight: 600;
+   font-size: 1.5rem;
+   color: #333;
+}
+
+.text-accent {
+   color: var(--apex-accent);
+}
+.bg-apex-dark {
+   background-color: var(--apex-dark);
+   color: white;
+}
+
+/* --- IMAGES & CAROUSEL --- */
+.field-main-img {
+   height: 450px;
+   object-fit: cover;
+}
+
+/* --- STICKY PANEL --- */
+.alert-soft-dark {
+   background-color: #e9ecef;
+   color: var(--apex-dark);
+   border: 1px solid #ced4da;
+}
+
+/* --- SLOT GRID SYSTEM --- */
+.slot-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+   gap: 15px;
+}
+
+/* Style Dasar Kartu Slot (Identik dengan User) */
+.slot-card {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   background-color: #fff;
+   border: 2px solid var(--apex-border);
+   border-radius: 12px;
+   padding: 15px 10px;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   height: 100%;
+   position: relative;
+   text-align: center;
+}
+
+.slot-time {
+   font-weight: 700;
+   font-size: 1rem;
+   margin-bottom: 4px;
+}
+
+.slot-status {
+   font-size: 0.75rem;
+   color: #888;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+}
+
+.slot-icon {
+   margin-top: 8px;
+   font-size: 1.2rem;
+   color: #ccc;
+   transition: color 0.2s;
+}
+
+/* --- LOGIKA STATUS ADMIN --- */
+
+/* 1. AVAILABLE (Hover Effect) */
+.btn-check:not(:disabled) + .slot-card:hover {
+   border-color: var(--apex-accent);
+   transform: translateY(-3px);
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-check:not(:disabled) + .slot-card:hover .slot-icon {
+   color: var(--apex-accent);
+}
+
+/* 2. SELECTED (Saat Admin Klik Slot Kosong) */
+.btn-check:checked + .slot-card {
+   background-color: var(--apex-accent); /* Oranye */
+   border-color: var(--apex-accent);
+   color: white;
+   box-shadow: 0 5px 15px rgba(216, 113, 66, 0.4);
+}
+
+.btn-check:checked + .slot-card .slot-status,
+.btn-check:checked + .slot-card .slot-icon {
+   color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-check:checked + .slot-card .slot-icon i::before {
+   content: "\f26b"; /* Icon Checklist */
+}
+
+/* 3. BOOKED (Sudah Dibayar/Manual Book - Disabled) */
+.slot-card.booked {
+   background-color: var(--status-booked);
+   border-color: transparent;
+   cursor: not-allowed;
+   color: #777;
+}
+
+/* 4. RESERVED (Pending Payment - Disabled untuk Admin sementara waktu) */
+.slot-card.reserved {
+   background-color: var(--status-reserved); /* Kuning */
+   border-color: #ffecb5;
+   color: #856404;
+   cursor: not-allowed;
+}
+
+.slot-card.reserved .slot-icon {
+   color: #856404;
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   font-weight: 700;
+   text-transform: uppercase;
+   letter-spacing: 1px;
+   border: none;
+   transition: background 0.3s;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-accent);
+   color: white;
+}
+
+/* --- LEGEND DOTS --- */
+.dot {
+   width: 10px;
+   height: 10px;
+   border-radius: 50%;
+   display: inline-block;
+}
+.dot.available {
+   border: 2px solid #ccc;
+   background: white;
+}
+.dot.selected {
+   background-color: var(--apex-accent);
+}
+.dot.booked {
+   background-color: var(--status-booked);
+}
+.dot.reserved {
+   background-color: #ffc107;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+   .field-main-img {
+      height: 300px;
+   }
+}

@@ -1,0 +1,312 @@
+/* =========================================
+   APEX FIELD DETAIL STYLES
+   ========================================= */
+
+/* Reuse Variables */
+:root {
+   --apex-green: #41704f;
+   --apex-dark: #24482e;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+   --apex-border: #e9ecef;
+}
+
+/* --- TYPOGRAPHY --- */
+.field-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   font-size: 2.5rem;
+   text-transform: uppercase;
+   color: var(--apex-dark);
+   line-height: 1.1;
+}
+
+.field-price {
+   font-family: "Lexend Deca", sans-serif;
+   color: var(--apex-green);
+   font-weight: 700;
+}
+
+.section-heading {
+   font-family: "Lexend Deca", sans-serif;
+   font-weight: 600;
+   font-size: 1.5rem;
+   color: #333;
+}
+
+.text-accent {
+   color: var(--apex-accent);
+}
+
+/* --- IMAGES & CAROUSEL --- */
+.field-main-img {
+   height: 450px;
+   object-fit: cover;
+}
+
+@media (max-width: 768px) {
+   .field-main-img {
+      height: 300px;
+   }
+}
+
+/* --- STICKY PANEL --- */
+.alert-soft-green {
+   background-color: #eaf3ed;
+   color: var(--apex-dark);
+   border: 1px solid #d4e3d9;
+}
+
+/* --- SLOT GRID SYSTEM --- */
+.slot-grid {
+   display: grid;
+   /* Grid otomatis: min 140px lebar per kartu */
+   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+   gap: 15px;
+}
+
+/* Style Dasar Kartu Slot */
+.slot-card {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   background-color: #fff;
+   border: 2px solid var(--apex-border);
+   border-radius: 12px;
+   padding: 15px 10px;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   height: 100%;
+   position: relative;
+   text-align: center;
+}
+
+.slot-time {
+   font-weight: 700;
+   font-size: 1rem;
+   margin-bottom: 4px;
+}
+
+.slot-status {
+   font-size: 0.75rem;
+   color: #888;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+}
+
+.slot-icon {
+   margin-top: 8px;
+   font-size: 1.2rem;
+   color: #ccc;
+   transition: color 0.2s;
+}
+
+/* --- LOGIKA STATUS SLOT --- */
+
+/* 1. AVAILABLE (Hover Effect) */
+.btn-check:not(:disabled) + .slot-card:hover {
+   border-color: var(--apex-accent);
+   transform: translateY(-3px);
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-check:not(:disabled) + .slot-card:hover .slot-icon {
+   color: var(--apex-accent);
+}
+
+/* 2. SELECTED (Checked State) */
+.btn-check:checked + .slot-card {
+   background-color: var(--apex-accent); /* Background Oranye */
+   border-color: var(--apex-accent);
+   color: white;
+   box-shadow: 0 5px 15px rgba(216, 113, 66, 0.4);
+}
+
+.btn-check:checked + .slot-card .slot-status,
+.btn-check:checked + .slot-card .slot-icon {
+   color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-check:checked + .slot-card .slot-icon i::before {
+   content: "\f26b"; /* Ganti icon jadi check-circle-fill saat dipilih */
+}
+
+/* 3. BOOKED (Disabled / Orang Lain) */
+.slot-card.booked {
+   background-color: #f0f0f0;
+   border-color: transparent;
+   opacity: 0.7;
+   cursor: not-allowed;
+   color: #999;
+}
+
+/* 4. MY BOOKING (Disabled / Punya Sendiri) */
+.slot-card.mine-success {
+   background-color: #e6f4ea;
+   border-color: var(--apex-green);
+   color: var(--apex-dark);
+   cursor: default;
+}
+
+.slot-card.mine-success .slot-icon {
+   color: var(--apex-green);
+}
+
+.slot-card.mine-pending {
+   background-color: #fff8e1;
+   border-color: #ffc107;
+   color: #856404;
+   cursor: default;
+}
+
+/* --- LEGEND DOTS --- */
+.dot {
+   width: 10px;
+   height: 10px;
+   border-radius: 50%;
+   display: inline-block;
+}
+.dot.available {
+   border: 2px solid #ccc;
+}
+.dot.selected {
+   background-color: var(--apex-accent);
+}
+.dot.booked {
+   background-color: #ddd;
+}
+.dot.mine {
+   background-color: var(--apex-green);
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   font-weight: 700;
+   text-transform: uppercase;
+   letter-spacing: 1px;
+   border: none;
+   transition: background 0.3s;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-accent);
+   color: white;
+}
+
+/* --- REVIEW SECTION --- */
+.rating-input {
+   display: flex;
+   align-items: center;
+   gap: 15px;
+}
+
+/* =========================================
+   REVIEW SECTION STYLES
+   ========================================= */
+
+/* --- REVIEW FORM CARD --- */
+.review-form-card {
+   background: white;
+   padding: 2rem;
+   border-radius: 16px;
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+   border: 1px solid var(--apex-border);
+   position: sticky;
+   top: 20px; /* Sticky saat scroll */
+}
+
+.form-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   color: var(--apex-dark);
+}
+
+/* --- INTERACTIVE STAR RATING (CSS MAGIC) --- */
+.star-rating-group {
+   display: flex;
+   flex-direction: row-reverse; /* Membalik urutan agar CSS sibling selector bekerja */
+   justify-content: center;
+   gap: 8px;
+}
+
+/* Sembunyikan radio button asli */
+.star-rating-group input[type="radio"] {
+   display: none;
+}
+
+/* Style default bintang (kosong/abu-abu) */
+.star-rating-group label {
+   font-size: 2rem;
+   color: #ddd;
+   cursor: pointer;
+   transition: color 0.2s, transform 0.2s;
+}
+
+/* Efek Hover: Ubah warna saat mouse lewat */
+.star-rating-group label:hover,
+.star-rating-group label:hover ~ label {
+   color: #ffda6a; /* Kuning muda saat hover */
+   transform: scale(1.1);
+}
+
+/* Efek Checked: Ubah warna bintang yang dipilih & sebelumnya */
+.star-rating-group input[type="radio"]:checked ~ label {
+   color: #ffc107; /* Kuning emas solid */
+}
+
+/* --- REVIEW LIST CARD --- */
+.review-card {
+   background-color: #fff;
+   border-radius: 12px;
+   padding: 1.5rem;
+   margin-bottom: 1rem;
+   border: 1px solid #f0f0f0;
+   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.review-card:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+   border-color: #e0e0e0;
+}
+
+/* User Avatar */
+.review-avatar {
+   width: 50px;
+   height: 50px;
+   background-color: var(--apex-dark); /* Dark Spruce */
+   color: white;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   font-size: 1.2rem;
+   flex-shrink: 0;
+   border: 3px solid #e8f5e9; /* Ring hijau muda */
+}
+
+.review-user {
+   font-family: "Lexend Deca", sans-serif;
+   font-weight: 700;
+   color: #333;
+}
+
+.review-stars i {
+   font-size: 0.9rem;
+}
+
+.review-text {
+   font-size: 0.95rem;
+   color: #555;
+   line-height: 1.5;
+   margin-bottom: 0;
+}
+
+.border-dashed {
+   border-style: dashed !important;
+}

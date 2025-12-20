@@ -321,18 +321,29 @@ const getPaymentHistory = async (req, res) => {
 const cancelBooking = async (req, res) => {
    try {
       const booking = await BookingModel.findOne({ booking_id: req.params.bookingID });
+
       if (!booking) {
-         return res.status(404).send("Not Found!");
+         return res.status(404).send("Booking not found");
       }
 
-      booking.status = "failed";
-      await booking.save();
+      // Authorization check
+      if (booking.user_id !== req.user.user_id && req.user.role !== "admin") {
+         return res.status(403).send("Unauthorized");
+      }
 
-      req.flash("success", "Your booking is cancelled");
-      return res.redirect("/fields");
+      if (booking.status !== "pending") {
+         req.flash("error", `Cannot cancel ${booking.status} booking`);
+         return res.redirect(`/fields/${booking.field_id}`);
+      }
+
+      await BookingModel.updateStatus(req.params.bookingID, "failed");
+
+      req.flash("success", "Booking cancelled");
+      return res.redirect(`/fields/${booking.field_id}`);
    } catch (error) {
       console.error(error);
-      return res.send(error);
+      req.flash("error", "Failed to cancel booking");
+      return res.redirect("/fields");
    }
 };
 

@@ -1,0 +1,152 @@
+/* =========================================
+   APEX APP NAVBAR THEME
+   ========================================= */
+
+/* Import font jika belum ada di layout global */
+@import url("https://fonts.googleapis.com/css2?family=Funnel+Sans:wght@300..800&family=Lexend+Deca:wght@100..900&display=swap");
+
+:root {
+   --apex-dark: #24482e; /* Dark Spruce */
+   --apex-green: #41704f; /* Turf Green */
+   --apex-accent: #d87142; /* Burnt Peach */
+   --apex-light: #f4f4f4; /* Background Body */
+   --apex-text-muted: #a0a9a2; /* Ash Grey */
+}
+
+/* Base Navbar Styling */
+.apex-navbar {
+   background-color: var(--apex-dark);
+   padding: 1rem 0;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+   font-family: "Lexend Deca", sans-serif;
+}
+
+/* Brand / Logo */
+.apex-navbar .navbar-brand {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   font-size: 1.5rem;
+   color: white;
+   letter-spacing: 1px;
+   text-transform: uppercase;
+}
+
+.apex-navbar .text-accent {
+   color: var(--apex-accent);
+}
+
+/* Navigation Links */
+.apex-navbar .nav-link {
+   color: var(--apex-text-muted);
+   font-size: 0.95rem;
+   font-weight: 400;
+   transition: all 0.3s ease;
+   padding: 8px 12px;
+   border-radius: 6px;
+}
+
+/* Hover State */
+.apex-navbar .nav-link:hover,
+.apex-navbar .nav-link.active {
+   color: white;
+   background-color: rgba(255, 255, 255, 0.05);
+   transform: translateY(-1px);
+}
+
+/* Tombol Login Khusus */
+.apex-navbar .btn-login {
+   border: 2px solid var(--apex-accent);
+   color: var(--apex-accent) !important;
+   border-radius: 50px;
+   text-align: center;
+}
+
+.apex-navbar .btn-login:hover {
+   background-color: var(--apex-accent);
+   color: white !important;
+}
+
+/* Dropdown Menu Styling */
+.apex-dropdown {
+   background-color: #ffffff;
+   border: none;
+   border-radius: 12px;
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+   padding: 10px;
+   margin-top: 15px; /* Jarak dari navbar */
+}
+
+.apex-dropdown .dropdown-header {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   color: var(--apex-dark);
+}
+
+.apex-dropdown .dropdown-item {
+   border-radius: 8px;
+   padding: 8px 16px;
+   font-size: 0.9rem;
+   color: #555;
+   transition: 0.2s;
+}
+
+.apex-dropdown .dropdown-item:hover {
+   background-color: #f0f7f2; /* Hijau sangat muda */
+   color: var(--apex-green);
+}
+
+.apex-dropdown .dropdown-item.text-danger:hover {
+   background-color: #fff0f0;
+   color: #dc3545;
+}
+
+/* Profile Icon Avatar */
+.profile-icon {
+   width: 35px;
+   height: 35px;
+   background-color: var(--apex-accent);
+   color: white;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-weight: 700;
+   font-family: "Funnel Sans", sans-serif;
+   border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Toggler Custom */
+.navbar-toggler {
+   border: none;
+   padding: 0;
+}
+
+.navbar-toggler:focus {
+   box-shadow: none;
+}
+
+.navbar-toggler-icon-custom {
+   color: white;
+   font-size: 1.8rem;
+}
+
+/* Responsiveness adjustments */
+@media (max-width: 991.98px) {
+   .apex-navbar {
+      padding: 0.8rem 0;
+   }
+
+   .navbar-collapse {
+      background-color: rgba(36, 72, 46, 0.98); /* Sedikit transparan di mobile */
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+   }
+
+   .profile-link {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 15px !important;
+      margin-top: 10px;
+   }
+}

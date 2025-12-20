@@ -1,0 +1,131 @@
+/* =========================================
+   APEX FLASH NOTIFICATION
+   ========================================= */
+
+/* Variabel Lokal (bisa disesuaikan dengan app.css) */
+:root {
+   --flash-green: #41704f; /* Turf Green */
+   --flash-red: #d9534f; /* Soft Red yang cocok dengan earth tone */
+   --flash-text: #2c3e50;
+}
+
+/* Wrapper: Posisi melayang di pojok kanan atas */
+.flash-wrapper {
+   position: fixed;
+   top: 90px; /* Di bawah Navbar (sesuaikan tinggi navbar Anda) */
+   right: 25px;
+   z-index: 1060; /* Di atas modal Bootstrap standard (1055) */
+   width: 100%;
+   max-width: 400px;
+   pointer-events: none; /* Klik tembus jika area kosong */
+   display: flex;
+   flex-direction: column;
+   gap: 15px;
+}
+
+/* Base Style untuk Alert Card */
+.custom-alert {
+   pointer-events: auto; /* Kembalikan fungsi klik pada alert */
+   background: #ffffff;
+   border: none;
+   border-left: 6px solid #ccc; /* Border warna default */
+   border-radius: 8px;
+   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Shadow lembut */
+   padding: 16px 20px;
+   color: var(--flash-text);
+   font-family: "Lexend Deca", sans-serif;
+
+   /* Animasi Masuk */
+   opacity: 0;
+   transform: translateX(50px);
+   animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* --- THEME SUCCESS (HIJAU) --- */
+.custom-alert.alert-success {
+   border-left-color: var(--flash-green);
+}
+.custom-alert.alert-success .bi {
+   color: var(--flash-green);
+}
+
+/* --- THEME ERROR (MERAH) --- */
+.custom-alert.alert-danger {
+   border-left-color: var(--flash-red);
+}
+.custom-alert.alert-danger .bi {
+   color: var(--flash-red);
+}
+
+/* Typografi di dalam Alert */
+.alert-heading {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   font-size: 0.95rem;
+   letter-spacing: 0.5px;
+   text-transform: uppercase;
+   margin-bottom: 2px;
+}
+
+.alert-body {
+   font-size: 0.9rem;
+   color: #555;
+   line-height: 1.4;
+}
+
+/* Modifikasi Tombol Close */
+.custom-alert .btn-close {
+   padding: 10px;
+   margin-left: 10px;
+   font-size: 0.8rem;
+   box-shadow: none;
+   opacity: 0.3;
+   transition: opacity 0.3s;
+}
+
+.custom-alert .btn-close:hover {
+   opacity: 1;
+}
+
+/* --- ANIMATION KEYFRAMES --- */
+
+/* Animasi Masuk (Slide in + Bounce sedikit) */
+@keyframes slideInRight {
+   0% {
+      opacity: 0;
+      transform: translateX(100%);
+   }
+   100% {
+      opacity: 1;
+      transform: translateX(0);
+   }
+}
+
+/* Animasi Keluar (Fade out + Geser ke atas) */
+.custom-alert.hiding {
+   animation: slideOutRight 0.5s forwards;
+}
+
+@keyframes slideOutRight {
+   0% {
+      opacity: 1;
+      transform: translateX(0);
+   }
+   100% {
+      opacity: 0;
+      transform: translateX(20px);
+   }
+}
+
+/* Responsif untuk Mobile */
+@media (max-width: 576px) {
+   .flash-wrapper {
+      right: 50%;
+      transform: translateX(50%); /* Tengah layar */
+      width: 90%;
+   }
+
+   .custom-alert {
+      animation-name: slideInBottom; /* Muncul dari bawah jika di mobile (opsional) */
+   }
+}

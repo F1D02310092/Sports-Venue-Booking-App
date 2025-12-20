@@ -1,129 +1,244 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<div class="container">
-  <h1><%= field.name %></h1>
-  <h2>Rp<%=field.price %></h2>
+<link rel="stylesheet" href="/css/show-field.css">
 
-  <% if(field.images.length > 0){%>
-  <div id="carouselExample" class="carousel slide my-2">
-    <div class="carousel-inner">
-      <% field.images.forEach((img, i) => { %>
-      <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
-        <img crossorigin="anonymous" src="<%= img.url %>" class="d-block w-100" style="height: 600px; object-fit: cover" />
+<div class="container py-5">
+
+  <div class="row g-4 mb-5">
+
+    <div class="col-lg-7">
+      <% if(field.images.length > 0){ %>
+      <div id="fieldCarousel" class="carousel slide carousel-fade shadow-lg rounded-4 overflow-hidden">
+        <div class="carousel-inner">
+          <% field.images.forEach((img, i) => { %>
+          <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+            <img crossorigin="anonymous" src="<%= img.url %>" class="d-block w-100 field-main-img" alt="<%= field.name %>" />
+          </div>
+          <% }); %>
+        </div>
+
+        <% if(field.images.length > 1) { %>
+        <button class="carousel-control-prev" type="button" data-bs-target="#fieldCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#fieldCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+        <% } %>
       </div>
-      <% }); %>
+      <% } else { %>
+      <div class="rounded-4 bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 400px;">
+        No Images Available
+      </div>
+      <% } %>
     </div>
 
-    <% if(field.images.length > 1) {%>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm h-100 p-4 sticky-panel">
+        <h1 class="field-title mb-2"><%= field.name %></h1>
+        <h2 class="field-price mb-4">Rp<%= field.price.toLocaleString('id-ID') %> <span class="fs-6 text-muted fw-normal">/ hour</span></h2>
 
-    <% }%>
-  </div>
+        <div class="d-flex gap-3 mb-4 text-muted small">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-clock-fill text-accent"></i>
+            <span><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-geo-alt-fill text-accent"></i>
+            <span>Apex Center</span>
+          </div>
+        </div>
 
-  <% }%>
+        <hr class="border-secondary opacity-10 mb-4">
 
-  <form action="" method="GET" id="date-picker-form">
-    <input type="hidden" id="field-id" value="<%= field.fieldID %>" />
-    <input type="date" name="" id="booking-date-picker" value="<%= queryDateStr %>" min="<%= minDate %>" max="<%= maxDate %>" />
-  </form>
+        <label class="form-label fw-bold text-uppercase small text-muted">Select Date</label>
 
-  <h3 class="my-2" id="selected-date">
-    <%= queryDateFormatted %>
-    <p><%= minutesToHHMM(field.openTime) %> - <%= minutesToHHMM(field.closeTime) %></p>
-  </h3>
-</div>
+        <form action="/fields/<%= field.fieldID %>/" method="GET" id="date-picker-form" class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event"></i></span>
 
-<form action="/fields/<%= field.fieldID %>/users/booking" method="POST" class="container" id="form-booking">
-  <input type="hidden" name="date" id="selected-booking-date" value="<%= queryDateStr %>" />
-
-  <div class="my-2">
-    <%for(let slot of timeSlots){%>
-    <div class="btn-group my-1" role="group" aria-label="Basic checkbox toggle button group">
-      <% if(successBook && successBook.has(slot)){%>
-      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" value="<%= slot %>" disabled />
-      <label class="btn btn-outline-danger" for="slot-<%=slot%>" aria-disabled="true">
-        <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
-
-        <% if(currUser && currUser.user_id === successBook.get(slot).bookedBy && successBook.get(slot).status === 'success'){%>
-        <span><a>My Book</a></span>
-        <% } else if(currUser && currUser.user_id === successBook.get(slot).bookedBy && successBook.get(slot).status === 'pending'){%>
-        <span><a>My Reserved</a></span>
-        <p><a>Expired in: <%= successBook.get(slot).reservedTime %> Minutes </a></p>
-
-        <% } else{%>
-        <span><b>Booked</b></span>
-        <% }%>
-      </label>
-      <% } else {%>
-      <input type="checkbox" class="btn-check" id="slot-<%= slot  %>" name="slots" value="<%= slot %>" />
-      <label class="btn btn-outline-primary" for="slot-<%=slot%>">
-        <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
-
-        <span><b>Available</b></span>
-      </label>
-      <%}%>
-      </div>
-      <%}%>
-    </div>
-
-    <% if(!currUser){%>
-
-    <span class="d-block text-body-secondary mb-3"><em>Please <a class="text-reset" href="/login">sign-in</a> first before booking</em></span>
-
-    <% } else {%>
-    <button class="btn btn-success">Book</button>
-
-    <% }%>
-</form>
-
-<%if(currUser && currUser.role === 'user'){%>
-
-<div class="container my-4 d-flex flex-row" style="width: 100%">
-  <div class="card card-body" style="width: 50%">
-    <form action="/fields/<%= field.fieldID %>/review" method="POST">
-      <div class="mb-3 d-flex flex-column">
-        <label for="review_text" class="form-label">Your Review</label>
-        <textarea name="text" id="review_text" placeholder="Leave your review" rows="8" cols="50" class="p-2" required></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label for="review_rating" class="form-label">Rating</label>
-        <input type="number" class="form-control" id="review_rating" name="rating" required min="1" max="5" step="0.5" value="1" />
-      </div>
-
-      <button class="btn btn-success">Submit</button>
-    </form>
-  </div>
-
-  <div class="container" style="width: 50%">
-    <%if(field.reviews.length > 0){%> <% for(rev of field.reviews){%>
-    <div class="card mb-2">
-      <div class="card-body">
-        <h6><b><%= rev.user.username.toUpperCase() %></b></h6>
-        <p class="my-1"><%= rev.text %></p>
-        <b><%= rev.rating %>⭐</b>
-
-        <% if(rev.user._id.toString() === currUser.user_id.toString()){%>
-        <form action="/fields/<%= field.fieldID %>/review/<%= rev.reviewID %>?_method=DELETE" method="POST">
-          <button class="btn btn-danger mt-2">Delete</button>
+            <input type="date" class="form-control border-start-0 ps-0" id="booking-date-picker" name="date" value="<%= queryDateStr %>" min="<%= minDate %>" max="<%= maxDate %>" onchange="this.form.submit()" />
+          </div>
         </form>
-        <% }%>
+        <div class="alert alert-soft-green d-flex align-items-center gap-2" role="alert">
+          <i class="bi bi-info-circle-fill"></i>
+          <div><strong><%= queryDateFormatted %></strong></div>
+        </div>
       </div>
     </div>
-    <% }%> <%} else {%>
-    <h2 class="text-center" style="margin-top: 30%">Be the first to leave a review!</h2>
-    <% }%>
   </div>
+
+  <section class="mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h3 class="section-heading">Available Slots</h3>
+      <div class="slot-legend d-none d-md-flex gap-3 text-small">
+        <span class="d-flex align-items-center gap-1"><span class="dot available"></span> Available</span>
+        <span class="d-flex align-items-center gap-1"><span class="dot selected"></span> Selected</span>
+        <span class="d-flex align-items-center gap-1"><span class="dot booked"></span> Booked</span>
+        <span class="d-flex align-items-center gap-1"><span class="dot mine"></span> Yours</span>
+      </div>
+    </div>
+
+    <form action="/fields/<%= field.fieldID %>/users/booking" method="POST" id="form-booking">
+      <input type="hidden" name="date" id="selected-booking-date" value="<%= queryDateStr %>" />
+
+      <div class="slot-grid mb-4">
+        <% for(let slot of timeSlots){ %>
+
+        <% 
+            let slotStatus = 'available'; 
+            let isDisabled = false;
+            let labelText = 'Available';
+            
+            if(successBook && successBook.has(slot)) {
+               const bookData = successBook.get(slot);
+               
+               if(currUser && currUser.user_id === bookData.bookedBy) {
+                  if(bookData.status === 'success') {
+                    slotStatus = 'mine-success';
+                    isDisabled = true;
+                    labelText = 'My Booking';
+                  } else if(bookData.status === 'pending') {
+                    slotStatus = 'mine-pending';
+                    isDisabled = true;
+                    labelText = 'Reserved (' + bookData.reservedTime + 'm)';
+                  }
+               } else {
+                  slotStatus = 'booked';
+                  isDisabled = true;
+                  labelText = 'Booked';
+               }
+            } 
+          %>
+
+        <div class="slot-item">
+          <input type="checkbox" class="btn-check" id="slot-<%= slot %>" name="slots" value="<%= slot %>" <%= isDisabled ? 'disabled' : '' %> autocomplete="off" />
+
+          <label class="slot-card <%= slotStatus %>" for="slot-<%= slot %>">
+            <div class="slot-time"><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></div>
+            <div class="slot-status"><%= labelText %></div>
+
+            <div class="slot-icon">
+              <% if(slotStatus === 'mine-success') { %> <i class="bi bi-check-circle-fill"></i> <% } %>
+              <% if(slotStatus === 'mine-pending') { %> <a href="/payment/create/<%= successBook.get(slot).booking_id %>"><i class="bi bi-hourglass-split"></i></a> <% } %>
+              <% if(slotStatus === 'booked') { %> <i class="bi bi-slash-circle"></i> <% } %>
+              <% if(slotStatus === 'available') { %> <i class="bi bi-plus-circle"></i> <% } %>
+            </div>
+          </label>
+        </div>
+        <% } %>
+      </div>
+
+      <div class="d-grid gap-2 col-md-4 mx-auto">
+        <% if(!currUser){ %>
+        <a href="/login" class="btn btn-outline-dark py-3 rounded-pill">Please <strong>Login</strong> to Book</a>
+        <% } else { %>
+        <button class="btn btn-apex-primary py-3 rounded-pill shadow-lg">Confirm Booking</button>
+        <% } %>
+      </div>
+    </form>
+  </section>
+
+  <hr class="my-5 border-secondary opacity-10">
+
+  <% if(currUser && currUser.role === 'user'){ %>
+  <section class="row g-5 align-items-start">
+
+    <div class="col-lg-4">
+      <div class="review-form-card">
+        <h4 class="form-title">Share Your Experience</h4>
+        <p class="text-muted small mb-4">How was the field? Your feedback helps others.</p>
+
+        <form action="/fields/<%= field.fieldID %>/review" method="POST">
+
+          <div class="mb-4 text-center">
+            <div class="star-rating-group">
+              <input type="radio" id="star5" name="rating" value="5" required />
+              <label for="star5" title="Excellent"><i class="bi bi-star-fill"></i></label>
+
+              <input type="radio" id="star4" name="rating" value="4" />
+              <label for="star4" title="Great"><i class="bi bi-star-fill"></i></label>
+
+              <input type="radio" id="star3" name="rating" value="3" />
+              <label for="star3" title="Good"><i class="bi bi-star-fill"></i></label>
+
+              <input type="radio" id="star2" name="rating" value="2" />
+              <label for="star2" title="Fair"><i class="bi bi-star-fill"></i></label>
+
+              <input type="radio" id="star1" name="rating" value="1" />
+              <label for="star1" title="Poor"><i class="bi bi-star-fill"></i></label>
+            </div>
+            <div class="small text-muted mt-2">Tap a star to rate</div>
+          </div>
+
+          <div class="form-floating mb-3">
+            <textarea class="form-control" placeholder="Leave a comment here" id="review_text" name="text" style="height: 120px" required></textarea>
+            <label for="review_text">Write your review here...</label>
+          </div>
+
+          <button class="btn btn-apex-primary w-100 py-2 rounded-pill shadow-sm">Post Review</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="section-heading mb-0">Player Reviews</h3>
+        <span class="badge bg-light text-dark border"><%= field.reviews.length %> Reviews</span>
+      </div>
+
+      <% if(field.reviews.length > 0){ %>
+      <div class="review-container">
+        <% for(rev of field.reviews){ %>
+        <div class="review-card">
+          <div class="d-flex gap-3">
+
+            <div class="review-avatar">
+              <%= rev.user.username.charAt(0).toUpperCase() %>
+            </div>
+
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="review-user mb-0"><%= rev.user.username %></h6>
+                <small class="text-muted" style="font-size: 0.75rem;">Verified Player</small>
+              </div>
+
+              <div class="review-stars mb-2">
+                <% for(let i=1; i<=5; i++) { %>
+                <% if(i <= rev.rating) { %>
+                <i class="bi bi-star-fill text-warning"></i>
+                <% } else { %>
+                <i class="bi bi-star text-muted opacity-25"></i>
+                <% } %>
+                <% } %>
+                <span class="fw-bold ms-1 text-dark"><%= rev.rating %>.0</span>
+              </div>
+
+              <p class="review-text"><%= rev.text %></p>
+            </div>
+
+            <% if(rev.user._id.toString() === currUser.user_id.toString()){ %>
+            <form action="/fields/<%= field.fieldID %>/review/<%= rev.reviewID %>?_method=DELETE" method="POST">
+              <button class="btn btn-link text-danger p-0 border-0" title="Delete Review">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+            <% } %>
+
+          </div>
+        </div>
+        <% } %>
+      </div>
+      <% } else { %>
+      <div class="text-center py-5 rounded-4 bg-light border border-dashed">
+        <i class="bi bi-chat-heart display-4 text-muted opacity-50"></i>
+        <p class="mt-3 text-muted">No reviews yet.<br>Be the first to share your experience!</p>
+      </div>
+      <% } %>
+    </div>
+  </section>
+  <% } %>
+
 </div>
 
-<%}%>
-
-   <script src="/js/showField.js"></script>
-</div>
+<script src="/js/showField.js"></script>

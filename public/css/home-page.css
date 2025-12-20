@@ -1,0 +1,165 @@
+/* =========================================
+   APEX HOME PAGE STYLES
+   ========================================= */
+
+/* --- VARIABEL LOKAL (Sesuaikan dengan App.css) --- */
+:root {
+   --card-bg: #ffffff;
+   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+   --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+   --apex-green: #41704f; /* Turf Green */
+   --apex-dark: #24482e; /* Dark Spruce */
+   --apex-accent: #d87142; /* Burnt Peach */
+   --text-primary: #222;
+   --text-secondary: #666;
+}
+
+/* --- PAGE HEADER --- */
+.home-header {
+   padding-top: 2rem;
+   padding-bottom: 1rem;
+}
+
+.page-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   font-size: 2.5rem;
+   color: var(--apex-dark);
+   letter-spacing: 1px;
+   text-transform: uppercase;
+}
+
+.page-subtitle {
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 1rem;
+   max-width: 600px;
+   margin: 0 auto;
+}
+
+/* --- FIELD CARD --- */
+.field-card {
+   background-color: var(--card-bg);
+   border-radius: 16px; /* Sudut lebih bulat */
+   box-shadow: var(--card-shadow);
+   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+   overflow: hidden; /* Agar gambar tidak keluar dari border-radius */
+   position: relative;
+}
+
+/* Efek Hover Card: Naik sedikit + Shadow menebal */
+.field-card:hover {
+   transform: translateY(-8px);
+   box-shadow: var(--card-hover-shadow);
+}
+
+/* --- IMAGE AREA --- */
+.card-img-wrapper {
+   position: relative;
+   height: 220px;
+   overflow: hidden;
+}
+
+.card-img-top {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   transition: transform 0.5s ease;
+}
+
+/* Zoom effect pada gambar saat hover card */
+.field-card:hover .card-img-top {
+   transform: scale(1.05);
+}
+
+/* Badge Lokasi di atas gambar */
+.category-badge {
+   position: absolute;
+   top: 15px;
+   left: 15px;
+   background-color: rgba(36, 72, 46, 0.85); /* Dark Spruce Transparan */
+   color: white;
+   padding: 5px 12px;
+   border-radius: 50px;
+   font-size: 0.75rem;
+   font-weight: 600;
+   font-family: "Lexend Deca", sans-serif;
+   backdrop-filter: blur(4px);
+}
+
+/* --- CARD CONTENT --- */
+.card-body {
+   padding: 1.5rem;
+}
+
+.field-name {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   font-size: 1.35rem;
+   color: var(--text-primary);
+   margin-bottom: 0.5rem;
+}
+
+/* Info Jam Operasional */
+.field-info {
+   display: flex;
+   gap: 15px;
+   font-size: 0.9rem;
+   color: var(--text-secondary);
+}
+
+.info-item {
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   background-color: #f8f9fa;
+   padding: 6px 12px;
+   border-radius: 8px;
+}
+
+.text-accent {
+   color: var(--apex-accent);
+}
+
+/* Harga */
+.field-price {
+   font-family: "Lexend Deca", sans-serif;
+   font-weight: 700;
+   font-size: 1.25rem;
+   color: var(--apex-green);
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   border: none;
+   padding: 10px 20px;
+   border-radius: 8px;
+   font-weight: 600;
+   transition: background 0.3s ease;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-accent); /* Berubah jadi oranye saat hover */
+   color: white;
+}
+
+.btn-apex-secondary {
+   background-color: transparent;
+   border: 2px solid var(--text-secondary);
+   color: var(--text-secondary);
+   padding: 10px 20px;
+   border-radius: 8px;
+   font-weight: 600;
+   transition: all 0.3s ease;
+}
+
+.btn-apex-secondary:hover {
+   background-color: var(--text-secondary);
+   color: white;
+}
+
+/* --- EMPTY STATE --- */
+.empty-state i {
+   opacity: 0.3;
+}

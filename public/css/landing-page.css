@@ -361,3 +361,156 @@ body {
 .hero-btn.reveal {
    transition: opacity 1s cubic-bezier(0.5, 0, 0, 1), /* Muncul pelan */ transform 1s cubic-bezier(0.5, 0, 0, 1), /* Geser pelan */ background-color 0.3s ease, /* Hover warna cepat */ color 0.3s ease; /* Hover teks cepat */
 }
+
+/* =========================================
+   RESPONSIVE STYLES (TABLET & MOBILE)
+   ========================================= */
+
+/* --- TABLET (Portrait) & SMALL DESKTOP (< 992px) --- */
+@media (max-width: 991.98px) {
+   /* Perkecil Judul Hero agar tidak pecah */
+   .hero-title {
+      font-size: 3.5rem;
+      letter-spacing: 2px;
+   }
+
+   .hero-content {
+      padding: 0 30px; /* Kurangi padding samping */
+   }
+
+   /* Gambar di About Us jadi full width, tidak terlalu tinggi */
+   #AboutUs-section .big-img {
+      max-height: 400px;
+      margin-bottom: 2rem;
+   }
+
+   /* Facility Image height dikurangi sedikit */
+   .facility-img {
+      height: 320px;
+   }
+
+   /* Footer CTA Title dikurangi */
+   .footer-cta-title {
+      font-size: 3.5rem;
+   }
+}
+
+/* --- MOBILE PHONE (< 768px) --- */
+@media (max-width: 767.98px) {
+   /* 1. HERO SECTION ADJUSTMENTS */
+   .hero-div {
+      /* Gunakan svh (Small Viewport Height) agar pas di mobile browser (Chrome/Safari) yang ada address bar-nya */
+      height: 100svh;
+   }
+
+   .hero-img {
+      height: 100svh;
+   }
+
+   .hero-content {
+      padding: 0 20px; /* Padding lebih tipis lagi */
+      text-align: center; /* Center alignment biasanya lebih rapi di HP */
+      justify-content: center;
+   }
+
+   /* Paksa kolom teks Hero jadi full width */
+   .hero-content .col-md-7 {
+      width: 100%;
+   }
+
+   .hero-title {
+      font-size: 2.8rem; /* Ukuran pas untuk HP */
+      line-height: 1.1;
+      letter-spacing: 1px;
+   }
+
+   .hero-desc {
+      font-size: 1rem;
+      margin-bottom: 30px;
+   }
+
+   /* 2. NAVBAR MOBILE MENU */
+   /* Memberikan background gelap saat menu dibuka agar teks terbaca jelas */
+   .navbar-collapse {
+      background-color: rgba(36, 72, 46, 0.95); /* Dark Spruce transparan */
+      backdrop-filter: blur(10px); /* Efek blur/frosted glass */
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+   }
+
+   .navbar {
+      padding: 12px 20px; /* Perkecil padding navbar utama */
+   }
+
+   /* 3. SECTION SPACING */
+   #AboutUs-section,
+   #Facilities-section {
+      padding-top: 30px;
+      padding-bottom: 30px;
+   }
+
+   /* 4. TYPOGRAPHY SCALING */
+   .section-label {
+      font-size: 0.9rem;
+   }
+
+   .title {
+      font-size: 1.75rem !important; /* Judul section lebih kecil */
+   }
+
+   .desc {
+      font-size: 0.9rem; /* Teks paragraf lebih nyaman dibaca */
+      text-align: justify; /* Opsional: agar rapi kiri-kanan */
+   }
+
+   /* 5. FACILITIES CARD */
+   /* Beri jarak antar elemen fasilitas karena di HP mereka menumpuk vertikal */
+   .row.align-items-center {
+      margin-bottom: 3rem !important; /* Jarak antar fasilitas */
+      gap: 1.5rem; /* Jarak antara gambar dan teks */
+   }
+
+   .facility-img {
+      height: 250px; /* Jangan terlalu tinggi makan layar */
+   }
+
+   .facility-title {
+      font-size: 1.75rem;
+      margin-top: 0.5rem;
+   }
+
+   /* 6. FOOTER */
+   .footer-cta-title {
+      font-size: 3rem; /* Sesuaikan agar tidak overflow */
+   }
+
+   .footer-brand,
+   .footer-desc {
+      text-align: center;
+      margin: 0 auto;
+   }
+
+   /* Center align footer links di mobile */
+   #Footer-section .col-6 {
+      text-align: center;
+      margin-bottom: 20px;
+   }
+
+   #Footer-section .d-flex {
+      align-items: center; /* Center list items */
+   }
+}
+
+/* --- SMALL MOBILE (< 400px, e.g. iPhone SE) --- */
+@media (max-width: 399.98px) {
+   .hero-title {
+      font-size: 2.4rem; /* Lebih kecil lagi untuk HP sempit */
+   }
+
+   .hero-btn {
+      padding: 10px 24px;
+      font-size: 0.9rem;
+   }
+}

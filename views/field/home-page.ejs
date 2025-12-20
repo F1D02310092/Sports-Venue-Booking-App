@@ -1,33 +1,58 @@
 <% layout('layout/boilerplate.ejs') %>
+<link rel="stylesheet" href="/css/home-page.css">
 
-<div class="container mt-4">
+<section class="home-header mb-5 text-center">
+  <h1 class="page-title">FIND YOUR ARENA</h1>
+</section>
+
+<div class="container pb-5">
+
   <% if (fields && fields.length > 0) { %>
-  <div class="row row-cols-1 row-cols-md-2 g-4">
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     <% for (let f of fields) { %>
 
     <div class="col">
-      <div class="card h-100">
-        <% if (f.images && f.images.length > 0) { %>
-        <img src="<%= f.images[0].thumbnail %>" class="card-img-top rounded" alt="<%= f.name %>" />
-        <% } %>
+      <div class="card field-card h-100 border-0">
 
-        <div class="card-body">
-          <h5 class="card-title"><%= f.name %></h5>
-
-          <p class="my-2">
-            <b> Open: <%= minutesToHHMM(f.openTime) %> – Close: <%= minutesToHHMM(f.closeTime) %> </b>
-          </p>
-
-          <p class="card-subtitle mb-2 text-body-secondary">Rp<%= f.price %></p>
-        </div>
-
-        <div class="px-3 mb-2">
-          <% if (!currUser || currUser.role === 'user') { %>
-          <a href="/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-info">See details</a>
-          <% } else if (currUser && currUser.role === 'admin') { %>
-          <a href="/admin/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-secondary">See details</a>
+        <div class="card-img-wrapper">
+          <% if (f.images && f.images.length > 0) { %>
+          <img src="<%= f.images[0].thumbnail %>" class="card-img-top" alt="<%= f.name %>" />
+          <% } else { %>
+          <div class="rounded-4 bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 100%;">
+            No Images Available
+          </div>
           <% } %>
         </div>
+
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title field-name"><%= f.name %></h5>
+          </div>
+
+          <div class="field-info mb-3">
+            <div class="info-item">
+              <i class="bi bi-clock-history text-accent"></i>
+              <span><%= minutesToHHMM(f.openTime) %> - <%= minutesToHHMM(f.closeTime) %></span>
+            </div>
+          </div>
+
+          <h6 class="field-price mb-3">
+            Rp<%= f.price.toLocaleString('id-ID') %> <span class="text-muted fw-normal fs-6">/ hour</span>
+          </h6>
+
+          <div class="mt-auto">
+            <% if (!currUser || currUser.role === 'user') { %>
+            <a href="/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-apex-primary w-100">
+              Book Now <i class="bi bi-arrow-right-short"></i>
+            </a>
+            <% } else if (currUser && currUser.role === 'admin') { %>
+            <a href="/admin/fields/<%= f.fieldID %>/?date=<%= queryDate %>" class="btn btn-apex-secondary w-100">
+              Manage Field <i class="bi bi-gear-fill ms-1"></i>
+            </a>
+            <% } %>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -36,7 +61,11 @@
 
   <% } else { %>
 
-  <h2 class="text-center">Empty</h2>
+  <div class="text-center py-5 empty-state">
+    <i class="bi bi-cone-striped display-1 text-muted mb-3"></i>
+    <h2 class="text-muted">No Fields Available</h2>
+    <p>It seems we are currently upgrading our facilities.</p>
+  </div>
 
   <% } %>
 </div>

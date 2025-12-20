@@ -127,7 +127,7 @@ const getShowPage = async (req, res) => {
          const reservedTime = new Date(b.expired_at).getTime() - Date.now();
 
          for (const slot of b.slots) {
-            successBook.set(slot, { bookedBy, status: b.status, reservedTime: Math.ceil(reservedTime / 1000 / 60) });
+            successBook.set(slot, { bookedBy, status: b.status, reservedTime: Math.ceil(reservedTime / 1000 / 60), booking_id: b.booking_id });
          }
       }
 
