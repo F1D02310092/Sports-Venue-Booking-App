@@ -9,7 +9,7 @@
     <div class="carousel-inner">
       <% field.images.forEach((img, i) => { %>
       <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
-        <img crossorigin="anonymous" src="<%= img.url %>" class="d-block w-100" style="height: 600px; object-fit: cover;" />
+        <img crossorigin="anonymous" src="<%= img.url %>" class="d-block w-100" style="height: 600px; object-fit: cover" />
       </div>
       <% }); %>
     </div>
@@ -51,8 +51,12 @@
       <label class="btn btn-outline-danger" for="slot-<%=slot%>" aria-disabled="true">
         <p class="mb-1"><b><%= minutesToHHMM(slot) %> - <%= minutesToHHMM(slot + 60) %></b></p>
 
-        <% if(currUser && currUser._id.toString() === successBook.get(slot).toString()){%>
+        <% if(currUser && currUser.user_id === successBook.get(slot).bookedBy && successBook.get(slot).status === 'success'){%>
         <span><a>My Book</a></span>
+        <% } else if(currUser && currUser.user_id === successBook.get(slot).bookedBy && successBook.get(slot).status === 'pending'){%>
+        <span><a>My Reserved</a></span>
+        <p><a>Expired in: <%= successBook.get(slot).reservedTime %> Minutes </a></p>
+
         <% } else{%>
         <span><b>Booked</b></span>
         <% }%>
@@ -106,7 +110,7 @@
         <p class="my-1"><%= rev.text %></p>
         <b><%= rev.rating %>⭐</b>
 
-        <% if(rev.user._id.toString() === currUser._id.toString()){%>
+        <% if(rev.user._id.toString() === currUser.user_id.toString()){%>
         <form action="/fields/<%= field.fieldID %>/review/<%= rev.reviewID %>?_method=DELETE" method="POST">
           <button class="btn btn-danger mt-2">Delete</button>
         </form>
@@ -121,4 +125,5 @@
 
 <%}%>
 
-<script src="/js/showField.js"></script>
+   <script src="/js/showField.js"></script>
+</div>

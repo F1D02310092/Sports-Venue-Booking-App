@@ -2,121 +2,112 @@ const mongoose = require("mongoose");
 const BookingModel = require("../models/Postgres/Booking.js");
 const FieldModel = require("../models/Mongo/Field.js");
 const { parseLocalDateToUTC, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
+const db = require("../models/Postgres/config.js");
 
 const createBooking = async (req, res) => {
-   // masih banyak egde cases yang harus di-handle
-   // race-condition
-
-   const session = await mongoose.startSession();
-   session.startTransaction();
+   const client = await db.getClient();
 
    try {
-      const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true }).session(session);
+      await client.query("BEGIN");
+
+      const field = await FieldModel.findOne({
+         fieldID: req.params.fieldID,
+         isActive: true,
+      });
+
       if (!field) {
-         await session.abortTransaction();
-         return res.status(404).send("Page not found!");
+         await client.query("ROLLBACK");
+         req.flash("error", "Field not found!");
+         return res.redirect(`/fields/${req.params.fieldID}`);
       }
 
       let { date, slots } = req.body;
 
       if (!date || !slots) {
-         req.flash("error", "Select at least one slot");
+         await client.query("ROLLBACK");
+         req.flash("error", "Missing required data");
          return res.redirect(`/fields/${req.params.fieldID}`);
       }
 
-      const bookingDateUTC = parseLocalDateToUTC(date);
+      const numericSlots = (Array.isArray(slots) ? slots : String(slots).split(",")).map(Number).sort((a, b) => a - b);
 
-      if (!Array.isArray(slots)) {
-         slots = [slots];
-      }
-      slots = slots.map(Number);
-
-      const dateOfToday = formatDateYYYYMMDD(new Date());
-
-      if (date === dateOfToday) {
+      const today = formatDateYYYYMMDD(new Date());
+      if (date === today) {
          const now = new Date();
-         const minutes = now.getHours() * 60 + now.getMinutes();
+         const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-         const invalidSlots = slots.filter((el) => {
-            return el <= minutes;
-         });
-
-         if (invalidSlots.length > 0) {
-            await session.abortTransaction();
-            req.flash("error", "Session(s) already passed!");
-            return res.redirect(`/fields/${req.params.fieldID}?date=${date}`);
-         }
-      }
-
-      const soldOut = await BookingModel.findOne(
-         {
-            field: field._id,
-            date: bookingDateUTC,
-            slots: { $in: slots },
-            status: "success",
-         },
-         { session }
-      );
-
-      if (soldOut) {
-         await session.abortTransaction();
-         req.flash("error", "Slot was just booked by another user.");
-         return res.redirect(`/fields/${req.params.fieldID}?date=${date}`);
-      }
-
-      const userPending = await BookingModel.findOne(
-         {
-            field: field._id,
-            user: req.user._id,
-            date: bookingDateUTC,
-            slots: { $in: slots },
-            status: "pending",
-         },
-         { session }
-      );
-
-      if (userPending) {
-         if (userPending.expiredAt < new Date()) {
-            userPending.status = "failed";
-            await userPending.save({ session });
-            await session.commitTransaction(); // Commit the fail status
-
-            req.flash("error", "Previous booking expired. Please try again.");
+         if (numericSlots[0] <= currentMinutes) {
+            await client.query("ROLLBACK");
+            req.flash("error", "Some slot(s) have already passed");
             return res.redirect(`/fields/${req.params.fieldID}`);
-         } else {
-            // Still active pending
-            await session.abortTransaction();
-            req.flash("error", "You've already book some session(s). Please finish payment.");
-            return res.redirect(`/payment/create/${userPending.bookingID}`);
          }
       }
 
       const now = new Date();
       const bookingData = {
-         field: field._id,
-         user: req.user._id,
+         field: field.fieldID,
+         user: req.user.user_id,
          date: new Date(date),
-         slots: slots,
-         startTime: slots[0],
-         endTime: slots[slots.length - 1] + 60,
-         totalPrice: field.price * slots.length,
-         status: "pending",
-         expiredAt: new Date(now.getTime() + 1000 * 60 * 10), // 10 min
+         slots: numericSlots,
+         startTime: numericSlots[0],
+         endTime: numericSlots[numericSlots.length - 1] + 60,
+         totalPrice: field.price * numericSlots.length,
+         expiredAt: new Date(now.getTime() + 10 * 60 * 1000), // 10 minutes
       };
 
-      const newBooking = await BookingModel.create(bookingData, { session });
+      try {
+         const result = await BookingModel.reserveSlot(bookingData, client);
 
-      await session.commitTransaction();
+         await client.query("COMMIT");
 
-      return res.redirect(`/payment/create/${newBooking.bookingID}`);
-   } catch (error) {
-      if (session.inTransaction()) {
-         await session.abortTransaction();
+         // sync with mongo
+         await FieldModel.findOneAndUpdate({ fieldID: field.fieldID }, { $push: { bookings: result.booking_id } }).catch((err) => console.log(err));
+
+         req.flash("success", "Slot reserved! Complete payment within 10 minutes");
+         return res.redirect(`/payment/create/${result.booking_id}`);
+      } catch (error) {
+         await client.query("ROLLBACK");
+
+         let errorMessage = "Booking failed. Please try again";
+
+         switch (error.code) {
+            case "SLOT_BOOKED":
+               errorMessage = "Slot was just booked by another user";
+               break;
+
+            case "USER_RESERVED":
+               // User already has a reservation for these slots
+               if (error.booking_id) {
+                  req.flash("info", "You already reserved this slot");
+                  return res.redirect(`/payment/create/${error.booking_id}`);
+               }
+               errorMessage = "You already reserved this slot";
+               break;
+
+            case "SLOT_RESERVED":
+               errorMessage = "Slot is currently reserved by another user";
+               break;
+
+            default:
+               console.error("Booking reservation error:", error);
+               errorMessage = error.message || "Booking failed";
+               break;
+         }
+
+         req.flash("error", errorMessage);
+
+         return res.redirect(`/fields/${req.params.fieldID}`);
       }
-      console.error(error);
-      return res.send(":(");
+   } catch (error) {
+      await client.query("ROLLBACK");
+
+      console.error("Booking error:", error);
+      req.flash("error", "Booking failed. Please try again");
+      return res.redirect(`/fields/${req.params.fieldID}`);
    } finally {
-      session.endSession();
+      if (client) {
+         client.release();
+      }
    }
 };
 

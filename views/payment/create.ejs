@@ -5,10 +5,10 @@
 
   <div class="booking-details">
     <h3>Booking Details:</h3>
-    <p>Field: <strong><%= booking.field.name %></strong></p>
+    <p>Field: <strong><%= field.name %></strong></p>
     <p>Date: <strong><%= booking.date.toLocaleDateString('en-CA') %></strong></p>
-    <p>Time: <strong><%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime)  %></strong></p>
-    <p>Total: <strong>Rp <%= booking.totalPrice.toLocaleString('en-CA') %></strong></p>
+    <p>Time: <strong><%= minutesToHHMM(booking.start_time) %> - <%= minutesToHHMM(booking.end_time)  %></strong></p>
+    <p>Total: <strong>Rp <%= booking.total_price.toLocaleString('en-CA') %></strong></p>
     <p>Expired at: <strong><%= formattedExpiredAt %></strong></p>
     <p>Status: <span class="badge bg-warning"><%= booking.status %></span></p>
   </div>
@@ -16,7 +16,7 @@
   <div class="d-flex">
     <button id="pay-button" class="btn btn-primary">Pay Now</button>
 
-    <form action="/payment/cancel/<%= booking.bookingID %>" method="POST" class="mx-2">
+    <form action="/payment/cancel/<%= booking.booking_id %>" method="POST" class="mx-2">
       <button class="btn btn-secondary">Cancel</button>
     </form>
   </div>
@@ -34,7 +34,7 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          bookingID: '<%= booking.bookingID %>'
+          bookingID: '<%= booking.booking_id %>'
         })
       })
       .then(response => response.json())
@@ -48,7 +48,7 @@
         // Buka Snap popup
         snap.pay(data.token, {
           onSuccess: function(result) {
-            window.location.href = "/payment/success?bookingID=<%= booking.bookingID %>";
+            window.location.href = "/payment/success?bookingID=<%= booking.booking_id %>";
           },
           onPending: function(result) {
             window.location.href = "/payment/users/transactions-history";
@@ -67,7 +67,7 @@
         alert('Payment failed to initialize, redirecting back to field');
 
         setTimeout(() => {
-          window.location.href = "/fields/<%= booking.field.fieldID %>";
+          window.location.href = "/fields/<%= field.fieldID %>";
         }, 1000);
       });
 

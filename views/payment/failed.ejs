@@ -8,8 +8,8 @@
     <h3>Booking Details:</h3>
     <p>Field: <%= booking.field.name %></p>
     <p>Date: <%= booking.date.toLocaleDateString() %></p>
-    <p>Time: <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %></p>
-    <p>Total: Rp <%= booking.totalPrice.toLocaleString() %></p>
+    <p>Time: <%= minutesToHHMM(booking.start_time) %> - <%= minutesToHHMM(booking.end_time) %></p>
+    <p>Total: Rp <%= booking.total_price.toLocaleString() %></p>
   </div>
 
   <a href="/fields/">Back</a>

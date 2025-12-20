@@ -78,8 +78,10 @@ const handleUpdateProfile = async (req, res) => {
       if (password && newPassword) {
          await UserModel.changePassword(user.user_id, password, newPassword);
          req.flash("success", "Password changed successfully");
+         return res.redirect("/fields");
       } else if (username) {
          req.flash("success", "Profile updated successfully");
+         return res.redirect("/fields");
       }
 
       req.flash("success", "Successfully change password");

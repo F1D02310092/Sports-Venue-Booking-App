@@ -1,19 +1,20 @@
 const BookingModel = require("../models/Postgres/Booking.js");
 const snap = require("../config/midtrans.js");
 const { minutesToHHMM } = require("../utils/timeFormat");
-const mongoose = require("mongoose");
+const db = require("../models/Postgres/config.js");
+const FieldModel = require("../models/Mongo/Field.js");
 
 const createPayment = async (req, res) => {
    try {
       const { bookingID } = req.body;
 
-      const booking = await BookingModel.findOneAndPopulate({ bookingID });
+      const booking = await BookingModel.findOneAndPopulate({ booking_id: bookingID });
 
       if (!booking) {
          return res.status(404).json({ error: "Booking not found" });
       }
 
-      if (req.user._id.toString() !== booking.user._id.toString()) {
+      if (req.user.user_id.toString() !== booking.user_id.toString()) {
          return res.status(403).json({ error: "Unauthorized request" });
       }
 
@@ -22,29 +23,42 @@ const createPayment = async (req, res) => {
       }
 
       const now = new Date();
-      const expiredAt = new Date(booking.expiredAt);
+      if (booking.expired_at && new Date(booking.expired_at) < now) {
+         const client = await db.getClient();
+         try {
+            await client.query("BEGIN");
+            await BookingModel.updateStatus(bookingID, "failed", client);
+            await client.query("COMMIT");
+         } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+         } finally {
+            client.release();
+         }
+
+         return res.status(400).json({ error: "Booking expired" });
+      }
+
+      // check slot yg expired
+      if (new Date(booking.date).toDateString() === now.toDateString()) {
+         const currentMinutes = now.getHours() * 60 + now.getMinutes();
+         if (booking.slots[0] <= currentMinutes) {
+            return res.status(400).json({ error: "Session(s) already passed" });
+         }
+      }
+
+      const expiredAt = new Date(booking.expired_at);
       let timeBeforeExpire = Math.ceil((expiredAt - now) / 60000);
 
-      // kalau udah lewat waktu, anggap expired
-      if (timeBeforeExpire <= 0) {
-         booking.status = "failed";
-         await booking.save();
-         return res.status(400).json({ error: "Booking already expired" });
+      const field = await FieldModel.findOne({ fieldID: booking.field_id });
+      if (!field) {
+         return res.status(404).json({ error: "Field not found" });
       }
-
-      if (booking.slots[0] < now.getHours() * 60) {
-         return res.status(400).json({ error: "Session(s) already passed" });
-      }
-
-      // edge cases
-      // block double book (debouncer on FE and idempotency key on BE)
-      // bisa cek expired dgn tambahin expired di schema dan atur sesuai dgn payload midtrans
-      // jika slot sudah diambil oleh success payment, maka semua booking lain yg ada slot ini harus di cancel
 
       let parameter = {
          transaction_details: {
-            order_id: booking.bookingID,
-            gross_amount: booking.totalPrice,
+            order_id: booking.booking_id,
+            gross_amount: booking.total_price,
          },
          credit_card: {
             secure: true,
@@ -55,15 +69,15 @@ const createPayment = async (req, res) => {
          },
          item_details: [
             {
-               id: booking.field.fieldID,
-               price: booking.field.price,
+               id: field.fieldID,
+               price: field.price,
                quantity: booking.slots.length,
-               name: `${booking.field.name} - ${booking.slots.length} slot(s)`,
+               name: `${field.name} - ${booking.slots.length} slot(s)`,
                category: "Sports Venue",
             },
          ],
          callbacks: {
-            finish: `${process.env.BASE_URL}/payment/success?bookingID=${booking.bookingID}`,
+            finish: `${process.env.BASE_URL}/payment/success?bookingID=${booking.booking_id}`,
             // error: `${process.env.BASE_URL}/payment/failed?bookingID=${booking.bookingID}`,
             // pending: `${process.env.BASE_URL}/payment/pending?bookingID=${booking.bookingID}`,
          },
@@ -76,132 +90,60 @@ const createPayment = async (req, res) => {
 
       const transaction = await snap.createTransaction(parameter);
 
-      booking.orderID = parameter.transaction_details.order_id;
-      booking.paymentToken = transaction.token;
-      booking.transactionID = transaction.transaction_id;
+      const client = await db.getClient();
+      try {
+         await client.query("BEGIN");
 
-      await booking.save();
+         await client.query(
+            `
+            UPDATE bookings
+            SET order_id = $1, payment_token = $2, transaction_id = $3
+            WHERE booking_id = $4`,
+            [parameter.transaction_details.order_id, transaction.token, transaction.transaction_id, booking.booking_id]
+         );
+
+         await client.query("COMMIT");
+      } catch (error) {
+         await client.query("ROLLBACK");
+      } finally {
+         client.release();
+      }
 
       res.json({
          token: transaction.token,
+         redirect_url: transaction.redirect_url,
+         booking_id: booking.booking_id,
       });
    } catch (error) {
-      console.error("Payment error: ", error);
-      console.error("Error stack: ", error.stack);
-
-      // Rollback jika gagal, mark booking sebagai failed
-      try {
-         await BookingModel.findOneAndUpdate(
-            { bookingID: booking.bookingID },
-            {
-               status: "failed",
-            }
-         );
-      } catch (rollbackError) {
-         console.error("Rollback failed:", rollbackError);
-      }
-
-      res.status(500).json({ error: "Payment creation failed: " + error.message });
+      console.error("Payment creation error:", error);
+      res.status(500).json({
+         error: "Payment creation failed",
+         message: error.message,
+      });
    }
 };
 
 const handlePaymentNotification = async (req, res) => {
-   const session = await mongoose.startSession();
-   session.startTransaction();
+   const client = await db.getClient();
 
    try {
-      const notification = req.body;
-      const orderId = notification.order_id;
-      const transactionID = notification.transaction_id;
-      const transactionStatus = notification.transaction_status;
-      const fraudStatus = notification.fraud_status;
+      await client.query("BEGIN");
 
-      const booking = await BookingModel.findOneAndPopulate({ orderID: orderId }, { session });
+      const result = await BookingModel.processPayment(req.body, client);
 
-      if (!booking) {
-         await session.abortTransaction();
-         return res.status(200).send("Notification received: No booking found!");
+      if (result.code === "ALREADY_SUCCESS") {
+         await client.query("COMMIT");
+         return res.status(200).send("OK");
       }
 
-      if (booking.status === "success") {
-         await session.abortTransaction();
-
-         return res.status(200).send("Notification received: Booking success");
-      }
-
-      if (!booking.transactionID && transactionID) {
-         booking.transactionID = transactionID;
-      }
-
-      let targetStatus = booking.status; // default to current status
-
-      if (transactionStatus === "settlement") {
-         targetStatus = "success";
-      } else if (transactionStatus === "capture") {
-         if (fraudStatus === "accept") targetStatus = "success";
-         else if (fraudStatus === "challenge") targetStatus = "pending";
-         else targetStatus = "failed";
-      } else if (transactionStatus === "pending") {
-         targetStatus = "pending";
-      } else if (["cancel", "deny", "expire"].includes(transactionStatus)) {
-         targetStatus = "failed";
-      }
-
-      if (targetStatus === "success") {
-         const conflict = await BookingModel.findOne(
-            {
-               field: booking.field,
-               date: booking.date,
-               slots: { $in: booking.slots },
-               status: "success",
-               _id: { $ne: booking._id },
-            },
-            { session } // CRITICAL
-         );
-
-         if (conflict) {
-            // RACE CONDITION LOST : REFUND NEEDED
-            booking.status = "failed";
-
-            await booking.save({ session });
-            await session.commitTransaction(); // COMMIT ROLLBACK STATE
-
-            console.log(`Race Condition: Order ${orderId} failed, REFUND NEEDED`);
-            return res.status(200).send("Conflict detected");
-         }
-
-         // WIN: Update to Success
-         booking.status = "success";
-         booking.paymentTime = new Date();
-         await booking.save({ session });
-
-         // Kill other pendings
-         await BookingModel.updateMany(
-            {
-               field: booking.field,
-               date: booking.date,
-               slots: { $in: booking.slots },
-               status: "pending",
-               _id: { $ne: booking._id },
-            },
-            { status: "failed" },
-            { session } // CRITICAL
-         );
-      } else if (targetStatus !== booking.status) {
-         booking.status = targetStatus;
-         booking.paymentTime = new Date();
-         await booking.save({ session });
-      }
-
-      await session.commitTransaction();
-
-      return res.status(200).send("Notification received: OK");
+      await client.query("COMMIT");
+      return res.status(200).send("OK");
    } catch (error) {
-      if (session.inTransaction()) await session.abortTransaction();
+      await client.query("ROLLBACK");
       console.error("Payment notification error:", error);
-      return res.status(200).send("Notification received: Payment error");
+      return res.status(200).send("ERROR");
    } finally {
-      session.endSession();
+      client.release();
    }
 };
 
@@ -209,29 +151,32 @@ const paymentSuccess = async (req, res) => {
    try {
       const { bookingID } = req.query;
 
-      const booking = await BookingModel.findOneAndPopulate({ bookingID });
+      console.log(req.query);
+
+      const booking = await BookingModel.findOneAndPopulate({ booking_id: bookingID });
 
       if (!booking) {
          req.flash("error", "Booking not found");
          return res.redirect("/fields");
       }
 
-      const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
-         weekday: "long",
-         year: "numeric",
-         month: "long",
-         day: "2-digit",
-         hour: "2-digit",
-         minute: "2-digit",
-         second: "2-digit",
-         hour12: false,
-         timeZone: "Asia/Singapore",
-      });
+      // Get field details
+      const field = await FieldModel.findOne({ fieldID: booking.field_id });
+
+      const formatDate = (date) => {
+         return new Date(date).toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+         });
+      };
 
       return res.render("payment/success", {
          booking,
-         minutesToHHMM: require("../utils/timeFormat").minutesToHHMM,
-         formattedExpiredAt,
+         field,
+         minutesToHHMM,
+         formatDate,
       });
    } catch (error) {
       console.error(error);
@@ -245,7 +190,7 @@ const showPaymentPage = async (req, res) => {
       const { bookingID } = req.params;
 
       // Get booking data
-      const booking = await BookingModel.findOneAndPopulate({ bookingID });
+      const booking = await BookingModel.findOneAndPopulate({ booking_id: bookingID });
 
       if (!booking) {
          req.flash("error", "Booking not found");
@@ -253,26 +198,43 @@ const showPaymentPage = async (req, res) => {
       }
 
       // Check if booking belongs to user
-      if (booking.user._id.toString() !== req.user._id.toString()) {
+      if (booking.user_id !== req.user.user_id) {
          req.flash("error", "Unauthorized access");
          return res.redirect("/fields");
       }
 
       const now = new Date();
-      const expiredAt = new Date(booking.expiredAt);
+      if (booking.expired_at && new Date(booking.expired_at) < now) {
+         const client = await db.getClient();
+         try {
+            await client.query("BEGIN");
+            await BookingModel.updateStatus(bookingID, "failed", client);
+            await client.query("COMMIT");
+         } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+         } finally {
+            client.release();
+         }
+
+         req.flash("error", "Booking expired");
+         return res.redirect("/fields");
+      }
+      const expiredAt = new Date(booking.expired_at);
       let timeBeforeExpire = Math.ceil((expiredAt - now) / 60000);
 
       if (timeBeforeExpire <= 0) {
-         booking.status = "failed";
-         await booking.save();
+         await BookingModel.updateStatus(bookingID, "failed", client);
          return res.status(400).json({ error: "Booking already expired" });
       }
-      console.log(booking.date, now);
+
       if (booking.date === now && booking.slots[0] < now.getHours() * 60) {
          return res.status(400).json({ error: "Session(s) already passed" });
       }
 
-      const formattedExpiredAt = booking.expiredAt.toLocaleString("en-CA", {
+      const field = await FieldModel.findOne({ fieldID: booking.field_id });
+
+      const formattedExpiredAt = booking.expired_at.toLocaleString("en-CA", {
          weekday: "long",
          year: "numeric",
          month: "long",
@@ -287,6 +249,7 @@ const showPaymentPage = async (req, res) => {
       // Render payment page dengan data booking dan clientKey
       return res.render("payment/create", {
          booking,
+         field,
          clientKey: process.env.MIDTRANS_CLIENT_KEY,
          minutesToHHMM: require("../utils/timeFormat").minutesToHHMM,
          formattedExpiredAt,
@@ -310,39 +273,30 @@ const getPaymentHistory = async (req, res) => {
 
       let query = {};
       if (user) {
-         query = { user: user._id };
+         query.user_id = user.user_id;
       }
+
       if (statusFilter && statusFilter !== "all") {
          query.status = statusFilter;
       }
 
-      const bookings = await BookingModel.findAllByQuery(query)
-         .populate("field")
-         .sort({ createdAt: -1 })
-         .skip((page - 1) * limit)
-         .limit(limit);
-      // mongo akan 'membangun' query-query untuk kemudian 'await' menutup query dan baru dieksekusi
-
+      const bookings = await BookingModel.find(query);
       const totalBookings = await BookingModel.countDocuments(query);
       const totalPages = Math.ceil(totalBookings / limit);
 
-      const now = new Date();
-      const expiredBookings = bookings.filter((b) => b.expiredAt < now && b.status === "pending");
-      if (expiredBookings.length > 0) {
-         await BookingModel.updateMany(
-            {
-               _id: { $in: expiredBookings.map((b) => b._id) },
-            },
-            {
-               status: "failed",
-            }
-         );
-      }
+      const paginatedBooks = bookings.slice((page - 1) * limit, page * limit);
+      const filedIds = [...new Set(paginatedBooks.map((b) => b.field_id))];
+      const fields = await FieldModel.find({ fieldID: { $in: filedIds } });
+      const fieldMap = {};
+      fields.forEach((el) => (fieldMap[el.fieldID] = el.name));
 
       return res.render("payment/transactions-history.ejs", {
          page,
          limit,
-         bookings,
+         bookings: paginatedBooks.map((b) => ({
+            ...b,
+            field_name: fieldMap[b.field_id] || "Unknown Field",
+         })),
          totalBookings,
          totalPages,
          currentPage: page,
@@ -366,7 +320,7 @@ const getPaymentHistory = async (req, res) => {
 
 const cancelBooking = async (req, res) => {
    try {
-      const booking = await BookingModel.findOne({ bookingID: req.params.bookingID });
+      const booking = await BookingModel.findOne({ booking_id: req.params.bookingID });
       if (!booking) {
          return res.status(404).send("Not Found!");
       }
@@ -383,14 +337,19 @@ const cancelBooking = async (req, res) => {
 };
 
 const getPaymentDetails = async (req, res) => {
-   const booking = await BookingModel.findOneAndPopulate({ bookingID: req.params.bookingID });
+   const booking = await BookingModel.findOneAndPopulate({ booking_id: req.params.bookingID });
 
    if (!booking) {
       return res.status(404).send("Not Found!");
    }
 
+   const field = await FieldModel.findOne({ fieldID: booking.field_id });
+
+   console.log(booking);
+
    return res.render("payment/transactions-detail.ejs", {
       booking,
+      field,
       minutesToHHMM,
       formattedDate: (date) =>
          date.toLocaleString("en-CA", {

@@ -42,7 +42,7 @@ const isReviewAuthor = async (req, res, next) => {
       return res.status(500).send("Something went wrong!");
    }
 
-   if (!review.user.equals(req.user._id)) {
+   if (!review.user.equals(req.user.user_id)) {
       req.flash("error", "401 Forbidden request");
       return res.redirect(`/fields/${req.params.fieldID}`);
    }

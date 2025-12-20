@@ -29,7 +29,8 @@
         <div class="me-3 flex-grow-1">
           <div class="d-flex align-items-center mb-2">
             <h5 class="me-2 mb-0">
-              <%= booking.field && booking.field.name ? booking.field.name : 'no name' %>
+
+              <%= booking.field_name ? booking.field_name : 'no name' %>
             </h5>
 
             <% 
@@ -47,9 +48,9 @@
           <p>
             <strong>Date:</strong> <%= formattedDate(booking.date) %><br>
             <% if (booking.slots && booking.slots.length > 0) { %>
-            <strong>Time:</strong> <%= minutesToHHMM(booking.startTime) %> - <%= minutesToHHMM(booking.endTime) %><br>
+            <strong>Time:</strong> <%= minutesToHHMM(booking.start_time) %> - <%= minutesToHHMM(booking.end_time) %><br>
             <% } %>
-            <strong>Total:</strong> Rp<%= formatPrice(booking.totalPrice) %><br>
+            <strong>Total:</strong> Rp<%= formatPrice(booking.total_price) %><br>
           </p>
         </div>
 
@@ -58,13 +59,13 @@
         <div class="text-end">
           <% if(booking.status === 'pending'){%>
           <div class="d-flex">
-            <a href="/payment/create/<%= booking.bookingID %>" class="btn btn-warning text-dark">Finish Payment</a>
-            <form action="/payment/cancel/<%= booking.bookingID %>" method="POST" class="mx-2">
+            <a href="/payment/create/<%= booking.booking_id %>" class="btn btn-warning text-dark">Finish Payment</a>
+            <form action="/payment/cancel/<%= booking.booking_id %>" method="POST" class="mx-2">
               <button class="btn btn-danger">Cancel</button>
             </form>
           </div>
           <% } else if (booking.status === 'success'){%>
-          <a href="/payment/details/<%= booking.bookingID %>" class="btn btn-success">Details</a>
+          <a href="/payment/details/<%= booking.booking_id %>" class="btn btn-success">Details</a>
           <% }%>
         </div>
         <% }%>
@@ -73,7 +74,7 @@
         <div class="text-end">
           <% if(booking.status === 'failed' || booking.status === 'success'){%>
           <div class="d-flex">
-            <a href="/admin/analytics/transactions-history/details/<%= booking.bookingID %>" class="btn btn-success">Details</a>
+            <a href="/admin/analytics/transactions-history/details/<%= booking.booking_id %>" class="btn btn-success">Details</a>
           </div>
           <% } %>
         </div>

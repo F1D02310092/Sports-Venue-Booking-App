@@ -18,7 +18,7 @@ const getHomePage = async (req, res, next) => {
 
       return res.render("field/home-page", { fields, minutesToHHMM, queryDate });
    } catch (error) {
-      console.log(error);
+      console.error(error);
    }
 };
 
@@ -69,12 +69,7 @@ const postFieldCreation = async (req, res) => {
 };
 
 const getShowPage = async (req, res) => {
-   const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true }).populate({
-      path: "reviews",
-      populate: {
-         path: "user",
-      },
-   });
+   const field = await FieldModel.findOne({ fieldID: req.params.fieldID, isActive: true }).populate("reviews");
 
    if (field) {
       const todayLocal = new Date();
@@ -113,14 +108,10 @@ const getShowPage = async (req, res) => {
          timeZone: "Asia/Singapore",
       });
 
-      const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
-      const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
-      // Date.UTC(year, monthIndex, day, hour, minute, second, millisecond), month dimulai dari index 0
-
       const booking = await BookingModel.find({
-         field: field._id,
-         date: { $gte: startOfDay, $lte: endOfDay },
-         status: "success",
+         field_id: field.fieldID,
+         date: queryDateStr,
+         status: ["success", "pending"],
       });
 
       // time session (slot waktu)
@@ -132,10 +123,11 @@ const getShowPage = async (req, res) => {
       const successBook = new Map();
 
       for (const b of booking) {
-         const bookedBy = b.user ? b.user.toString() : b.manualName;
+         const bookedBy = b.user_id ? b.user_id : b.manual_name;
+         const reservedTime = new Date(b.expired_at).getTime() - Date.now();
 
          for (const slot of b.slots) {
-            successBook.set(slot, bookedBy);
+            successBook.set(slot, { bookedBy, status: b.status, reservedTime: Math.ceil(reservedTime / 1000 / 60) });
          }
       }
 

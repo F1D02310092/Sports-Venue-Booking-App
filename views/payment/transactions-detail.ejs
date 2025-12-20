@@ -66,14 +66,14 @@
           <div class="receipt-row"><span>Customer:</span><span><%= booking.user.username %></span></div>
           <div class="receipt-row"><span>Email:</span><span><%= booking.user.email %></span></div>
           <%  } else {%>
-          <div class="receipt-row"><span>Customer:</span><span><%= booking.manualName %></span></div>
-          <div class="receipt-row"><span>Email:</span><span><%= booking.manualContact %></span></div>
+          <div class="receipt-row"><span>Customer:</span><span><%= booking.manual_name %></span></div>
+          <div class="receipt-row"><span>Email:</span><span><%= booking.manual_contact %></span></div>
           <%  }%>
 
         </div>
 
         <div class="my-3">
-          <div class="receipt-row"><span>Field:</span><span><%= booking.field.name %></span></div>
+          <div class="receipt-row"><span>Field:</span><span><%= field.name %></span></div>
           <div class="receipt-row"><span>Date:</span><span><%= formattedDate(booking.date) %></span></div>
           <div class="receipt-row">
             <span>Status:</span>
@@ -85,14 +85,14 @@
           <% booking.slots.forEach((sess, idx) => { %>
           <div class="receipt-row">
             <span>Slot <%= idx + 1 %>: <%= minutesToHHMM(sess) %> - <%= minutesToHHMM(sess + 60) %></span>
-            <span>Rp<%= formatPrice(booking.totalPrice / booking.slots.length) %></span>
+            <span>Rp<%= formatPrice(booking.total_price / booking.slots.length) %></span>
           </div>
           <% }) %>
         </div>
 
         <div class="receipt-row receipt-title" style="border-top: 2px solid black">
           <span>Total:</span>
-          <span>Rp<%= formatPrice(booking.totalPrice) %></span>
+          <span>Rp<%= formatPrice(booking.total_price) %></span>
         </div>
 
         <div class="receipt-title mt-4">Payment Info</div>
@@ -110,7 +110,7 @@
 
         <div class="receipt-row" style="flex-direction: column; align-items: flex-start">
           <span>Paid At:</span>
-          <span style="text-align: right"> <%= booking.paymentTime.toLocaleString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", hour12: false }) %> </span>
+          <span style="text-align: right"> <%= formattedDate(booking.payment_time) %> </span>
         </div>
         <hr />
 
@@ -120,7 +120,7 @@
       </div>
 
 
-      <%  if(booking.transactionID){%>
+      <%  if(booking.transaction_id){%>
       <div class="d-flex justify-content-evenly mt-3">
         <a class="btn btn-primary" target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transactionID %>"> Verify Status </a>
       </div>
