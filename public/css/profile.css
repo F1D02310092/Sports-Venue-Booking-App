@@ -1,0 +1,139 @@
+/* =========================================
+   APEX PROFILE / EDIT STYLES
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e;
+   --apex-green: #41704f;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+}
+
+.profile-page-wrapper {
+   padding: 40px 20px;
+}
+
+.profile-container {
+   max-width: 550px; /* Lebar ideal untuk form edit */
+}
+
+/* --- CARD STYLES --- */
+.profile-card {
+   border: none;
+   border-radius: 16px;
+   overflow: hidden;
+   background: white;
+}
+
+.card-header-apex {
+   background-color: var(--apex-dark);
+   padding: 20px 30px;
+   text-align: center;
+   font-family: "Funnel Sans", sans-serif;
+   letter-spacing: 1px;
+}
+
+/* --- AVATAR --- */
+.profile-avatar {
+   width: 80px;
+   height: 80px;
+   background-color: var(--apex-accent);
+   color: white;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-family: "Funnel Sans", sans-serif;
+   font-size: 2.5rem;
+   font-weight: 700;
+   margin: 0 auto;
+   border: 4px solid white;
+   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- FORM INPUTS (Konsisten dengan Login) --- */
+.input-group-text {
+   background-color: var(--apex-light-gray);
+   border-color: #eee;
+}
+
+.form-control {
+   background-color: var(--apex-light-gray);
+   border-color: #eee;
+   padding: 10px;
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   transition: all 0.3s;
+}
+
+.form-control:focus {
+   background-color: white;
+   box-shadow: none;
+   border-color: var(--apex-green);
+}
+
+.form-control:focus + .input-group-text,
+.input-group:focus-within .input-group-text {
+   background-color: white;
+   color: var(--apex-green) !important;
+   border-color: var(--apex-green);
+}
+
+/* --- CUSTOM SWITCH (Hijau Apex) --- */
+.form-check-input.apex-switch {
+   width: 3em;
+   height: 1.5em;
+   cursor: pointer;
+   background-color: #ddd;
+   border-color: #ccc;
+   transition: background-position 0.15s ease-in-out;
+}
+
+.form-check-input.apex-switch:checked {
+   background-color: var(--apex-green);
+   border-color: var(--apex-green);
+}
+
+.form-check-input.apex-switch:focus {
+   box-shadow: 0 0 0 0.25rem rgba(65, 112, 79, 0.25); /* Glow hijau */
+   border-color: var(--apex-green);
+}
+
+.text-accent {
+   color: var(--apex-accent);
+}
+
+/* --- PASSWORD SECTION ANIMATION --- */
+.password-section {
+   max-height: 0;
+   overflow: hidden;
+   opacity: 0;
+   transform: translateY(-10px);
+   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Class 'open' ditambahkan via JS saat checkbox dicentang */
+.password-section.open {
+   max-height: 300px; /* Cukup tinggi untuk menampung input */
+   opacity: 1;
+   transform: translateY(0);
+   margin-top: 20px;
+   padding: 15px 15px 0 15px;
+   border: 1px dashed #ccc;
+   border-radius: 8px;
+   background-color: #fafafa;
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   transition: 0.3s;
+   border: none;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-accent);
+   color: white;
+   transform: translateY(-2px);
+}

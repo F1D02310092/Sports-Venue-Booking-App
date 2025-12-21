@@ -1,0 +1,130 @@
+/* =========================================
+   APEX AUTH STYLES (Login & Register)
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e; /* Dark Spruce */
+   --apex-green: #41704f; /* Turf Green */
+   --apex-accent: #d87142; /* Burnt Peach */
+   --apex-bg-overlay: rgba(36, 72, 46, 0.9); /* Overlay Background */
+}
+
+/* --- PAGE LAYOUT --- */
+.auth-page {
+   height: 85vh;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+
+   padding: 20px;
+}
+
+.auth-container {
+   width: 100%;
+   max-width: 450px; /* Lebar maksimal kartu */
+}
+
+/* --- TYPOGRAPHY --- */
+.auth-brand {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   letter-spacing: 2px;
+   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.auth-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   color: var(--apex-dark);
+}
+
+/* --- CARD STYLES --- */
+.auth-card {
+   border: none;
+   border-radius: 20px; /* Sudut lebih bulat modern */
+   overflow: hidden;
+}
+
+/* --- FORM INPUTS --- */
+.input-group-text {
+   border-color: #eee;
+   background-color: #f8f9fa !important;
+}
+
+.form-control {
+   border-color: #eee;
+   background-color: #f8f9fa !important;
+   color: #333;
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   padding: 12px 0;
+   transition: all 0.3s ease;
+}
+
+/* Efek Fokus Input */
+.form-control:focus {
+   box-shadow: none;
+   border-color: #eee; /* Tetap border abu */
+   background-color: white !important;
+}
+
+/* Saat input difokus, ubah warna icon di sebelahnya */
+.form-control:focus + .input-group-text,
+.input-group:focus-within .input-group-text {
+   color: var(--apex-accent) !important; /* Icon jadi oranye */
+   background-color: white !important;
+   border-color: #eee;
+}
+
+/* Garis bawah animasi (opsional, aesthetic touch) */
+.input-group {
+   border-bottom: 2px solid transparent;
+   transition: border-color 0.3s;
+}
+
+.input-group:focus-within {
+   border-bottom-color: var(--apex-accent);
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   transition: all 0.3s ease;
+   border: none;
+   font-family: "Lexend Deca", sans-serif;
+   letter-spacing: 0.5px;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-accent); /* Oranye saat hover */
+   transform: translateY(-2px);
+   box-shadow: 0 5px 15px rgba(216, 113, 66, 0.4);
+}
+
+/* --- LINKS --- */
+.auth-link {
+   color: var(--apex-green);
+   text-decoration: none;
+   transition: color 0.2s;
+}
+
+.auth-link:hover {
+   color: var(--apex-accent);
+   text-decoration: underline;
+}
+
+.hover-white:hover {
+   color: white !important;
+   opacity: 1;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 576px) {
+   .auth-card {
+      border-radius: 12px;
+   }
+   .card-body {
+      padding: 1.5rem !important;
+   }
+}

@@ -280,7 +280,7 @@ const getPaymentHistory = async (req, res) => {
          query.status = statusFilter;
       }
 
-      const bookings = await BookingModel.find(query);
+      const bookings = await BookingModel.findWithUser(query);
       const totalBookings = await BookingModel.countDocuments(query);
       const totalPages = Math.ceil(totalBookings / limit);
 
@@ -355,8 +355,6 @@ const getPaymentDetails = async (req, res) => {
    }
 
    const field = await FieldModel.findOne({ fieldID: booking.field_id });
-
-   console.log(booking);
 
    return res.render("payment/transactions-detail.ejs", {
       booking,

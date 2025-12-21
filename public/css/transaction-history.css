@@ -1,0 +1,118 @@
+/* =========================================
+   TRANSACTION HISTORY STYLES
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e;
+   --apex-green: #41704f;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+}
+
+/* --- TYPOGRAPHY --- */
+.page-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   color: var(--apex-dark);
+}
+
+.text-apex-green {
+   color: var(--apex-green);
+}
+
+.text-light-gray {
+   color: #e9ecef;
+}
+
+/* --- FILTER BAR --- */
+.input-group-text {
+   background-color: white;
+   border-color: #dee2e6;
+}
+
+.form-select {
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   border-color: #dee2e6;
+   cursor: pointer;
+}
+
+.form-select:focus {
+   border-color: var(--apex-green);
+   box-shadow: none;
+}
+
+/* --- TRANSACTION CARD --- */
+.transaction-card {
+   transition: transform 0.2s ease, box-shadow 0.2s ease;
+   border: 1px solid #f0f0f0 !important;
+}
+
+.transaction-card:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
+   border-color: #e9ecef !important;
+}
+
+/* Field Icon Box */
+.field-icon-box {
+   width: 45px;
+   height: 45px;
+   background-color: var(--apex-light-gray);
+   color: var(--apex-dark);
+   border-radius: 10px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 1.2rem;
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   border: none;
+   font-weight: 600;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-green);
+   color: white;
+}
+
+.btn-apex-accent {
+   background-color: var(--apex-accent);
+   color: white;
+   border: none;
+   font-weight: 600;
+}
+
+.btn-apex-accent:hover {
+   background-color: #c25e31;
+   color: white;
+}
+
+/* --- PAGINATION --- */
+.pagination-apex .page-link {
+   color: var(--apex-dark);
+   border: none;
+   margin: 0 4px;
+   border-radius: 8px;
+   font-weight: 600;
+   width: 36px;
+   height: 36px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.pagination-apex .page-item.active .page-link {
+   background-color: var(--apex-dark);
+   color: white;
+   box-shadow: 0 4px 10px rgba(36, 72, 46, 0.3);
+}
+
+.pagination-apex .page-link:hover {
+   background-color: #e9ecef;
+   color: var(--apex-dark);
+}

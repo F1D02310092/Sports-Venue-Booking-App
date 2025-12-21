@@ -381,6 +381,39 @@ class BookingModel {
       // Mengembalikan object analytics langsung
       return result.rows[0].result;
    }
+
+   static async findWithUser(queryObj) {
+      let whereClause = "";
+      const conditions = [];
+      const values = [];
+
+      Object.keys(queryObj).forEach((key, index) => {
+         conditions.push(`b.${key} = $${index + 1}`);
+         values.push(queryObj[key]);
+      });
+
+      if (conditions.length > 0) {
+         whereClause = "WHERE " + conditions.join(" AND ");
+      }
+
+      const query = `
+      SELECT 
+         b.*,
+         u.user_id AS u_user_id,
+         u.email AS u_email,
+         u.username AS u_username
+      FROM bookings b
+      LEFT JOIN users u ON b.user_id = u.user_id
+      ${whereClause}
+      ORDER BY b.created_at DESC
+   `;
+
+      const result = await db.query(query, values);
+
+      return result.rows.map((row) => ({
+         ...row,
+      }));
+   }
 }
 
 module.exports = BookingModel;

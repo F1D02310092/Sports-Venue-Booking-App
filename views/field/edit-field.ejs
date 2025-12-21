@@ -1,78 +1,132 @@
 <% layout('layout/boilerplate.ejs') %>
 
+<link rel="stylesheet" href="/css/edit-field.css">
 
-<div class="container card">
-  <h5 class="card-header">Edit <%= field.name %></h5>
+<div class="edit-field-wrapper">
+  <div class="container d-flex justify-content-center">
 
-  <div class="card-body">
-    <!-- Form Edit -->
-    <form id="editForm" method="POST" action="/fields/<%= field.fieldID %>?_method=PUT" enctype="multipart/form-data">
-      <div class="mb-3">
-        <label for="field_name" class="form-label">Field Name</label>
-        <input type="text" class="form-control" id="field_name" name="name" required value="<%= field.name %>">
-      </div>
+    <div class="card edit-card shadow-lg">
 
-      <div class="mb-3">
-        <label for="field_price" class="form-label">Price</label>
-        <input type="number" class="form-control" id="field_price" name="price" min="0" required value="<%= field.price %>">
-      </div>
-
-      <div class="mb-2">
-        <label class="form-label mb-0" for="image">Upload Image</label>
-        <input class="form-control" type="file" name="images" id="image" multiple />
-
+      <div class="card-header-apex text-center position-relative">
+        <a href="/admin/fields/<%= field.fieldID %>" class="btn-back-icon" title="Cancel & Back">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <h4 class="mb-1 text-white fw-bold text-uppercase">
+          <i class="bi bi-pencil-square me-2"></i> Edit Arena
+        </h4>
 
       </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="field-open" class="form-label fw-semibold">Opening Time</label>
-          <input type="text" id="field-open" name="openTime" class="form-control" required value="<%= minutesToHHMM(field.openTime) %>" />
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="field-close" class="form-label fw-semibold">Closing Time</label>
-          <input type="text" id="field-close" name="closeTime" class="form-control" required value="<%= minutesToHHMM(field.closeTime) %>" />
-        </div>
-      </div>
+      <div class="card-body p-4 p-md-5">
 
-      <%if(field.images.length > 0){%>
-      <div class="d-flex">
-        <% field.images.forEach((img, idx)=>{%>
-        <div class="card d-flex flex-column justify-content-between" style="width: 18rem;">
-          <img src="<%= img.thumbnail %>" class="card-img-top" alt="...">
-          <div class="card-body ">
-            <input type="checkbox" name="deleteImages[]" id="deleteImgs<%= idx %>" value="<%= img.filename %>">
-            <label for="deleteImgs<%= idx %>">Delete image?</label>
+        <form id="editForm" method="POST" action="/fields/<%= field.fieldID %>?_method=PUT" enctype="multipart/form-data">
+
+          <h6 class="section-label mb-3">General Information</h6>
+
+          <div class="mb-3">
+            <label for="field_name" class="form-label small fw-bold text-muted">FIELD NAME</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-fonts text-accent"></i></span>
+              <input type="text" class="form-control bg-light border-start-0 ps-0" id="field_name" name="name" required value="<%= field.name %>">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="field_price" class="form-label small fw-bold text-muted">PRICE PER HOUR (Rp)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-cash-stack text-accent"></i></span>
+              <input type="number" class="form-control bg-light border-start-0 ps-0" id="field_price" name="price" min="0" required value="<%= field.price %>">
+            </div>
+          </div>
+
+          <hr class="border-secondary opacity-10 my-4">
+
+          <h6 class="section-label mb-3">Operational Schedule</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="field-open" class="form-label small fw-bold text-muted">OPENING TIME</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-sunrise-fill text-accent"></i></span>
+                <input type="text" id="field-open" name="openTime" class="form-control bg-light border-start-0 ps-0 flatpickr-time" required value="<%= minutesToHHMM(field.openTime) %>" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="field-close" class="form-label small fw-bold text-muted">CLOSING TIME</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-moon-stars-fill text-accent"></i></span>
+                <input type="text" id="field-close" name="closeTime" class="form-control bg-light border-start-0 ps-0 flatpickr-time" required value="<%= minutesToHHMM(field.closeTime) %>" />
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-secondary opacity-10 my-4">
+
+          <h6 class="section-label mb-3">Gallery Management</h6>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted">ADD NEW IMAGES</label>
+            <div class="upload-zone-mini">
+              <input class="form-control file-input" type="file" name="images" id="image" multiple />
+              <div class="upload-content">
+                <i class="bi bi-cloud-plus text-muted fs-4"></i>
+                <span class="ms-2 text-muted fw-bold small">Click or Drop new photos here</span>
+              </div>
+            </div>
+          </div>
+
+          <% if(field.images.length > 0){ %>
+          <label class="form-label small fw-bold text-danger mb-2">SELECT IMAGES TO DELETE</label>
+          <div class="image-grid-container">
+            <% field.images.forEach((img, idx)=>{ %>
+            <div class="image-checkbox-wrapper">
+              <input type="checkbox" name="deleteImages[]" id="deleteImgs<%= idx %>" value="<%= img.filename %>" class="image-check-input">
+              <label for="deleteImgs<%= idx %>" class="image-check-label">
+                <img src="<%= img.thumbnail %>" alt="Field Image">
+                <div class="delete-overlay">
+                  <i class="bi bi-trash3-fill"></i>
+                  <span>DELETE</span>
+                </div>
+                <div class="selected-badge"><i class="bi bi-check-lg"></i></div>
+              </label>
+            </div>
+            <% }) %>
+          </div>
+          <% } %>
+
+          <div class="d-grid mt-5">
+            <button type="submit" form="editForm" class="btn btn-apex-primary py-3 rounded-pill fw-bold shadow-sm">
+              <i class="bi bi-save me-2"></i> Save Changes
+            </button>
+          </div>
+
+        </form>
+
+        <div class="danger-zone mt-5">
+          <div class="d-flex justify-content-between align-items-center">
+            <form id="form-delete" action="/fields/<%= field.fieldID %>?_method=DELETE" method="POST">
+              <button type="submit" class="btn btn-outline-danger btn-sm fw-bold rounded-pill px-3">
+                Deactivate Field
+              </button>
+            </form>
+            <div>
+              <h6 class="text-danger fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Danger Zone</h6>
+            </div>
           </div>
         </div>
-        <%})%>
+
       </div>
-      <%}%>
-
-    </form>
-
-
-    <div class="d-flex gap-2 ">
-      <button type="submit" form="editForm" class="btn btn-primary">Edit</button>
-      <form id="form-delete" action="/fields/<%= field.fieldID %>?_method=DELETE" method="POST">
-      <button type="submit" class="btn btn-danger">Delete</button>
-    </form>
+    </div>
   </div>
 </div>
-</div>
-</div>
-
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="/js/flatpickr.js"></script>
 
-
 <script>
+  // Konfirmasi Delete
   document.querySelector('#form-delete').addEventListener('submit', (evt) => {
-    if (!confirm(`Are you sure want to delete?`)) {
+    if (!confirm(`WARNING: Are you sure you want to deactivate "${'<%= field.name %>'}"?`)) {
       evt.preventDefault();
     }
-  })
+  });
 </script>

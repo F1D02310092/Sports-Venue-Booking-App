@@ -120,40 +120,43 @@ const getAnalyticsPage = async (req, res) => {
       const endDate = new Date();
       startDate.setDate(endDate.getDate() - 30);
       startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999); // Koreksi milisecond ke 999
+      endDate.setHours(23, 59, 59, 999);
 
       const queryStartDate = req.query.startDate ? new Date(req.query.startDate) : startDate;
       const queryEndDate = req.query.endDate ? new Date(req.query.endDate) : endDate;
 
-      // Pastikan jam ter-set dengan benar untuk query range
       queryStartDate.setHours(0, 0, 0, 0);
       queryEndDate.setHours(23, 59, 59, 999);
 
       const fieldFilter = req.query.fieldFilter || "all";
 
       // 1. Ambil data Analytics dari PostgreSQL
-      //    (Sudah ter-agregasi, tapi revenueByCourt isinya masih fieldID, bukan nama)
       const analytics = await BookingModel.getAnalytics(queryStartDate, queryEndDate, fieldFilter);
 
-      // 2. Ambil data Field dari MongoDB untuk mapping nama
+      // 2. Ambil data Field dari MongoDB
       const fieldFilterDropdown = await FieldModel.find({ isActive: true });
       const fieldCount = await FieldModel.countDocuments({ isActive: true });
 
-      // 3. Mapping Nama Lapangan (Hybrid Logic)
-      //    Looping array revenueByCourt dari Postgres, lalu cari namanya di array Mongo
+      // 3. Mapping Nama Lapangan (FIXED)
       if (analytics.revenueByCourt && analytics.revenueByCourt.length > 0) {
          analytics.revenueByCourt = analytics.revenueByCourt.map((item) => {
-            const fieldInfo = fieldFilterDropdown.find((f) => f.fieldID === item.fieldID);
+            // Pastikan fieldID tipe datanya sama (String vs Number sering jadi masalah)
+            // Kita gunakan toString() untuk jaga-jaga
+            const fieldInfo = fieldFilterDropdown.find((f) => f.fieldID.toString() === item.fieldID.toString());
+
             return {
                ...item,
-               _id: fieldInfo ? fieldInfo.name : "Unknown Field", // Assign nama ke _id sesuai format lama
-               // fieldID sudah ada dari query SQL
+               // PENTING: Kita buat property 'fieldName' agar terbaca di Chart.js
+               fieldName: fieldInfo ? fieldInfo.name : "Unknown Field",
+
+               // Opsional: tetapkan _id juga jika ada logika lama yg memakainya
+               _id: fieldInfo ? fieldInfo.name : "Unknown Field",
             };
          });
       }
 
       return res.render("admin/analytics", {
-         analytics, // Struktur object kini sudah sama persis dengan versi Mongo
+         analytics,
          fieldCount,
          filters: {
             startDate: queryStartDate,
@@ -161,12 +164,12 @@ const getAnalyticsPage = async (req, res) => {
             fields: fieldFilter,
          },
          fieldFilterDropdown,
-         formatDate: formatDateYYYYMMDD,
+         formatDate: formatDateYYYYMMDD, // Pastikan helper function ini sudah di-import/declare
          formatPrice: (price) => price.toLocaleString("id-ID"),
       });
    } catch (error) {
       console.error(error);
-      return res.status(500).send("Internal Server Error"); // Ubah status code jadi 500 utk error server
+      return res.status(500).send("Internal Server Error");
    }
 };
 

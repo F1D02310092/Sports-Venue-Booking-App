@@ -215,18 +215,18 @@ const deleteField = async (req, res) => {
    try {
       const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: false }, { runValidators: true });
 
-      if (field) {
-         await BookingModel.findOneAndUpdate(
-            {
-               field: field._id,
-               date: { $gte: new Date() },
-               status: { $ne: "success" },
-            },
-            {
-               status: "failed",
-            }
-         );
-      }
+      // if (field) {
+      //    await BookingModel.findOneAndUpdate(
+      //       {
+      //          field: field._id,
+      //          date: { $gte: new Date() },
+      //          status: { $ne: "success" },
+      //       },
+      //       {
+      //          status: "failed",
+      //       }
+      //    );
+      // }
 
       req.flash("success", `Successfully deactivate a field`);
       return res.redirect("/fields");
@@ -245,36 +245,38 @@ const getDeactivatedFieldsPage = async (req, res) => {
 };
 
 const reactivateField = async (req, res) => {
-   const session = await mongoose.startSession();
-   session.startTransaction();
+   // const session = await mongoose.startSession();
+   // session.startTransaction();
 
    try {
-      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: true }, { runValidators: true }).session(session);
+      // await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: true }, { runValidators: true }).session(session);
+      await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID }, { isActive: true }, { runValidators: true });
 
-      if (field) {
-         await BookingModel.updateMany(
-            {
-               field: field._id,
-               date: { $gte: new Date() },
-               status: { $ne: "success" },
-            },
-            {
-               status: "failed",
-            },
-            { session }
-         );
-      }
+      // if (field) {
+      //    await BookingModel.updateMany(
+      //       {
+      //          field: field._id,
+      //          date: { $gte: new Date() },
+      //          status: { $ne: "success" },
+      //       },
+      //       {
+      //          status: "failed",
+      //       },
+      //       { session }
+      //    );
+      // }
 
-      await session.commitTransaction();
+      // await session.commitTransaction();
       await req.flash("success", "Field is now active");
       return res.redirect("/fields");
    } catch (error) {
-      if (session.inTransaction()) await session.abortTransaction();
+      // if (session.inTransaction()) await session.abortTransaction();
       console.error(error);
       return res.status(500).send("Something went wrong");
-   } finally {
-      session.endSession();
    }
+   // } finally {
+   //    session.endSession();
+   // }
 };
 
 module.exports = {

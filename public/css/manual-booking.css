@@ -1,0 +1,83 @@
+/* =========================================
+   MANUAL BOOKING STYLES
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e;
+   --apex-green: #41704f;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+}
+
+.manual-booking-wrapper {
+   min-height: 85vh;
+   display: flex;
+   align-items: center;
+   padding: 40px 0;
+   /* background-color: #f4f6f5; */
+}
+
+.booking-card {
+   width: 100%;
+   max-width: 500px;
+   border: none;
+   border-radius: 16px;
+   overflow: hidden;
+   background: white;
+}
+
+/* --- HEADER --- */
+.card-header-apex {
+   background-color: var(--apex-dark);
+   color: white;
+   padding: 25px 20px;
+   font-family: "Funnel Sans", sans-serif;
+   border-bottom: 4px solid var(--apex-accent);
+}
+
+/* --- FORM STYLING --- */
+.input-group-text {
+   background-color: var(--apex-light-gray);
+   color: #6c757d;
+   border-color: #dee2e6;
+}
+
+.form-control {
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   border-color: #dee2e6;
+   padding: 10px;
+   transition: all 0.3s;
+}
+
+.form-control:focus {
+   background-color: white !important;
+   box-shadow: none;
+   border-color: var(--apex-green);
+}
+
+.form-control:focus + .input-group-text,
+.input-group:focus-within .input-group-text {
+   background-color: white;
+   color: var(--apex-green);
+   border-color: var(--apex-green);
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   transition: all 0.3s;
+   border: none;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-green);
+   transform: translateY(-2px);
+   color: white;
+}
+
+.btn-outline-secondary:hover {
+   background-color: #e9ecef;
+   color: #333;
+}

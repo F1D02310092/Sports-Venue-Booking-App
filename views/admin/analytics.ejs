@@ -1,93 +1,147 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<div class="container">
-  <div class="card">
-    <div class="card-body">
-      <form action="/admin/analytics" method="GET" class="row">
+<link rel="stylesheet" href="/css/analytics.css">
+
+<div class="container py-5">
+
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div>
+      <h1 class="dashboard-title">Performance Overview</h1>
+      <p class="text-muted mb-0">Track revenue, bookings, and field utilization.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+      <span class="badge bg-apex-dark px-3 py-2 rounded-pill">
+        <i class="bi bi-calendar-check me-1"></i> <%= formatDate(filters.startDate) %> — <%= formatDate(filters.endDate) %>
+      </span>
+    </div>
+  </div>
+
+  <div class="card filter-card border-0 shadow-sm mb-5">
+    <div class="card-body p-4">
+      <form action="/admin/analytics" method="GET" class="row g-3 align-items-end">
+
         <div class="col-md-3">
-          <label class="form-label fw-semibold">Start Date</label>
-          <input type="date" name="startDate" id="" value="<%= formatDate(filters.startDate) %>">
+          <label class="form-label small fw-bold text-uppercase text-muted">Start Date</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar"></i></span>
+            <input type="date" class="form-control border-start-0 ps-0" name="startDate" value="<%= formatDate(filters.startDate) %>">
+          </div>
         </div>
 
         <div class="col-md-3">
-          <label class="form-label fw-semibold">End Date</label>
-          <input type="date" name="endDate" id="" value="<%= formatDate(filters.endDate) %>">
+          <label class="form-label small fw-bold text-uppercase text-muted">End Date</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-fill"></i></span>
+            <input type="date" class="form-control border-start-0 ps-0" name="endDate" value="<%= formatDate(filters.endDate) %>">
+          </div>
         </div>
 
-        <div class="col-md-3">
-          <select name="fieldFilter" class="form-select" aria-label="Default select example">
-            <option value="all" <%= filters.fields === 'all' ? 'selected' : '' %>>All fields</option>
-
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-uppercase text-muted">Filter by Field</label>
+          <select name="fieldFilter" class="form-select" aria-label="Field selector">
+            <option value="all" <%= filters.fields === 'all' ? 'selected' : '' %>>Show All Fields</option>
             <% for(let f of fieldFilterDropdown){%>
             <option value="<%= f.fieldID %>" <%= filters.fields === f.fieldID ? 'selected' : '' %>><%= f.name %></option>
             <% }%>
           </select>
         </div>
-        <div class="col-md-3">
-          <button>Filter</button>
+
+        <div class="col-md-2">
+          <button class="btn btn-apex-primary w-100 fw-bold">
+            <i class="bi bi-funnel-fill me-1"></i> Apply
+          </button>
         </div>
+
       </form>
-
     </div>
   </div>
 
-  <div class="row ">
-    <div class="col my-2">
-      <div class="card ">
-        <div class="card-body">
-          <h6 class="fw-bold">Total Revenue</h6>
+  <div class="row g-4 mb-5">
 
-          <h2>Rp<%= formatPrice(analytics.revenue[0].totalRevenue) %></h2>
-
+    <div class="col-md-4">
+      <div class="stat-card revenue h-100">
+        <div class="d-flex justify-content-between align-items-center position-relative z-1">
+          <div>
+            <h6 class="stat-label">Total Revenue</h6>
+            <h2 class="stat-value">Rp<%= formatPrice(analytics.revenue[0].totalRevenue) %></h2>
+          </div>
+          <div class="stat-icon-bg">
+            <i class="bi bi-cash-stack"></i>
+          </div>
         </div>
+
       </div>
     </div>
-    <div class="col my-2">
-      <div class="card ">
-        <div class="card-body">
-          <h6 class="fw-bold">Total Bookings</h6>
-          <h2><%= analytics.revenue[0].totalBookings %></h2>
 
+    <div class="col-md-4">
+      <div class="stat-card bookings h-100">
+        <div class="d-flex justify-content-between align-items-center position-relative z-1">
+          <div>
+            <h6 class="stat-label">Total Bookings</h6>
+            <h2 class="stat-value"><%= analytics.revenue[0].totalBookings %> <span class="fs-6 text-muted fw-normal">sessions</span></h2>
+          </div>
+          <div class="stat-icon-bg">
+            <i class="bi bi-ticket-perforated-fill"></i>
+          </div>
         </div>
+
       </div>
     </div>
-    <div class="col my-2">
-      <div class="card ">
-        <div class="card-body">
-          <h6 class="fw-bold">Active Courts</h6>
-          <h2><%= fieldCount %></h2>
+
+    <div class="col-md-4">
+      <div class="stat-card active-courts h-100">
+        <div class="d-flex justify-content-between align-items-center position-relative z-1">
+          <div>
+            <h6 class="stat-label">Active Courts</h6>
+            <h2 class="stat-value"><%= fieldCount %> <span class="fs-6 text-muted fw-normal">fields</span></h2>
+          </div>
+          <div class="stat-icon-bg">
+            <i class="bi bi-activity"></i>
+          </div>
         </div>
+
       </div>
     </div>
+
   </div>
 
-  <div class="row">
-    <div class="col-7">
-      <div class="card">
-        <div class="card-header">Revenue Chart</div>
-        <div class="card-body">
-          <canvas id="revenueChart"></canvas>
+  <div class="row g-4">
+
+    <div class="col-lg-8">
+      <div class="card chart-card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="chart-title">Revenue Trend</h5>
+            <button class="btn btn-sm btn-outline-light text-muted border-0"><i class="bi bi-three-dots-vertical"></i></button>
+          </div>
+          <div class="chart-container" style="position: relative; height: 350px; width:100%">
+            <canvas id="revenueChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="col-5">
-      <div class="card">
-        <div class="card-header">Total Bookings</div>
-        <div class="card-body">
-          <canvas id="bookingsChart"></canvas>
+    <div class="col-lg-4">
+      <div class="card chart-card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="chart-title">Bookings by Field</h5>
+          </div>
+          <div class="chart-container" style="position: relative; height: 300px; width:100%">
+            <canvas id="bookingsChart"></canvas>
+          </div>
+          <div class="text-center mt-3">
+            <small class="text-muted">Distribution of bookings across facilities</small>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
-
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Kirim data server
   window.analyticsData = {
     revenueByDate: <%- JSON.stringify(analytics.revenueByDate) %>,
     revenueByCourt: <%- JSON.stringify(analytics.revenueByCourt) %>,

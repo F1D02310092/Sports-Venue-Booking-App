@@ -1,126 +1,96 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<style>
-  .checkbox-wrapper-6 .tgl {
-    display: none;
-  }
+<link rel="stylesheet" href="/css/profile.css">
 
-  .checkbox-wrapper-6 .tgl,
-  .checkbox-wrapper-6 .tgl:after,
-  .checkbox-wrapper-6 .tgl:before,
-  .checkbox-wrapper-6 .tgl *,
-  .checkbox-wrapper-6 .tgl *:after,
-  .checkbox-wrapper-6 .tgl *:before,
-  .checkbox-wrapper-6 .tgl+.tgl-btn {
-    box-sizing: border-box;
-  }
+<div class="profile-page-wrapper">
+  <div class="container profile-container">
 
-  .checkbox-wrapper-6 .tgl::-moz-selection,
-  .checkbox-wrapper-6 .tgl:after::-moz-selection,
-  .checkbox-wrapper-6 .tgl:before::-moz-selection,
-  .checkbox-wrapper-6 .tgl *::-moz-selection,
-  .checkbox-wrapper-6 .tgl *:after::-moz-selection,
-  .checkbox-wrapper-6 .tgl *:before::-moz-selection,
-  .checkbox-wrapper-6 .tgl+.tgl-btn::-moz-selection,
-  .checkbox-wrapper-6 .tgl::selection,
-  .checkbox-wrapper-6 .tgl:after::selection,
-  .checkbox-wrapper-6 .tgl:before::selection,
-  .checkbox-wrapper-6 .tgl *::selection,
-  .checkbox-wrapper-6 .tgl *:after::selection,
-  .checkbox-wrapper-6 .tgl *:before::selection,
-  .checkbox-wrapper-6 .tgl+.tgl-btn::selection {
-    background: none;
-  }
 
-  .checkbox-wrapper-6 .tgl+.tgl-btn {
-    outline: 0;
-    display: inline-block;
-    width: 2em;
-    height: 1em;
-    position: relative;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
 
-  .checkbox-wrapper-6 .tgl+.tgl-btn:after,
-  .checkbox-wrapper-6 .tgl+.tgl-btn:before {
-    position: relative;
-    display: block;
-    content: "";
-    width: 50%;
-    height: 100%;
-  }
+    <div class="card profile-card shadow-lg">
+      <div class="card-header-apex">
+        <h4 class="mb-0 text-white">Edit Profile</h4>
+      </div>
 
-  .checkbox-wrapper-6 .tgl+.tgl-btn:after {
-    left: 0;
-  }
+      <div class="card-body p-4 p-md-5">
 
-  .checkbox-wrapper-6 .tgl+.tgl-btn:before {
-    display: none;
-  }
-
-  .checkbox-wrapper-6 .tgl:checked+.tgl-btn:after {
-    left: 50%;
-  }
-
-  .checkbox-wrapper-6 .tgl-light+.tgl-btn {
-    background: #f0f0f0;
-    border-radius: 2em;
-    padding: 2px;
-    transition: all 0.4s ease;
-  }
-
-  .checkbox-wrapper-6 .tgl-light+.tgl-btn:after {
-    border-radius: 50%;
-    background: #fff;
-    transition: all 0.2s ease;
-  }
-
-  .checkbox-wrapper-6 .tgl-light:checked+.tgl-btn {
-    background: #9fd6ae;
-  }
-</style>
-
-<div class="container" style="width: 450px">
-  <form method="POST" action="/users/<%= user.user_id %>?_method=PUT">
-    <div class="card">
-      <h5 class="card-header">Edit <%= user.username %></h5>
-      <div class="card-body">
-        <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" class="form-control" id="username" placeholder="email@example.com" name="username" required value="<%= user.username %>" />
-        </div>
-
-        <div class="d-flex align-items-center mb-2">
-          <span>Change Password</span>
-
-          <div class="checkbox-wrapper-6 d-flex align-items-center ms-2">
-            <input class="tgl tgl-light" id="change-pass" type="checkbox" />
-            <label class="tgl-btn" for="change-pass"></label>
+        <div class="text-center mb-4">
+          <div class="profile-avatar mb-3">
+            <%= user.username.charAt(0).toUpperCase() %>
           </div>
+          <h5 class="fw-bold"><%= user.username %></h5>
+          <p class="text-muted small">Update your account information</p>
         </div>
 
-        <div class="mb-3" id="pass-div" style="display: none">
-          <input type="password" class="form-control" id="password" placeholder="Enter Current Password" name="password" />
-          <input type="password" class="form-control mt-3" id="password" placeholder="Enter New Password" name="newPassword" />
-        </div>
+        <form method="POST" action="/users/<%= user.user_id %>?_method=PUT" id="editProfileForm">
 
-        <button class="btn btn-primary my-2 d-block">Edit</button>
+          <div class="mb-4">
+            <label for="username" class="form-label small fw-bold text-uppercase text-muted">Username</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-person-fill text-muted"></i>
+              </span>
+              <input type="text" class="form-control border-start-0 ps-0 bg-light" id="username" name="username" required value="<%= user.username %>" placeholder="Enter username" />
+            </div>
+          </div>
+
+          <hr class="border-secondary opacity-10 my-4">
+
+          <div class="d-flex align-items-center justify-content-between mb-0 bg-light p-3 rounded-3 border">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-shield-lock text-accent fs-5"></i>
+              <span class="fw-bold text-dark">Change Password?</span>
+            </div>
+
+            <div class="form-check form-switch">
+              <input class="form-check-input apex-switch" type="checkbox" role="switch" id="change-pass">
+            </div>
+          </div>
+
+          <div id="pass-div" class="password-section">
+            <div class="mb-3">
+              <label for="current_password" class="form-label small fw-bold text-muted">Current Password</label>
+              <input type="password" class="form-control bg-light" id="current_password" name="password" placeholder="Enter your current password" disabled required />
+            </div>
+
+            <div class="mb-3">
+              <label for="new_password" class="form-label small fw-bold text-muted">New Password</label>
+              <input type="password" class="form-control bg-light" id="new_password" name="newPassword" placeholder="Enter new strong password" disabled required />
+              <div class="form-text small text-muted px-2">*At least 8 characters</div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <button class="btn btn-apex-primary py-2 rounded-pill fw-bold shadow-sm">
+              Save Changes
+            </button>
+            <a href="/fields" class="btn btn-outline-secondary py-2 rounded-pill fw-bold border-0">
+              Cancel
+            </a>
+          </div>
+
+        </form>
       </div>
     </div>
-  </form>
+  </div>
 </div>
 
 <script>
-  const changePass = document.querySelector("#change-pass");
-  changePass.addEventListener("change", function(evt) {
-    if (changePass.checked) {
-      document.querySelector("#pass-div").style.display = "block";
-    } else {
-      document.querySelector("#pass-div").style.display = "none";
-    }
+  document.addEventListener("DOMContentLoaded", () => {
+    const changePassCheckbox = document.querySelector("#change-pass");
+    const passDiv = document.querySelector("#pass-div");
+    const passInputs = passDiv.querySelectorAll("input");
+
+    changePassCheckbox.addEventListener("change", function() {
+      if (this.checked) {
+        passDiv.classList.add("open"); // Memicu animasi CSS
+        // Enable input agar validasi HTML berfungsi
+        passInputs.forEach(input => input.removeAttribute("disabled"));
+      } else {
+        passDiv.classList.remove("open");
+        // Disable input agar tidak dikirim ke server jika tidak dicentang
+        passInputs.forEach(input => input.setAttribute("disabled", true));
+      }
+    });
   });
 </script>

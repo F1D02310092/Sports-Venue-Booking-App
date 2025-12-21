@@ -1,25 +1,57 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<div class="container" style="width: 40rem;">
-  <div class="card">
-    <div class="card-header">
-      Booking <%= field.name %>
+<link rel="stylesheet" href="/css/manual-booking.css">
+
+<div class="manual-booking-wrapper">
+  <div class="container d-flex justify-content-center">
+
+    <div class="card booking-card shadow-lg">
+
+      <div class="card-header-apex text-center">
+        <h4 class="mb-0 fw-bold text-uppercase">
+          <i class="bi bi-journal-check me-2"></i> Manual Booking
+        </h4>
+
+      </div>
+
+      <div class="card-body p-4 p-md-5">
+
+        <form action="/admin/fields/<%= field.fieldID %>/m-booking" method="POST">
+
+          <div class="mb-3">
+            <label for="manual-booking-name" class="form-label small fw-bold text-muted">CUSTOMER NAME</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-person-fill"></i>
+              </span>
+              <input type="text" class="form-control bg-light border-start-0 ps-0" id="manual-booking-name" placeholder="Enter full name" name="manualName" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="manual-booking-contact" class="form-label small fw-bold text-muted">CONTACT INFO</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-telephone-fill"></i>
+              </span>
+              <input type="text" class="form-control bg-light border-start-0 ps-0" id="manual-booking-contact" placeholder="0812... or email address" name="manualContact" required>
+            </div>
+          </div>
+
+          <input type="hidden" name="slots" value="<%= slots %>">
+          <input type="hidden" name="date" value="<%= date %>">
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-apex-primary py-2 rounded-pill fw-bold shadow-sm">
+              <i class="bi bi-check-circle me-1"></i> Confirm Booking
+            </button>
+            <a href="/admin/fields/<%= field.fieldID %>/?date=<%= date %>" class="btn btn-outline-secondary py-2 rounded-pill border-0">
+              Cancel
+            </a>
+          </div>
+
+        </form>
+      </div>
     </div>
-    <form class="card-body" action="/admin/fields/<%= field.fieldID %>/m-booking" method="POST">
-      <div class="mb-3">
-        <label for="manual-booking-name" class="form-label">Customer Name</label>
-        <input type="text" class="form-control" id="manual-booking-name" placeholder="Enter Customer Name" name="manualName" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="manual-booking-contact" class="form-label">Customer Contact</label>
-        <input type="text" class="form-control" id="manual-booking-contact" placeholder="e.g. 08123456789 or user@mail.com" name="manualContact" required>
-      </div>
-
-      <input type="hidden" name="slots" value="<%= slots %>">
-      <input type="hidden" name="date" value="<%= date %>">
-
-      <button class="btn btn-success">Book</button>
-    </form>
   </div>
 </div>

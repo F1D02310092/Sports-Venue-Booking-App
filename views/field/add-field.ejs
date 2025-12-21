@@ -1,45 +1,98 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<div class="container">
-  <form method="POST" action="/fields" enctype="multipart/form-data">
-    <div class="card">
-      <h5 class="card-header">Add Field</h5>
-      <div class="card-body">
-        <div class="mb-3">
-          <label for="field_name" class="form-label">Field Name</label>
-          <input type="text" class="form-control" id="field_name" placeholder="Enter Field Name" name="name" required>
-        </div>
+<link rel="stylesheet" href="/css/add-field.css">
 
-        <div class="mb-3">
-          <label for="field_price" class="form-label">Price</label>
-          <input type="number" class="form-control" id="field_price" placeholder="Enter Price" name="price" min="0" required>
-        </div>
+<div class="add-field-wrapper">
+  <div class="container d-flex justify-content-center">
 
-        <div class="mb-2">
-          <label class="form-label mb-0" for="image">Upload Image</label>
-          <input class="form-control" type="file" name="images" id="image" multiple />
+    <div class="card add-card shadow-lg">
 
-        </div>
-
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="court-open" class="form-label fw-semibold">Opening Time</label>
-            <input type="text" id="field-open" name="openTime" class="form-control" required placeholder="HH:mm" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="court-close" class="form-label fw-semibold">Closing Time</label>
-            <input type="text" id="field-close" name="closeTime" class="form-control" required placeholder="HH:mm" />
-          </div>
-        </div>
-
-        <button class="btn btn-primary">Submit</button>
+      <div class="card-header-apex text-center">
+        <h4 class="mb-1 text-white fw-bold text-uppercase">
+          <i class="bi bi-plus-circle-dotted me-2"></i> Register New Arena
+        </h4>
 
       </div>
 
-    </div>
-  </form>
-</div>
+      <div class="card-body p-4 p-md-5">
+        <form method="POST" action="/fields" enctype="multipart/form-data">
 
+          <h6 class="section-label mb-3">Field Information</h6>
+
+          <div class="mb-3">
+            <label for="field_name" class="form-label small fw-bold text-muted">FIELD NAME</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-fonts text-accent"></i>
+              </span>
+              <input type="text" class="form-control bg-light border-start-0 ps-0" id="field_name" placeholder="e.g. Apex Badminton Hall A" name="name" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="field_price" class="form-label small fw-bold text-muted">HOURLY RATE (Rp)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-cash-stack text-accent"></i>
+              </span>
+              <input type="number" class="form-control bg-light border-start-0 ps-0" id="field_price" placeholder="e.g. 150000" name="price" min="0" required>
+            </div>
+          </div>
+
+          <hr class="border-secondary opacity-10 my-4">
+
+          <h6 class="section-label mb-3">Field Visuals</h6>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted">UPLOAD IMAGES</label>
+            <div class="upload-zone">
+              <input class="form-control file-input" type="file" name="images" id="image" multiple />
+              <div class="upload-placeholder">
+                <i class="bi bi-cloud-arrow-up-fill fs-1 text-muted mb-2"></i>
+                <p class="mb-0 fw-bold text-dark">Click to upload images</p>
+                <p class="small text-muted mb-0">or drag and drop files here</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-secondary opacity-10 my-4">
+
+          <h6 class="section-label mb-3">Operational Hours</h6>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="field-open" class="form-label small fw-bold text-muted">OPENING TIME</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-sunrise-fill text-accent"></i>
+                </span>
+                <input type="text" id="field-open" name="openTime" class="form-control bg-light border-start-0 ps-0 flatpickr-time" required placeholder="Select time" />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="field-close" class="form-label small fw-bold text-muted">CLOSING TIME</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-moon-stars-fill text-accent"></i>
+                </span>
+                <input type="text" id="field-close" name="closeTime" class="form-control bg-light border-start-0 ps-0 flatpickr-time" required placeholder="Select time" />
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid mt-5">
+            <button class="btn btn-apex-primary py-3 rounded-pill fw-bold shadow-sm">
+              <i class="bi bi-check-lg me-2"></i> Create Field
+            </button>
+            <a href="/fields" class="btn btn-link text-muted text-decoration-none mt-2">Cancel</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="/js/flatpickr.js"></script>

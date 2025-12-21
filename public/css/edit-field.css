@@ -1,0 +1,222 @@
+/* =========================================
+   EDIT FIELD FORM STYLES
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e;
+   --apex-green: #41704f;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+   --danger-bg: #fff5f5;
+   --danger-border: #ffc9c9;
+}
+
+.edit-field-wrapper {
+   padding: 40px 0;
+   /* background-color: #f4f6f5; */
+   min-height: 85vh;
+}
+
+.edit-card {
+   width: 100%;
+   max-width: 650px;
+   border: none;
+   border-radius: 16px;
+   overflow: hidden;
+   background: white;
+}
+
+/* --- HEADER --- */
+.card-header-apex {
+   background-color: var(--apex-dark);
+   padding: 25px 20px;
+   border-bottom: 5px solid var(--apex-accent);
+}
+
+.btn-back-icon {
+   position: absolute;
+   left: 20px;
+   top: 50%;
+   transform: translateY(-50%);
+   color: rgba(255, 255, 255, 0.7);
+   font-size: 1.5rem;
+   transition: 0.3s;
+}
+
+.btn-back-icon:hover {
+   color: var(--apex-accent);
+}
+
+.section-label {
+   font-family: "Funnel Sans", sans-serif;
+   color: var(--apex-dark);
+   text-transform: uppercase;
+   font-weight: 700;
+   border-left: 4px solid var(--apex-accent);
+   padding-left: 10px;
+}
+
+.text-accent {
+   color: var(--apex-accent);
+}
+
+/* --- INPUTS --- */
+.input-group-text {
+   background-color: var(--apex-light-gray);
+   color: #6c757d;
+   border-color: #dee2e6;
+}
+
+.form-control {
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   border-color: #dee2e6;
+   padding: 10px;
+}
+
+.form-control:focus {
+   background-color: white !important;
+   box-shadow: none;
+   border-color: var(--apex-green);
+}
+
+.form-control:focus + .input-group-text,
+.input-group:focus-within .input-group-text {
+   background-color: white;
+   border-color: var(--apex-green);
+}
+
+#field-close,
+#field-open {
+   height: 100%;
+}
+
+/* --- UPLOAD ZONE MINI --- */
+.upload-zone-mini {
+   position: relative;
+   border: 2px dashed #ced4da;
+   border-radius: 8px;
+   background-color: var(--apex-light-gray);
+   padding: 15px;
+   text-align: center;
+   transition: 0.3s;
+}
+
+.upload-zone-mini:hover {
+   border-color: var(--apex-accent);
+   background-color: #fffaf8;
+}
+
+.file-input {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   opacity: 0;
+   cursor: pointer;
+   z-index: 2;
+}
+
+/* --- IMAGE GRID & DELETE LOGIC --- */
+.image-grid-container {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+   gap: 15px;
+}
+
+.image-checkbox-wrapper {
+   position: relative;
+}
+
+/* Sembunyikan checkbox asli */
+.image-check-input {
+   display: none;
+}
+
+.image-check-label {
+   display: block;
+   position: relative;
+   cursor: pointer;
+   border-radius: 8px;
+   overflow: hidden;
+   border: 2px solid transparent;
+   transition: all 0.2s;
+}
+
+.image-check-label img {
+   width: 100%;
+   height: 100px;
+   object-fit: cover;
+   display: block;
+   transition: 0.3s;
+}
+
+/* Overlay Default (Hidden) */
+.delete-overlay {
+   position: absolute;
+   inset: 0;
+   background-color: rgba(220, 53, 69, 0.8); /* Red Overlay */
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   color: white;
+   opacity: 0;
+   transition: 0.3s;
+   font-weight: bold;
+   font-size: 0.8rem;
+}
+
+.selected-badge {
+   position: absolute;
+   top: 5px;
+   right: 5px;
+   background: white;
+   color: #dc3545;
+   border-radius: 50%;
+   width: 20px;
+   height: 20px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 0.8rem;
+   opacity: 0;
+   transition: 0.3s;
+}
+
+/* --- STATE: CHECKED (SELECTED FOR DELETE) --- */
+.image-check-input:checked + .image-check-label {
+   border-color: #dc3545;
+   transform: scale(0.95);
+}
+
+.image-check-input:checked + .image-check-label .delete-overlay {
+   opacity: 1;
+}
+
+.image-check-input:checked + .image-check-label .selected-badge {
+   opacity: 1;
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   border: none;
+   transition: 0.3s;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-green);
+   transform: translateY(-2px);
+   color: white;
+}
+
+/* --- DANGER ZONE --- */
+.danger-zone {
+   border: 1px solid var(--danger-border);
+   background-color: var(--danger-bg);
+   padding: 15px 20px;
+   border-radius: 8px;
+}

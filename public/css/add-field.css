@@ -1,0 +1,129 @@
+/* =========================================
+   ADD FIELD FORM STYLES
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e;
+   --apex-green: #41704f;
+   --apex-accent: #d87142;
+   --apex-light-gray: #f8f9fa;
+}
+
+.add-field-wrapper {
+   padding: 40px 0;
+   background-color: #f4f6f5;
+   min-height: 85vh;
+}
+
+.add-card {
+   width: 100%;
+   max-width: 600px;
+   border: none;
+   border-radius: 16px;
+   overflow: hidden;
+   background: white;
+}
+
+/* --- HEADER --- */
+.card-header-apex {
+   background-color: var(--apex-dark);
+   padding: 30px 20px;
+   border-bottom: 5px solid var(--apex-accent);
+}
+
+.section-label {
+   font-family: "Funnel Sans", sans-serif;
+   color: var(--apex-dark);
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+   font-weight: 700;
+   border-left: 4px solid var(--apex-accent);
+   padding-left: 10px;
+}
+
+.text-accent {
+   color: var(--apex-accent);
+}
+
+/* --- FORM INPUTS --- */
+.input-group-text {
+   background-color: var(--apex-light-gray);
+   color: #6c757d;
+   border-color: #dee2e6;
+}
+
+.form-control {
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   border-color: #dee2e6;
+   padding: 12px;
+   transition: all 0.3s;
+}
+
+.form-control:focus {
+   background-color: white !important;
+   box-shadow: none;
+   border-color: var(--apex-green);
+}
+
+#field-close,
+#field-open {
+   height: 100%;
+}
+
+.form-control:focus + .input-group-text,
+.input-group:focus-within .input-group-text {
+   background-color: white;
+   border-color: var(--apex-green);
+}
+
+/* --- CUSTOM UPLOAD ZONE --- */
+.upload-zone {
+   position: relative;
+   height: 150px;
+   border: 2px dashed #ced4da;
+   border-radius: 12px;
+   background-color: var(--apex-light-gray);
+   transition: all 0.3s ease;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   overflow: hidden;
+}
+
+.upload-zone:hover {
+   border-color: var(--apex-accent);
+   background-color: #fff5f0; /* Oranye sangat muda */
+}
+
+/* Input file asli dibuat transparan memenuhi kotak */
+.file-input {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   opacity: 0;
+   cursor: pointer;
+   z-index: 2;
+}
+
+.upload-placeholder {
+   text-align: center;
+   z-index: 1;
+   pointer-events: none; /* Klik tembus ke input file */
+}
+
+/* --- BUTTONS --- */
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   border: none;
+   transition: all 0.3s;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-green);
+   transform: translateY(-2px);
+   color: white;
+}

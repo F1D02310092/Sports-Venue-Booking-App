@@ -1,0 +1,132 @@
+/* =========================================
+   APEX ANALYTICS DASHBOARD
+   ========================================= */
+
+:root {
+   --apex-dark: #24482e;
+   --apex-green: #41704f;
+   --apex-accent: #d87142;
+   --stat-rev-color: #198754; /* Hijau Duit */
+   --stat-book-color: #ffc107; /* Kuning Tiket */
+   --stat-active-color: #0dcaf0; /* Biru Info */
+}
+
+/* --- HEADERS --- */
+.dashboard-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 800;
+   color: var(--apex-dark);
+   margin-bottom: 0.2rem;
+}
+
+.bg-apex-dark {
+   background-color: var(--apex-dark) !important;
+   color: white;
+}
+
+/* --- FILTER BAR --- */
+.filter-card {
+   border-radius: 12px;
+}
+
+.input-group-text {
+   background-color: white;
+   border-color: #dee2e6;
+}
+
+.form-control,
+.form-select {
+   border-color: #dee2e6;
+   font-family: "Lexend Deca", sans-serif;
+   font-size: 0.95rem;
+   padding: 10px;
+}
+
+.form-control:focus,
+.form-select:focus {
+   border-color: var(--apex-green);
+   box-shadow: none;
+}
+
+.btn-apex-primary {
+   background-color: var(--apex-dark);
+   color: white;
+   padding: 10px;
+   border: none;
+   transition: 0.3s;
+}
+
+.btn-apex-primary:hover {
+   background-color: var(--apex-accent);
+   color: white;
+}
+
+/* --- KPI STAT CARDS --- */
+.stat-card {
+   background: white;
+   border-radius: 12px;
+   padding: 1.5rem;
+   position: relative;
+   overflow: hidden;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+   transition: transform 0.3s ease;
+   border: 1px solid #f0f0f0;
+}
+
+.stat-label {
+   font-family: "Lexend Deca", sans-serif;
+   color: #6c757d;
+   font-size: 0.9rem;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+   margin-bottom: 0.5rem;
+}
+
+.stat-value {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   font-size: 2rem;
+   color: #333;
+   margin-bottom: 0;
+}
+
+/* Background Icon Effect */
+.stat-icon-bg {
+   font-size: 3rem;
+   /* opacity: 0.1; */
+   position: absolute;
+   right: 20px;
+   top: 50%;
+   transform: translateY(-50%);
+}
+
+.stat-card.revenue .stat-icon-bg {
+   color: var(--stat-rev-color);
+}
+.stat-card.bookings .stat-icon-bg {
+   color: var(--stat-book-color);
+}
+.stat-card.active-courts .stat-icon-bg {
+   color: var(--stat-active-color);
+}
+
+/* --- CHARTS --- */
+.chart-card {
+   border-radius: 16px;
+}
+
+.card-body {
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.chart-title {
+   font-family: "Funnel Sans", sans-serif;
+   font-weight: 700;
+   color: #444;
+}
+
+/* Memastikan canvas responsive */
+.chart-container canvas {
+   width: 100% !important;
+   height: 100% !important;
+}

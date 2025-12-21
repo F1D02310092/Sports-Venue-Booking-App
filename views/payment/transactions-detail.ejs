@@ -1,133 +1,123 @@
 <% layout('layout/boilerplate.ejs') %>
 
-<style>
-  #receipt-content {
-    border: 1px solid #ccc;
-    padding: 20px;
-    width: 420px;
-    background: #fff;
-    font-family: "Courier New", monospace;
-    margin-bottom: 24px;
-  }
+<link rel="stylesheet" href="/css/receipt.css">
 
-  #receipt-content h1,
-  #receipt-content h2 {
-    margin: 0;
-    font-family: "Courier New", monospace;
-  }
+<div class="receipt-page-wrapper">
+  <div class="container d-flex flex-column align-items-center">
 
-  .receipt-badge {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: #28a745;
-    color: #fff;
-    font-family: "Courier New", monospace;
-    font-size: 13px;
-  }
+    <div class="action-buttons mb-4 gap-3 d-flex">
+      <button class="btn btn-dark rounded-pill px-4 shadow-sm fw-bold" onclick="downloadPDF('<%= booking.orderID%>', this)">
+        <i class="bi bi-file-earmark-pdf me-2"></i> Download PDF
+      </button>
+      <button class="btn btn-outline-dark rounded-pill px-4 shadow-sm fw-bold" onclick="downloadJPG('<%= booking.orderID%>', this)">
+        <i class="bi bi-file-image me-2"></i> Download JPG
+      </button>
+    </div>
 
-  .receipt-row {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin: 2px 0;
-    font-family: "Courier New", monospace;
-  }
+    <div id="receipt-content" class="receipt-card shadow-lg">
 
-  .receipt-title {
-    font-weight: bold;
-    margin-top: 10px;
-  }
-
-  .download-buttons button {
-    font-family: monospace;
-    padding: 6px 12px;
-  }
-</style>
-
-<div class="container">
-  <div class="row d-flex justify-content-center align-items-center">
-    <div class="col-lg-12" style="width: fit-content">
-      <div class="download-buttons d-flex justify-content-evenly mb-3">
-        <button class="btn btn-success" onclick="downloadPDF('<%= booking.orderID%>', this)">Download PDF</button>
-        <button class="btn btn-success" onclick="downloadJPG('<%= booking.orderID%>', this)">Download JPG</button>
+      <div class="receipt-header text-center mb-4">
+        <div class="brand-logo mb-2">APEX SPORTS</div>
+        <p class="mb-0 small text-uppercase fw-bold">Official Receipt</p>
+        <p class="small text-muted mb-0">Jln. Kita Masih Panjang No. 123, Jakarta</p>
+        <p class="small text-muted">(021) 1234-5678</p>
+        <div class="receipt-divider my-3"></div>
       </div>
 
-      <div id="receipt-content">
-        <div class="text-center" style="border-bottom: 2px solid black">
-          <h1>PAYMENT DETAILS</h1>
-          <h2>GOR FUTSAL</h2>
-          <p>Jln. Kita Masih Panjang, No. 123, Jakarta</p>
-          <p>Telp: (123) 1234-1234</p>
+      <div class="mb-4">
+        <div class="receipt-row">
+          <span class="text-muted">Customer</span>
+          <span class="fw-bold text-end">
+            <% if(booking.user){ %>
+            <%= booking.user.username %>
+            <% } else { %>
+            <%= booking.manual_name || 'Guest' %>
+            <% } %>
+          </span>
+        </div>
+        <div class="receipt-row">
+          <span class="text-muted">Contact</span>
+          <span class="fw-bold text-end">
+            <% if(booking.user){ %>
+            <%= booking.user.email %>
+            <% } else { %>
+            <%= booking.manual_contact || '-' %>
+            <% } %>
+          </span>
+        </div>
+        <div class="receipt-row">
+          <span class="text-muted">Order ID</span>
+          <span class="fw-bold text-end font-monospace"><%= booking.orderID %></span>
+        </div>
+      </div>
+
+      <div class="receipt-divider-dashed mb-3"></div>
+
+      <div class="mb-4">
+        <div class="receipt-row mb-2">
+          <span class="fw-bold">Field</span>
+          <span class="fw-bold text-end"><%= field.name %></span>
+        </div>
+        <div class="receipt-row mb-2">
+          <span class="fw-bold">Date</span>
+          <span class="text-end"><%= formattedDate(booking.date) %></span>
         </div>
 
-        <div class="py-3" style="border-bottom: 2px solid black">
-          <% if(booking.user){%>
-          <div class="receipt-row"><span>Customer:</span><span><%= booking.user.username %></span></div>
-          <div class="receipt-row"><span>Email:</span><span><%= booking.user.email %></span></div>
-          <%  } else {%>
-          <div class="receipt-row"><span>Customer:</span><span><%= booking.manual_name %></span></div>
-          <div class="receipt-row"><span>Email:</span><span><%= booking.manual_contact %></span></div>
-          <%  }%>
-
-        </div>
-
-        <div class="my-3">
-          <div class="receipt-row"><span>Field:</span><span><%= field.name %></span></div>
-          <div class="receipt-row"><span>Date:</span><span><%= formattedDate(booking.date) %></span></div>
-          <div class="receipt-row">
-            <span>Status:</span>
-            <span class="receipt-badge"><%= booking.status %></span>
-          </div>
-
-          <p class="receipt-title">Playing Session(s):</p>
-
+        <div class="mt-3">
+          <span class="text-muted small d-block mb-1">Session Details:</span>
           <% booking.slots.forEach((sess, idx) => { %>
-          <div class="receipt-row">
-            <span>Slot <%= idx + 1 %>: <%= minutesToHHMM(sess) %> - <%= minutesToHHMM(sess + 60) %></span>
+          <div class="receipt-row small mb-1">
+            <span>Slot <%= idx + 1 %> (<%= minutesToHHMM(sess) %> - <%= minutesToHHMM(sess + 60) %>)</span>
             <span>Rp<%= formatPrice(booking.total_price / booking.slots.length) %></span>
           </div>
           <% }) %>
         </div>
-
-        <div class="receipt-row receipt-title" style="border-top: 2px solid black">
-          <span>Total:</span>
-          <span>Rp<%= formatPrice(booking.total_price) %></span>
-        </div>
-
-        <div class="receipt-title mt-4">Payment Info</div>
-        <% if(booking.transactionID){%>
-        <div class="receipt-row"><span>Method:</span><span>Midtrans Gateway</span></div>
-        <% } else {%>
-        <div class="receipt-row"><span>Method:</span><span>On-site (cash)</span></div>
-        <% }%>
-        <hr />
-        <div class="receipt-row" style="flex-direction: column; align-items: flex-start">
-          <span>Order ID:</span>
-          <span><%= booking.orderID %></span>
-        </div>
-        <hr />
-
-        <div class="receipt-row" style="flex-direction: column; align-items: flex-start">
-          <span>Paid At:</span>
-          <span style="text-align: right"> <%= formattedDate(booking.payment_time) %> </span>
-        </div>
-        <hr />
-
-        <% if(currUser && currUser.role === 'user'){ %>
-        <p class="text-center mt-3">Thank you for using our services!</p>
-        <% } %>
       </div>
 
+      <div class="receipt-divider mb-3"></div>
 
-      <%  if(booking.transaction_id){%>
-      <div class="d-flex justify-content-evenly mt-3">
-        <a class="btn btn-primary" target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transactionID %>"> Verify Status </a>
+      <div class="mb-4">
+        <div class="receipt-row total-row mb-3">
+          <span class="fw-bold fs-5">TOTAL</span>
+          <span class="fw-bold fs-5">Rp<%= formatPrice(booking.total_price) %></span>
+        </div>
+
+        <div class="receipt-row mb-1">
+          <span class="text-muted">Payment Method</span>
+          <span class="fw-bold text-end">
+            <% if(booking.transaction_id){ %>
+            Midtrans Gateway
+            <% } else { %>
+            Cash / On-site
+            <% } %>
+          </span>
+        </div>
+        <div class="receipt-row mb-1">
+          <span class="text-muted">Paid At</span>
+          <span class="text-end"><%= formattedDate(booking.payment_time) %></span>
+        </div>
+        <div class="receipt-row mt-2">
+          <span class="text-muted">Status</span>
+          <span class="badge bg-success text-uppercase px-2 rounded-1">Success</span>
+        </div>
       </div>
-      <%  }%>
 
+      <div class="receipt-footer text-center mt-5">
+
+        <p class="small text-muted mb-0">Thank you for playing at Apex Sports!</p>
+        <p class="small text-muted" style="font-size: 0.7rem;">Generated on <%= new Date().toLocaleDateString() %></p>
+      </div>
 
     </div>
+
+    <% if(booking.transaction_id && currUser && currUser.role === 'admin'){ %>
+    <div class="mt-4">
+      <a class="btn btn-link text-muted small text-decoration-none" target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transactionID %>">
+        <i class="bi bi-shield-lock me-1"></i> Verify Transaction on Midtrans
+      </a>
+    </div>
+    <% } %>
+
   </div>
 </div>
 
