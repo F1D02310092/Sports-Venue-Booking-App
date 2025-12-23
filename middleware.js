@@ -66,10 +66,7 @@ const zodValidate = (schema) => (req, res, next) => {
       next();
    } catch (error) {
       if (error instanceof z.ZodError) {
-         return res.status(400).json({
-            message: "Validation error",
-            errors: error.errors,
-         });
+         return res.status(400).send(error);
       }
 
       console.error(error);

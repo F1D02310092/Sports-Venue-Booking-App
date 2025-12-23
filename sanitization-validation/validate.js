@@ -18,7 +18,7 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
    body: z.object({
-      username: z.string().email(), // sesuai dgn strategy Passport (cek index.js)
+      email: z.string().email(), // sesuai dgn strategy Passport (cek index.js)
       password: z
          .string()
          .min(8)
