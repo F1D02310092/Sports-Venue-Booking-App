@@ -129,7 +129,9 @@ const handlePaymentNotification = async (req, res) => {
    try {
       await client.query("BEGIN");
 
-      const result = await BookingModel.processPayment(req.body, client);
+      const notification = req.body;
+
+      const result = await BookingModel.processPayment(notification, client);
 
       if (result.code === "ALREADY_SUCCESS") {
          await client.query("COMMIT");
@@ -150,8 +152,6 @@ const handlePaymentNotification = async (req, res) => {
 const paymentSuccess = async (req, res) => {
    try {
       const { bookingID } = req.query;
-
-      console.log(req.query);
 
       const booking = await BookingModel.findOneAndPopulate({ booking_id: bookingID });
 

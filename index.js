@@ -59,12 +59,13 @@ const sessionObject = {
    name: "qzaps25",
    secret: "thisisasecret",
    resave: false,
-   saveUninitialized: true,
+   saveUninitialized: false,
    rolling: true,
    cookie: {
       httpOnly: true,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
+      secure: process.env.NODE_ENV === "production",
    },
 };
 
@@ -122,6 +123,17 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
+
+// pertimbangkan juga membatasi payload JSON
+
+app.use((err, req, res, next) => {
+   // Cek apakah error dari JSON parser
+   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+      console.error(err);
+      return res.status(400).json({ error: "Invalid JSON format" });
+   }
+   next();
+});
 
 // serving static files
 app.use(express.static(path.join(__dirname, "public")));

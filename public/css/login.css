@@ -99,6 +99,7 @@
 .btn-apex-primary:hover {
    background-color: var(--apex-accent); /* Oranye saat hover */
    transform: translateY(-2px);
+   color: white;
    box-shadow: 0 5px 15px rgba(216, 113, 66, 0.4);
 }
 

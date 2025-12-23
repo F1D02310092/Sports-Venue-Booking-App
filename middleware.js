@@ -1,4 +1,5 @@
 const ReviewModel = require("./models/Mongo/Review.js");
+const { z } = require("zod");
 
 const storeReturnTo = async (req, res, next) => {
    if (!req.session.returnTo && req.originalUrl !== "/login") {
@@ -50,10 +51,37 @@ const isReviewAuthor = async (req, res, next) => {
    next();
 };
 
+const zodValidate = (schema) => (req, res, next) => {
+   try {
+      const result = schema.parse({
+         body: req.body,
+         query: req.query,
+         params: req.params,
+      });
+
+      req.body = result.body;
+      req.query = result.query;
+      req.params = result.params;
+
+      next();
+   } catch (error) {
+      if (error instanceof z.ZodError) {
+         return res.status(400).json({
+            message: "Validation error",
+            errors: error.errors,
+         });
+      }
+
+      console.error(error);
+      return res.status(500).send("Internal server error");
+   }
+};
+
 module.exports = {
    storeReturnTo,
    isLoggedIn,
    isAdmin,
    isReviewAuthor,
    isUser,
+   zodValidate,
 };

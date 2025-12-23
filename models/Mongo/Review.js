@@ -26,4 +26,6 @@ const reviewSchema = new mongoose.Schema({
    },
 });
 
+reviewSchema.set("strictQuery", true);
+
 module.exports = mongoose.model("Review", reviewSchema);

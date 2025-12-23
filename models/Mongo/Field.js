@@ -55,4 +55,5 @@ const fieldSchema = new mongoose.Schema(
    opts
 );
 
+fieldSchema.set("strictQuery", true);
 module.exports = mongoose.model("Field", fieldSchema);

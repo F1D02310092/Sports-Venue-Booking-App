@@ -1,19 +1,8 @@
--- =========================
--- DATABASE
--- =========================
 CREATE DATABASE futsal_db;
 \c futsal_db;
 
-
-
--- =========================
--- ENUMS
--- =========================
 CREATE TYPE booking_status AS ENUM ('pending', 'success', 'failed');
 
--- =========================
--- USERS TABLE
--- =========================
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL UNIQUE,
@@ -28,9 +17,6 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- BOOKINGS TABLE
--- =========================
 CREATE TABLE IF NOT EXISTS bookings (
     id SERIAL PRIMARY KEY,
     booking_id VARCHAR(36) NOT NULL UNIQUE,
@@ -42,14 +28,10 @@ CREATE TABLE IF NOT EXISTS bookings (
     field_id VARCHAR(36) NOT NULL,
     date DATE NOT NULL,
 
-    -- UI / audit purpose
     slots INTEGER[] NOT NULL,
 
-    -- SOURCE OF TRUTH (minutes from 00:00)
     start_time INTEGER NOT NULL CHECK (start_time >= 0 AND start_time <= 1439),
     end_time   INTEGER NOT NULL CHECK (end_time > start_time AND end_time <= 1439),
-
-
 
     total_price INTEGER NOT NULL CHECK (total_price >= 0),
     status booking_status NOT NULL DEFAULT 'pending',
@@ -69,21 +51,11 @@ CREATE TABLE IF NOT EXISTS bookings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- STRONG CONSTRAINTS
--- =========================
-
-
 
 CREATE UNIQUE INDEX idx_unique_slot_reservation 
 ON bookings(field_id, date, slots)
 WHERE status IN ('success', 'pending');
 
-
-
--- =========================
--- PERFORMANCE INDEXES
--- =========================
 CREATE INDEX idx_bookings_user_id      ON bookings(user_id);
 CREATE INDEX idx_bookings_status       ON bookings(status);
 CREATE INDEX idx_bookings_field_id     ON bookings(field_id);
@@ -94,9 +66,6 @@ CREATE INDEX idx_bookings_expired_at   ON bookings(expired_at);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role  ON users(role);
 
--- =========================
--- UPDATED_AT TRIGGERS
--- =========================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN

@@ -2,7 +2,11 @@
 <link rel="stylesheet" href="/css/home-page.css">
 
 <section class="home-header mb-5 text-center">
+  <%if(!currUser || currUser.role === 'user'){%>
   <h1 class="page-title">FIND YOUR ARENA</h1>
+  <%} else {%>
+  <h1 class="page-title">MANAGE ARENAS</h1>
+  <% }%>
 </section>
 
 <div class="container pb-5">
