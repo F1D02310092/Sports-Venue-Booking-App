@@ -15,7 +15,7 @@ const flash = require("connect-flash");
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-
+const { globalLimiter } = require("./security/rateLimiter.js");
 const UserModel = require("./models/Postgres/User.js");
 
 const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/futsal?replicaSet=rs0";
@@ -71,6 +71,7 @@ const sessionObject = {
 
 app.use(session(sessionObject));
 app.set("trust proxy", 1);
+app.use(globalLimiter);
 
 // setting passport
 app.use(passport.initialize());
