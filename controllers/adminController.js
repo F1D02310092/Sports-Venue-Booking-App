@@ -96,8 +96,6 @@ const createManualBooking = async (req, res) => {
          paymentTime: new Date(),
       };
 
-      console.log(bookingData);
-
       try {
          const newBooking = await BookingModel.createManualBooking(bookingData, client);
 

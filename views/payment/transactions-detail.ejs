@@ -6,10 +6,10 @@
   <div class="container d-flex flex-column align-items-center">
 
     <div class="action-buttons mb-4 gap-3 d-flex">
-      <button class="btn btn-dark rounded-pill px-4 shadow-sm fw-bold" onclick="downloadPDF('<%= booking.orderID%>', this)">
+      <button class="btn btn-dark rounded-pill px-4 shadow-sm fw-bold" onclick="downloadPDF('<%= booking.order_id%>', this)">
         <i class="bi bi-file-earmark-pdf me-2"></i> Download PDF
       </button>
-      <button class="btn btn-outline-dark rounded-pill px-4 shadow-sm fw-bold" onclick="downloadJPG('<%= booking.orderID%>', this)">
+      <button class="btn btn-outline-dark rounded-pill px-4 shadow-sm fw-bold" onclick="downloadJPG('<%= booking.order_id%>', this)">
         <i class="bi bi-file-image me-2"></i> Download JPG
       </button>
     </div>
@@ -47,7 +47,7 @@
         </div>
         <div class="receipt-row">
           <span class="text-muted">Order ID</span>
-          <span class="fw-bold text-end font-monospace"><%= booking.orderID %></span>
+          <span class="fw-bold text-end font-monospace"><%= booking.order_id %></span>
         </div>
       </div>
 
@@ -112,7 +112,7 @@
 
     <% if(booking.transaction_id && currUser && currUser.role === 'admin'){ %>
     <div class="mt-4">
-      <a class="btn btn-link text-muted small text-decoration-none" target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transactionID %>">
+      <a class="btn btn-link text-muted small text-decoration-none" target="_blank" href="https://dashboard.sandbox.midtrans.com/beta/transactions?detail=<%= booking.transaction_id %>">
         <i class="bi bi-shield-lock me-1"></i> Verify Transaction on Midtrans
       </a>
     </div>

@@ -80,6 +80,7 @@
     </div>
 
     <form action="/fields/<%= field.fieldID %>/users/booking" method="POST" id="form-booking">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <input type="hidden" name="date" id="selected-booking-date" value="<%= queryDateStr %>" />
 
       <div class="slot-grid mb-4">
@@ -150,7 +151,7 @@
         <p class="text-muted small mb-4">How was the field? Your feedback helps others.</p>
 
         <form action="/fields/<%= field.fieldID %>/review" method="POST">
-
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="mb-4 text-center">
             <div class="star-rating-group">
               <input type="radio" id="star5" name="rating" value="5" required />
@@ -219,6 +220,7 @@
 
             <% if(rev.user._id.toString() === currUser.user_id.toString()){ %>
             <form action="/fields/<%= field.fieldID %>/review/<%= rev.reviewID %>?_method=DELETE" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <button class="btn btn-link text-danger p-0 border-0" title="Delete Review">
                 <i class="bi bi-trash"></i>
               </button>

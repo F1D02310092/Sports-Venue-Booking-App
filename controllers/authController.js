@@ -22,7 +22,7 @@ const handleRegistration = async (req, res) => {
       if (error.name === "UserExistsError") {
          req.flash("error", "Email already registered!");
       } else {
-         console.log(error);
+         console.error(error);
          req.flash("error", "Something went wrong!");
       }
       return res.redirect("/register");
@@ -44,7 +44,7 @@ const handleLogin = async (req, res, next) => {
 const handleLogout = async (req, res, next) => {
    req.logOut(function (err) {
       if (err) {
-         console.log(err);
+         console.error(err);
          return res.redirect("/fields");
       }
 
@@ -89,7 +89,7 @@ const handleUpdateProfile = async (req, res) => {
    } catch (error) {
       console.error(error);
 
-      return res.send(error);
+      return res.status(500).send("Something went wrong");
    }
 };
 

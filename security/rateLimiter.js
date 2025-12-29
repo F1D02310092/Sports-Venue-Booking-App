@@ -31,13 +31,13 @@ const rateLimiterMiddleware = (limiter, errorMsg) => {
          })
          .catch((rateLimiterRes) => {
             if (req.accepts("html")) {
-               req.flash("error", errorMsg || "Too many requests, please try again later.");
+               req.flash("error", errorMsg);
 
                return res.redirect("/fields");
             } else {
                return res.status(429).json({
                   status: "fail",
-                  message: errorMsg || "Too many requests",
+                  message: "Too many requests",
                });
             }
          });

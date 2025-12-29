@@ -107,6 +107,22 @@
    background-color: #fffaf8;
 }
 
+/* State ketika ada file dipilih di Edit Page */
+.upload-zone-mini.has-file {
+   border-style: solid;
+   border-color: var(--apex-green);
+   background-color: #e8f5e9; /* Hijau muda */
+}
+
+/* Ubah warna icon dan text di dalam saat ada file */
+.upload-zone-mini.has-file i {
+   color: var(--apex-green) !important;
+}
+
+.upload-zone-mini.has-file span {
+   color: var(--apex-dark) !important;
+}
+
 .file-input {
    position: absolute;
    top: 0;

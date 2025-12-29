@@ -17,6 +17,7 @@
     <button id="pay-button" class="btn btn-primary">Pay Now</button>
 
     <form action="/payment/cancel/<%= booking.booking_id %>" method="POST" class="mx-2">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <button class="btn btn-secondary">Cancel</button>
     </form>
   </div>
@@ -32,6 +33,7 @@
         credentials: "same-origin",
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': '<%= csrfToken %>'
         },
         body: JSON.stringify({
           bookingID: '<%= booking.booking_id %>'

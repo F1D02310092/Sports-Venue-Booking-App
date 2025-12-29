@@ -23,7 +23,7 @@
         </div>
 
         <form method="POST" action="/users/<%= user.user_id %>?_method=PUT" id="editProfileForm">
-
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="mb-4">
             <label for="username" class="form-label small fw-bold text-uppercase text-muted">Username</label>
             <div class="input-group">

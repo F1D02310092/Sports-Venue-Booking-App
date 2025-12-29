@@ -61,7 +61,7 @@ const createBooking = async (req, res) => {
          await client.query("COMMIT");
 
          // sync with mongo
-         await FieldModel.findOneAndUpdate({ fieldID: field.fieldID }, { $push: { bookings: result.booking_id } }).catch((err) => console.log(err));
+         await FieldModel.findOneAndUpdate({ fieldID: field.fieldID }, { $push: { bookings: result.booking_id } }).catch((err) => console.error(err));
 
          req.flash("success", "Slot reserved! Complete payment within 10 minutes");
          return res.redirect(`/payment/create/${result.booking_id}`);

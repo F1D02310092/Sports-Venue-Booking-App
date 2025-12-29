@@ -9,9 +9,23 @@ cloudinary.config({
 
 const storage = multer.memoryStorage({});
 
+const fileFilter = (req, file, cb) => {
+   const allowed = ["image/jpg", "image/jpeg", "image/png"];
+
+   if (!allowed.includes(file.mimetype)) {
+      return cb(new Error("Invalid file type. Only JPG/JPEG/PNG allowed"), false);
+   }
+
+   cb(null, true);
+};
+
 const upload = multer({
    storage,
-   limits: { fileSize: 5 * 1024 * 1024 },
+   limits: {
+      fileSize: 5 * 1024 * 1024,
+      files: 3,
+   },
+   fileFilter,
 });
 
 module.exports = { cloudinary, upload };

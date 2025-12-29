@@ -96,6 +96,21 @@
    background-color: #fff5f0; /* Oranye sangat muda */
 }
 
+/* State ketika ada file yang dipilih */
+.upload-zone.has-file {
+   border-style: solid; /* Ubah border jadi solid */
+   border-color: var(--apex-green); /* Warna hijau sukses */
+   background-color: #e8f5e9; /* Hijau sangat muda */
+}
+
+.upload-zone.has-file i {
+   color: var(--apex-green) !important; /* Icon jadi hijau */
+}
+
+.upload-zone.has-file .upload-placeholder p {
+   color: var(--apex-dark) !important;
+}
+
 /* Input file asli dibuat transparan memenuhi kotak */
 .file-input {
    position: absolute;

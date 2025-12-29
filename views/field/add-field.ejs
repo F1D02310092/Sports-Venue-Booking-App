@@ -15,7 +15,7 @@
       </div>
 
       <div class="card-body p-4 p-md-5">
-        <form method="POST" action="/fields" enctype="multipart/form-data">
+        <form method="POST" action="/fields?_csrf=<%= csrfToken %>" enctype="multipart/form-data">
 
           <h6 class="section-label mb-3">Field Information</h6>
 
@@ -96,3 +96,45 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="/js/flatpickr.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('image');
+    const uploadZone = fileInput.closest('.upload-zone');
+    const placeholderIcon = uploadZone.querySelector('i');
+    const placeholderText = uploadZone.querySelector('p.fw-bold');
+    const placeholderSub = uploadZone.querySelector('p.small');
+
+    // Simpan state awal untuk fitur reset (opsional)
+    const originalIconClass = placeholderIcon.className;
+    const originalText = placeholderText.textContent;
+    const originalSub = placeholderSub.textContent;
+
+    fileInput.addEventListener('change', function(e) {
+      if (this.files && this.files.length > 0) {
+        // 1. Tambah class active ke wrapper
+        uploadZone.classList.add('has-file');
+
+        // 2. Ubah Icon menjadi Centang
+        placeholderIcon.className = 'bi bi-check-circle-fill fs-1 mb-2';
+
+        // 3. Ubah Teks menjadi jumlah file
+        const fileCount = this.files.length;
+        if (fileCount === 1) {
+          placeholderText.textContent = this.files[0].name; // Tampilkan nama file jika cuma 1
+        } else {
+          placeholderText.textContent = `${fileCount} Files Selected`; // Tampilkan jumlah jika banyak
+        }
+
+        // 4. Ubah subtext
+        placeholderSub.textContent = "Click to change selection";
+
+      } else {
+        // Reset jika user membatalkan (cancel dialog)
+        uploadZone.classList.remove('has-file');
+        placeholderIcon.className = originalIconClass;
+        placeholderText.textContent = originalText;
+        placeholderSub.textContent = originalSub;
+      }
+    });
+  });
+</script>

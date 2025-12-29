@@ -17,30 +17,26 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const { globalLimiter } = require("./security/rateLimiter.js");
 const UserModel = require("./models/Postgres/User.js");
+const { csrfSynchronisedProtection, generateToken } = require("./security/csrfProtection.js");
+const helmet = require("helmet");
 
 const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/futsal?replicaSet=rs0";
 const main = async function () {
    try {
       await mongoose.connect(DB_URL);
       console.log("Connected to MongoDB!");
-
-      const temp = await UserModel.findByEmail("superadmin@gmail.com");
-
-      if (!temp) {
-         const adminData = {
-            username: "superadmin",
-            email: "superadmin@gmail.com",
-            password: "indonesia123",
-            role: "admin",
-         };
-
-         await UserModel.create(adminData);
-      }
    } catch (err) {
       console.error("Connection error:", err);
    }
 };
 main();
+
+app.use(
+   helmet({
+      contentSecurityPolicy: false, // Nonaktifkan CSP dulu agar tidak memblokir Cloudinary/Scripts
+      crossOriginEmbedderPolicy: false,
+   })
+);
 
 // setting view engine
 app.engine("ejs", engine);
@@ -51,13 +47,13 @@ app.set("views", path.join(__dirname, "views"));
 const store = mongoStore.create({
    mongoUrl: DB_URL,
    touchAfter: 3600 * 24,
-   crypto: "thisisasecret",
+   secret: process.env.SESSION_SECRET,
 });
 
 const sessionObject = {
    store,
    name: "qzaps25",
-   secret: "thisisasecret",
+   secret: process.env.SESSION_SECRET,
    resave: false,
    saveUninitialized: false,
    rolling: true,
@@ -121,8 +117,8 @@ app.use((req, res, next) => {
 });
 
 // setting req.body parser for input form
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: "20kb" }));
+app.use(express.json({ limit: "20kb" }));
 app.use(methodOverride("_method"));
 
 // pertimbangkan juga membatasi payload JSON
@@ -131,7 +127,32 @@ app.use((err, req, res, next) => {
    // Cek apakah error dari JSON parser
    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
       console.error(err);
-      return res.status(400).json({ error: "Invalid JSON format" });
+      return res.status(400).json("Invalid JSON format");
+   }
+   next();
+});
+
+// CSRF
+// CSRF - GLOBAL VALIDATION
+app.use((req, res, next) => {
+   const excludedPaths = ["/payment/notification"];
+
+   // Skip CSRF jika:
+   // - GET / HEAD / OPTIONS
+   // - static files
+   // - webhook / excluded paths
+   if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS" || req.path.match(/\.(css|js|jpg|png|gif|ico|svg)$/i) || excludedPaths.some((path) => req.path.startsWith(path))) {
+      return next();
+   }
+
+   return csrfSynchronisedProtection(req, res, next);
+});
+
+// CSRF Token Generator Middleware (setelah protection)
+// CSRF TOKEN GENERATOR (SETELAH validation middleware)
+app.use((req, res, next) => {
+   if (req.method === "GET" && req.headers.accept?.includes("text/html") && !req.path.match(/\.(css|js|jpg|png|gif|ico|svg)$/i)) {
+      res.locals.csrfToken = generateToken(req);
    }
    next();
 });

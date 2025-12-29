@@ -17,7 +17,7 @@
       <div class="card-body p-4 p-md-5">
 
         <form action="/admin/fields/<%= field.fieldID %>/m-booking" method="POST">
-
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="mb-3">
             <label for="manual-booking-name" class="form-label small fw-bold text-muted">CUSTOMER NAME</label>
             <div class="input-group">

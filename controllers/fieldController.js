@@ -1,8 +1,9 @@
-const { cloudinary } = require("../config/imageUpload.js");
+const { cloudinary, upload } = require("../config/imageUpload.js");
 const mongoose = require("mongoose");
 const BookingModel = require("../models/Postgres/Booking.js");
 const FieldModel = require("../models/Mongo/Field.js");
 const { toMinutes, minutesToHHMM, formatDateYYYYMMDD } = require("../utils/timeFormat.js");
+const { sanitizeImage } = require("../sanitization-validation/sanitizeImage.js");
 
 const getHomePage = async (req, res, next) => {
    try {
@@ -19,6 +20,7 @@ const getHomePage = async (req, res, next) => {
       return res.render("field/home-page", { fields, minutesToHHMM, queryDate });
    } catch (error) {
       console.error(error);
+      return res.status(404).send("Page not found");
    }
 };
 
@@ -42,12 +44,13 @@ const postFieldCreation = async (req, res) => {
       if (req.files && req.files.length > 0) {
          const uploadedImgs = [];
 
-         for (f of req.files) {
-            const base64 = `data:${f.mimetype};base64,${f.buffer.toString("base64")}`;
+         for (let f of req.files) {
+            const safeBuffer = await sanitizeImage(f.buffer);
+            const base64 = `data:image/jpeg;base64,${safeBuffer.toString("base64")}`;
 
             const result = await cloudinary.uploader.upload(base64, {
                folder: "Futsal",
-               allowed_formats: ["jpg", "jpeg", "png"],
+               resource_type: "image",
             });
 
             uploadedImgs.push({
@@ -64,7 +67,8 @@ const postFieldCreation = async (req, res) => {
       req.flash("success", "Successfully adding a new field");
       return res.redirect("/fields");
    } catch (error) {
-      return res.status(500).send(error);
+      console.error(error);
+      return res.status(500).send("Something went wrong");
    }
 };
 
@@ -166,15 +170,20 @@ const putFieldEdit = async (req, res) => {
 
       const field = await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID, isActive: true }, fieldData, { runValidators: true, new: true });
 
+      if (!field) {
+         return res.status(404).send("Field not found");
+      }
+
       if (req.files && req.files.length > 0) {
          const uploadedImgs = [];
 
-         for (f of req.files) {
-            const base64 = `data:${f.mimetype};base64,${f.buffer.toString("base64")}`;
+         for (let f of req.files) {
+            const safeBuffer = await sanitizeImage(f.buffer);
+            const base64 = `data:image/jpeg;base64,${safeBuffer.toString("base64")}`;
 
             const result = await cloudinary.uploader.upload(base64, {
                folder: "Futsal",
-               allowed_formats: ["jpg", "jpeg", "png"],
+               resource_type: "image",
             });
 
             uploadedImgs.push({
@@ -191,7 +200,13 @@ const putFieldEdit = async (req, res) => {
          for (let filename of req.body.deleteImages) {
             await cloudinary.uploader.destroy(filename);
          }
-         await FieldModel.findOneAndUpdate({ fieldID: req.params.fieldID, isActive: true }, { $pull: { images: { filename: { $in: req.body.deleteImages } } } });
+         await FieldModel.findOneAndUpdate(
+            {
+               fieldID: req.params.fieldID,
+               isActive: true,
+            },
+            { $pull: { images: { filename: { $in: req.body.deleteImages } } } }
+         );
       }
 
       req.flash("success", `Successfully edit a field`);
@@ -207,7 +222,7 @@ const putFieldEdit = async (req, res) => {
          }
       }
       console.error(error);
-      return res.status(500).send(error);
+      return res.status(500).send("Something went wrong");
    }
 };
 
@@ -231,7 +246,8 @@ const deleteField = async (req, res) => {
       req.flash("success", `Successfully deactivate a field`);
       return res.redirect("/fields");
    } catch (error) {
-      return res.status(500).send(error);
+      console.error(error);
+      return res.status(500).send("Something went wrong");
    }
 };
 

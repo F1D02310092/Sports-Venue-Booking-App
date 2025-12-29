@@ -3,6 +3,7 @@ const snap = require("../config/midtrans.js");
 const { minutesToHHMM } = require("../utils/timeFormat");
 const db = require("../models/Postgres/config.js");
 const FieldModel = require("../models/Mongo/Field.js");
+const crypto = require("crypto");
 
 const createPayment = async (req, res) => {
    try {
@@ -78,8 +79,8 @@ const createPayment = async (req, res) => {
          ],
          callbacks: {
             finish: `${process.env.BASE_URL}/payment/success?bookingID=${booking.booking_id}`,
-            // error: `${process.env.BASE_URL}/payment/failed?bookingID=${booking.bookingID}`,
-            // pending: `${process.env.BASE_URL}/payment/pending?bookingID=${booking.bookingID}`,
+            error: `${process.env.BASE_URL}/payment/users/transactions-history`,
+            pending: `${process.env.BASE_URL}/payment/users/transactions-history`,
          },
 
          expiry: {
@@ -130,6 +131,16 @@ const handlePaymentNotification = async (req, res) => {
       await client.query("BEGIN");
 
       const notification = req.body;
+      const { order_id, status_code, gross_amount, signature_key } = notification;
+
+      const serverKey = process.env.MIDTRANS_SERVER_KEY;
+      const payload = order_id + status_code + gross_amount + serverKey;
+      const hash = crypto.createHash("sha512").update(payload).digest("hex");
+
+      if (hash !== signature_key) {
+         console.error("Invalid Signature Key detected!");
+         return res.status(403).send("Invalid Signature");
+      }
 
       const result = await BookingModel.processPayment(notification, client);
 
@@ -225,11 +236,11 @@ const showPaymentPage = async (req, res) => {
 
       if (timeBeforeExpire <= 0) {
          await BookingModel.updateStatus(bookingID, "failed", client);
-         return res.status(400).json({ error: "Booking already expired" });
+         return res.status(400).json("Booking already expired");
       }
 
       if (booking.date === now && booking.slots[0] < now.getHours() * 60) {
-         return res.status(400).json({ error: "Session(s) already passed" });
+         return res.status(400).json("Session(s) already passed");
       }
 
       const field = await FieldModel.findOne({ fieldID: booking.field_id });

@@ -130,6 +130,7 @@
                 <% if(booking.status === 'pending') { %>
                 <a href="/payment/create/<%= booking.booking_id %>" class="btn btn-sm btn-apex-accent rounded-pill px-3">Pay Now</a>
                 <form action="/payment/cancel/<%= booking.booking_id %>" method="POST" class="d-inline ms-1">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button class="btn btn-sm btn-outline-danger rounded-pill px-3 border-0">Cancel</button>
                 </form>
                 <% } else if (booking.status === 'success') { %>

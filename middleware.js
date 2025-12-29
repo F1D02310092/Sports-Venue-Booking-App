@@ -66,7 +66,8 @@ const zodValidate = (schema) => (req, res, next) => {
       next();
    } catch (error) {
       if (error instanceof z.ZodError) {
-         return res.status(400).send(error);
+         console.error(error);
+         return res.status(400).send("Middleware error");
       }
 
       console.error(error);
